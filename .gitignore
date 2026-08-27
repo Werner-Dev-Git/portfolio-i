@@ -1,0 +1,5 @@
+# design-tool export files, not part of the deployed site
+ZenDesign.dc.html
+support.js
+image-slot.js
+.thumbnail
