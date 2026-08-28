@@ -3,3 +3,5 @@ ZenDesign.dc.html
 support.js
 image-slot.js
 .thumbnail
+node_modules
+dist
