@@ -267,6 +267,9 @@
     mask-image: radial-gradient(ellipse 62% 52% at 52% 48%, #000 55%, transparent 82%);
   }
   #heroParticles.is-ready { opacity: 1; }
+  /* On white the swarm has no dark page to sink into, so it is held back
+     to keep the headline the brightest thing in the hero. */
+  :root[data-theme='light'] #heroParticles.is-ready { opacity: 0.6; }
   .badge {
     display: inline-flex; align-self: flex-start; align-items: center; gap: 9px;
     padding: 7px 14px 7px 10px; margin-bottom: 34px;
@@ -289,13 +292,16 @@
   .hero h1 {
     margin: 0; font-size: clamp(54px, 11vw, 164px); line-height: 0.9;
     letter-spacing: -0.05em; font-weight: 600; text-wrap: balance;
+    /* A halo in the page colour knocks the swarm back behind the glyphs, so
+       the name stays readable wherever the particles happen to be bright. */
+    text-shadow: 0 0 42px var(--bg), 0 0 16px var(--bg), 0 0 6px var(--bg);
   }
   .hero h1 .line { display: block; overflow: hidden; }
   .hero h1 .line > span {
     display: block; transform: translateY(110%);
     animation: hero-rise 1s var(--ease-out) forwards;
   }
-  .hero h1 .line:nth-child(2) > span { animation-delay: 0.12s; color: var(--muted-2); }
+  .hero h1 .line:nth-child(2) > span { animation-delay: 0.12s; color: var(--muted); }
   .hero h1 .slash { color: var(--accent); }
   @keyframes hero-rise { to { transform: translateY(0); } }
   .hero-row {
@@ -1357,14 +1363,14 @@
      Under reduced motion this still paints, just as one static frame. */
   {
     const SMOKE_DEFAULTS = {
-      ppf: 4, spd: 0.55, spdV: 0.55, drift: 0.35, rMin: 8, rVar: 14,
-      grow: 0.28, alpha: 0.21, decay: 0.008, decayV: 0.012, pad: 80,
+      ppf: 3, spd: 0.45, spdV: 0.5, drift: 0.4, rMin: 9, rVar: 16,
+      grow: 0.34, alpha: 0.12, decay: 0.009, decayV: 0.013, pad: 80,
       gi: 0.8, gb: 28, gs: 4, gp: 2.2, colors: null,
     };
     let smokeStored = {};
-    try { smokeStored = JSON.parse(localStorage.getItem('smokeLab') || '{}'); } catch (e) {}
+    try { smokeStored = JSON.parse(localStorage.getItem('smokeLab.v2') || '{}'); } catch (e) {}
     const SMOKE = Object.assign({}, SMOKE_DEFAULTS, smokeStored);
-    const smokeSave = () => localStorage.setItem('smokeLab', JSON.stringify(SMOKE));
+    const smokeSave = () => localStorage.setItem('smokeLab.v2', JSON.stringify(SMOKE));
     const coarseSmoke = matchMedia('(pointer: coarse)').matches;
     const serviceCards = Array.from(document.querySelectorAll('.service'));
     const themePalette = () => (root.dataset.theme !== 'light'
@@ -1551,7 +1557,7 @@
         });
       });
       document.getElementById('scReset').addEventListener('click', () => {
-        localStorage.removeItem('smokeLab');
+        localStorage.removeItem('smokeLab.v2');
         Object.assign(SMOKE, SMOKE_DEFAULTS, { colors: null });
         scBody.querySelectorAll('.sc-row input[type=range]').forEach((inp, i) => {
           inp.value = SMOKE[SLIDERS[i][0]];
@@ -1599,7 +1605,7 @@
 
     /* Hero drifts up + fades as you scroll past it */
     gsap.to('.hero .badge, .hero h1', {
-      yPercent: -16, autoAlpha: 0.2, ease: 'none',
+      yPercent: -16, autoAlpha: 0.72, ease: 'none',
       scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom 30%', scrub: true },
     });
 
@@ -1841,7 +1847,7 @@
          core deepens, otherwise 20k dark points pile into a black cloud. */
       const lightness = isDark
         ? 0.2 + 0.45 * progress + pulse * 0.25
-        : 0.66 - 0.28 * progress + pulse * 0.15;
+        : 0.74 - 0.2 * progress + pulse * 0.12;
       color.setHSL(
         0.6 - 0.36 * progress,
         0.8 + 0.2 * progress,

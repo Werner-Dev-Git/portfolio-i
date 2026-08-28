@@ -244,6 +244,9 @@ nav.desktop a:hover, nav.desktop a.is-current { color: var(--text); background: 
   mask-image: radial-gradient(ellipse 62% 52% at 52% 48%, #000 55%, transparent 82%);
 }
 .hero-particles.is-ready { opacity: 1; }
+/* On white the swarm has no dark page to sink into, so it is held back to keep
+   the headline the brightest thing in the hero. */
+:root[data-theme='light'] .hero-particles.is-ready { opacity: 0.6; }
 .badge {
   display: inline-flex; align-self: flex-start; align-items: center; gap: 9px;
   padding: 7px 14px 7px 10px; margin-bottom: 34px;
@@ -266,10 +269,13 @@ nav.desktop a:hover, nav.desktop a.is-current { color: var(--text); background: 
 .hero h1 {
   margin: 0; font-size: clamp(54px, 11vw, 164px); line-height: 0.9;
   letter-spacing: -0.05em; font-weight: 600; text-wrap: balance;
+  /* A halo in the page colour knocks the swarm back behind the glyphs, so the
+     name stays readable wherever the particles happen to be bright. */
+  text-shadow: 0 0 42px var(--bg), 0 0 16px var(--bg), 0 0 6px var(--bg);
 }
 .hero h1 .line { display: block; overflow: hidden; }
 .hero h1 .slash { color: var(--accent); }
-.hero h1 .muted-line { color: var(--muted-2); }
+.hero h1 .muted-line { color: var(--muted); }
 .hero-row {
   display: flex; flex-wrap: wrap; align-items: flex-end;
   justify-content: space-between; gap: 40px; margin-top: 48px;

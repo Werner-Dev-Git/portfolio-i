@@ -203,7 +203,7 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
           // the core deepens, else 20k dark points pile into a black cloud.
           const lightness = isDark
             ? 0.2 + 0.45 * progress + pulse * 0.25
-            : 0.66 - 0.28 * progress + pulse * 0.15;
+            : 0.74 - 0.2 * progress + pulse * 0.12;
           color.setHSL(
             0.6 - 0.36 * progress,
             0.8 + 0.2 * progress,

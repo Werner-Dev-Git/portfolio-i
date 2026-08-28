@@ -14,14 +14,14 @@ export interface SmokeSettings {
 }
 
 export const SMOKE_DEFAULTS: SmokeSettings = {
-  ppf: 4, spd: 0.55, spdV: 0.55, drift: 0.35,
-  rMin: 8, rVar: 14, grow: 0.28, alpha: 0.21,
-  decay: 0.008, decayV: 0.012, pad: 80,
+  ppf: 3, spd: 0.45, spdV: 0.5, drift: 0.4,
+  rMin: 9, rVar: 16, grow: 0.34, alpha: 0.12,
+  decay: 0.009, decayV: 0.013, pad: 80,
   gi: 0.8, gb: 28, gs: 4, gp: 2.2,
   colors: null,
 };
 
-const STORAGE_KEY = 'smokeLab';
+const STORAGE_KEY = 'smokeLab.v2';
 
 interface SmokeContextValue {
   settings: SmokeSettings;

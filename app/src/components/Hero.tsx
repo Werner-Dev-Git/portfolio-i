@@ -26,7 +26,7 @@ export function Hero() {
         yPercent: 112, duration: 1.05, ease: 'power4.out', stagger: 0.03, delay: 0.15,
       });
       gsap.to('.hero .badge, .hero h1', {
-        yPercent: -16, autoAlpha: 0.2, ease: 'none',
+        yPercent: -16, autoAlpha: 0.72, ease: 'none',
         scrollTrigger: { trigger: ref.current, start: 'top top', end: 'bottom 30%', scrub: true },
       });
       return () => split.revert();
