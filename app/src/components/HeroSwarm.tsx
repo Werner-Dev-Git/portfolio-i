@@ -185,9 +185,11 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
           // Blue at the rim resolving to a hot green core, capped below 1 so
           // the bloomed centre stays vivid green instead of white.
           const pulse = progress > 0.95 ? Math.sin(time * 10) * 0.3 : 0;
+          // On a light page the ramp inverts: the rim fades toward white and
+          // the core deepens, else 20k dark points pile into a black cloud.
           const lightness = isDark
             ? 0.2 + 0.45 * progress + pulse * 0.25
-            : 0.12 + 0.28 * progress + pulse * 0.15;
+            : 0.66 - 0.28 * progress + pulse * 0.15;
           color.setHSL(
             0.6 - 0.36 * progress,
             0.8 + 0.2 * progress,

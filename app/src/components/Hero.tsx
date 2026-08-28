@@ -55,8 +55,8 @@ export function Hero() {
           interfaces that feel considered from the first frame — hover anything below and watch it move.
         </Reveal>
         <Reveal delay={0.1} className="hero-cta">
-          <Magnetic><a href="#dev" className="btn btn-accent btn-lg">Dev — live sites</a></Magnetic>
-          <Magnetic><a href="#design" className="btn btn-ghost btn-lg">Design — Figma wall</a></Magnetic>
+          <Magnetic><a href="#dev" className="btn btn-glass-accent btn-lg">Dev — live sites</a></Magnetic>
+          <Magnetic><a href="#design" className="btn btn-glass btn-lg">Design — Figma wall</a></Magnetic>
         </Reveal>
       </div>
 

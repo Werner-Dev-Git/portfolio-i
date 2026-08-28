@@ -52,12 +52,12 @@ export function ContactSection() {
 
       <Reveal delay={0.1} className="contact-actions">
         <Magnetic>
-          <a className="btn btn-accent" href={`mailto:${EMAIL}`}>{EMAIL}</a>
+          <a className="btn btn-glass-accent" href={`mailto:${EMAIL}`}>{EMAIL}</a>
         </Magnetic>
         <Magnetic>
           <motion.button
             type="button"
-            className="btn btn-ghost"
+            className="btn btn-glass"
             onClick={copy}
             animate={copied ? { scale: [1, 1.08, 1] } : { scale: 1 }}
             transition={{ duration: 0.45 }}
@@ -66,7 +66,7 @@ export function ContactSection() {
           </motion.button>
         </Magnetic>
         <Magnetic>
-          <a className="btn btn-ghost" href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+          <a className="btn btn-glass" href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
             GitHub ↗
           </a>
         </Magnetic>

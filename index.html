@@ -58,6 +58,13 @@
     --glow: rgba(34, 197, 94, 0.28);
     --header-bg: rgba(10, 15, 12, 0.65);
     --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.6);
+    /* neon glass */
+    --glass-bg: rgba(20, 29, 23, 0.52);
+    --glass-bg-strong: rgba(16, 23, 18, 0.72);
+    --glass-edge: rgba(255, 255, 255, 0.14);
+    --glass-sheen: rgba(255, 255, 255, 0.10);
+    --glass-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.75);
+    --glass-blur: 16px;
   }
   :root[data-theme='light'] {
     color-scheme: light;
@@ -77,6 +84,13 @@
     --glow: rgba(22, 163, 74, 0.22);
     --header-bg: rgba(246, 250, 246, 0.72);
     --shadow: 0 24px 60px -28px rgba(12, 20, 16, 0.25);
+    /* neon glass */
+    --glass-bg: rgba(255, 255, 255, 0.58);
+    --glass-bg-strong: rgba(255, 255, 255, 0.82);
+    --glass-edge: rgba(12, 20, 16, 0.12);
+    --glass-sheen: rgba(255, 255, 255, 0.9);
+    --glass-shadow: 0 18px 40px -22px rgba(12, 20, 16, 0.3);
+    --glass-blur: 16px;
   }
 
   /* ============ Base ============ */
@@ -186,10 +200,44 @@
   .btn-accent:hover { background: var(--accent-2); color: var(--accent-ink); box-shadow: 0 10px 34px -8px var(--glow); }
   .btn-ghost { border-color: var(--border-strong); color: var(--text); background: transparent; }
   .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ============ Neon glass ============
+     The "neon" is three cheap layers — an accent-mixed edge, a top sheen and an
+     outer glow — over a frosted fill. Blurring what sits behind a panel raises
+     the contrast of its own text, which is why the hero buttons stay readable
+     over the swarm. */
+  .btn-glass, .btn-glass-accent {
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.6);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.6);
+    color: var(--text);
+  }
+  .btn-glass {
+    background: var(--glass-bg);
+    border-color: color-mix(in srgb, var(--accent) 38%, var(--glass-edge));
+    box-shadow: inset 0 1px 0 var(--glass-sheen), 0 0 20px -6px var(--glow);
+  }
+  .btn-glass:hover {
+    background: var(--glass-bg-strong);
+    border-color: var(--accent); color: var(--accent);
+    box-shadow: inset 0 1px 0 var(--glass-sheen), 0 0 30px -4px var(--glow);
+  }
+  /* Tinted so it still reads as the primary action beside its sibling. */
+  .btn-glass-accent {
+    background: color-mix(in srgb, var(--accent) 30%, var(--glass-bg-strong));
+    border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+    box-shadow: inset 0 1px 0 var(--glass-sheen), 0 0 26px -4px var(--glow);
+  }
+  .btn-glass-accent:hover {
+    background: color-mix(in srgb, var(--accent) 46%, var(--glass-bg-strong));
+    border-color: var(--accent);
+    box-shadow: inset 0 1px 0 var(--glass-sheen), 0 0 36px -2px var(--glow);
+  }
   .theme-toggle {
     display: grid; place-items: center; width: 38px; height: 38px; padding: 0;
-    border-radius: 99px; border: 1px solid var(--border-strong);
-    background: transparent; color: var(--text); cursor: pointer;
+    border-radius: 99px; border: 1px solid var(--glass-edge);
+    background: var(--glass-bg); color: var(--text); cursor: pointer;
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 var(--glass-sheen);
     transition: border-color 0.25s ease, transform 0.4s var(--ease-out);
   }
   .theme-toggle:hover { border-color: var(--accent); transform: rotate(40deg); }
@@ -222,7 +270,11 @@
   .badge {
     display: inline-flex; align-self: flex-start; align-items: center; gap: 9px;
     padding: 7px 14px 7px 10px; margin-bottom: 34px;
-    border: 1px solid var(--border-strong); border-radius: 99px; background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--glass-edge));
+    border-radius: 99px; background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    box-shadow: inset 0 1px 0 var(--glass-sheen), 0 0 20px -8px var(--glow);
     font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em;
     text-transform: uppercase; color: var(--muted);
   }
@@ -256,10 +308,14 @@
   }
   .stats {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px;
-    margin-top: 80px; border: 1px solid var(--border); border-radius: 14px;
+    margin-top: 80px; border: 1px solid var(--glass-edge); border-radius: 14px;
     background: var(--border); overflow: hidden;
+    /* one filter on the container, not four on the cells */
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    box-shadow: inset 0 1px 0 var(--glass-sheen), var(--glass-shadow);
   }
-  .stat { padding: 22px 24px; background: var(--bg); transition: background 0.4s ease; }
+  .stat { padding: 22px 24px; background: var(--glass-bg-strong); transition: background 0.4s ease; }
   .stat b {
     display: block; font-family: var(--font-mono); font-size: 30px; font-weight: 500;
     letter-spacing: -0.03em;
@@ -320,8 +376,11 @@
   .work-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
   .site-card {
     grid-column: span 1; position: relative; padding: 16px;
-    border: 1px solid var(--border); border-radius: var(--radius);
-    background: var(--surface);
+    border: 1px solid var(--glass-edge); border-radius: var(--radius);
+    /* glass look without backdrop-filter: these are large and GSAP rotates
+       them in 3D, where the filter is both costly and unreliable */
+    background: linear-gradient(160deg, var(--glass-bg-strong), var(--glass-bg));
+    box-shadow: inset 0 1px 0 var(--glass-sheen);
     transition: border-color 0.35s ease, background 0.4s ease, transform 0.5s var(--ease-out), box-shadow 0.5s ease;
     transform-style: preserve-3d;
   }
@@ -336,7 +395,10 @@
     transition: opacity 0.35s ease;
   }
   .site-card:hover::before, .site-card.is-live::before { opacity: 0.85; }
-  .site-card:hover, .site-card.is-live { box-shadow: var(--shadow); }
+  .site-card:hover, .site-card.is-live {
+    border-color: color-mix(in srgb, var(--accent) 34%, var(--glass-edge));
+    box-shadow: inset 0 1px 0 var(--glass-sheen), var(--shadow), 0 0 34px -14px var(--glow);
+  }
 
   .browser {
     display: block; border-radius: 13px; overflow: hidden;
@@ -344,7 +406,7 @@
   }
   .browser-bar {
     display: flex; align-items: center; gap: 7px; padding: 10px 14px;
-    border-bottom: 1px solid var(--border); background: var(--surface-2);
+    border-bottom: 1px solid var(--glass-edge); background: var(--glass-bg);
     transition: background 0.4s ease;
   }
   .browser-bar .dot { width: 9px; height: 9px; border-radius: 99px; background: var(--border-strong); }
@@ -404,7 +466,10 @@
   .site-meta p { margin: 10px 0 0; max-width: 60ch; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
   .arrow {
     flex: none; display: grid; place-items: center; width: 46px; height: 46px;
-    border-radius: 99px; border: 1px solid var(--border-strong);
+    border-radius: 99px; border: 1px solid var(--glass-edge);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 var(--glass-sheen);
     font-size: 17px; color: var(--muted);
     transition: transform 0.4s var(--ease-out), background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
@@ -460,6 +525,7 @@
   .lightbox button {
     display: grid; place-items: center; width: 42px; height: 42px; border-radius: 99px;
     border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.06);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
     color: #fff; font-size: 16px; cursor: pointer; transition: background 0.25s ease, border-color 0.25s ease;
   }
   .lightbox button:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
@@ -471,7 +537,9 @@
   .about-grid strong { color: var(--text); font-weight: 600; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip {
-    padding: 8px 14px; border: 1px solid var(--border-strong); border-radius: 99px;
+    padding: 8px 14px; border: 1px solid var(--glass-edge); border-radius: 99px;
+    background: var(--glass-bg);
+    box-shadow: inset 0 1px 0 var(--glass-sheen);
     font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em;
     color: var(--muted); transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
   }
@@ -486,9 +554,12 @@
   .service.is-live { border-color: var(--accent); }
   .service-inner {
     position: relative; z-index: 3; flex: 1; margin: 16px; padding: 26px 24px;
-    background: var(--surface-2); border: 1px solid var(--border);
+    background: var(--glass-bg-strong); border: 1px solid var(--glass-edge);
     border-radius: 13px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    /* frosts the smoke and the Three.js light layer behind it */
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28), inset 0 1px 0 var(--glass-sheen);
     transition: background 0.4s ease;
   }
   :root[data-theme='light'] .service-inner {
@@ -625,14 +696,37 @@
   .mobile-menu {
     position: fixed; top: 64px; left: 12px; right: 12px; z-index: 59;
     display: none; flex-direction: column; gap: 4px; padding: 12px;
-    border: 1px solid var(--border-strong); border-radius: 16px;
-    background: var(--surface); box-shadow: var(--shadow);
+    border: 1px solid var(--glass-edge); border-radius: 16px;
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    box-shadow: inset 0 1px 0 var(--glass-sheen), var(--shadow);
   }
   .mobile-menu.is-open { display: flex; }
   .mobile-menu a { padding: 13px 16px; border-radius: 10px; font-size: 15px; color: var(--text); }
   .mobile-menu a:hover { background: var(--accent-soft); color: var(--accent); }
 
   /* ============ Reduced motion ============ */
+  /* backdrop-filter is the most expensive thing on a phone GPU, and the
+     panels are smaller there anyway */
+  @media (max-width: 860px) {
+    :root { --glass-blur: 10px; }
+  }
+  /* Without the filter a translucent fill would leave text floating on the
+     page behind it, so fall back to near-opaque surfaces. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :root[data-theme='dark'] { --glass-bg: rgba(16, 23, 18, 0.94); --glass-bg-strong: rgba(14, 20, 16, 0.97); }
+    :root[data-theme='light'] { --glass-bg: rgba(255, 255, 255, 0.94); --glass-bg-strong: rgba(255, 255, 255, 0.98); }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    :root[data-theme='dark'] { --glass-bg: #101712; --glass-bg-strong: #0e1410; }
+    :root[data-theme='light'] { --glass-bg: #ffffff; --glass-bg-strong: #ffffff; }
+    .badge, .stats, .service-inner, .mobile-menu, .theme-toggle, .arrow,
+    .btn-glass, .btn-glass-accent, header, .smoke-ctrl {
+      -webkit-backdrop-filter: none; backdrop-filter: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .marquee-track, .figma-col, .grain, .badge .pulse { animation: none !important; }
@@ -701,8 +795,8 @@
         interfaces that feel considered from the first frame — hover anything below and watch it move.
       </p>
       <div data-reveal style="--d:.1s;display:flex;flex-wrap:wrap;gap:12px">
-        <a href="#dev" class="btn btn-accent" data-magnetic style="padding:14px 26px">Dev — live sites</a>
-        <a href="#design" class="btn btn-ghost" data-magnetic style="padding:14px 26px">Design — Figma wall</a>
+        <a href="#dev" class="btn btn-glass-accent" data-magnetic style="padding:14px 26px">Dev — live sites</a>
+        <a href="#design" class="btn btn-glass" data-magnetic style="padding:14px 26px">Design — Figma wall</a>
       </div>
     </div>
     <div class="stats" data-reveal style="--d:.15s">
@@ -848,9 +942,9 @@
     <p data-reveal>Have a project, a product or just an idea? My inbox is open —
       tell me what you're making and I'll tell you how I can help.</p>
     <div class="contact-actions" data-reveal style="--d:.1s">
-      <a class="btn btn-accent" data-magnetic href="mailto:wbotha.work@gmail.com">wbotha.work@gmail.com</a>
-      <button class="btn btn-ghost" data-magnetic id="copyEmail">Copy email</button>
-      <a class="btn btn-ghost" data-magnetic href="https://github.com/werner-dev-git" target="_blank" rel="noopener">GitHub ↗</a>
+      <a class="btn btn-glass-accent" data-magnetic href="mailto:wbotha.work@gmail.com">wbotha.work@gmail.com</a>
+      <button class="btn btn-glass" data-magnetic id="copyEmail">Copy email</button>
+      <a class="btn btn-glass" data-magnetic href="https://github.com/werner-dev-git" target="_blank" rel="noopener">GitHub ↗</a>
     </div>
   </section>
 
@@ -1729,9 +1823,11 @@
       const pulse = progress > 0.95 ? Math.sin(time * 10) * 0.3 : 0;
       /* Capped below 1 so the bloomed core stays a vivid green instead of
          blowing out to white. */
+      /* On a light page the ramp inverts: the rim fades toward white and the
+         core deepens, otherwise 20k dark points pile into a black cloud. */
       const lightness = isDark
         ? 0.2 + 0.45 * progress + pulse * 0.25
-        : 0.12 + 0.28 * progress + pulse * 0.15;
+        : 0.66 - 0.28 * progress + pulse * 0.15;
       color.setHSL(
         0.6 - 0.36 * progress,
         0.8 + 0.2 * progress,
