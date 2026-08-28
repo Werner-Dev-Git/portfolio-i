@@ -117,7 +117,8 @@ export function ServiceCard({ service, index }: { service: Service; index: numbe
       for (const p of puffs) {
         p.x += p.vx; p.y += p.vy; p.vx += p.spin;
         p.r += s.grow; p.life -= p.decay;
-        const a = p.life * s.alpha;
+        // Keep it a hint on phones, where cards are close to full width.
+        const a = p.life * s.alpha * (coarse ? 0.5 : 1);
         const grad = ctx!.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
         grad.addColorStop(0, `rgba(${tint},${a})`);
         grad.addColorStop(0.45, `rgba(${tint},${a * 0.35})`);

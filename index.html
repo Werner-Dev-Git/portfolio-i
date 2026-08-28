@@ -198,8 +198,10 @@
   }
   .hero > * { position: relative; z-index: 1; }
   #heroParticles {
-    position: absolute; top: 0; bottom: 0; left: 50%; z-index: 0;
-    width: 100vw; transform: translateX(-50%); pointer-events: none;
+    /* height must be explicit: a canvas is a replaced element, so top/bottom
+       alone leaves it at its intrinsic 2:1 ratio instead of filling the hero. */
+    position: absolute; top: 0; left: 50%; z-index: 0;
+    width: 100vw; height: 100%; transform: translateX(-50%); pointer-events: none;
   }
   .formation-chip {
     position: absolute; right: 0; top: 132px; z-index: 1;
@@ -599,6 +601,16 @@
   @media (hover: none) {
     .screen { transition: none; }
     .viewport .hint { display: none; }
+    /* dial the effects back to a subtle accent on touch devices. the ring is
+       driven by a keyframe, so it needs a softer animation — not an opacity
+       declaration, which a running animation would override. */
+    #heroParticles { opacity: 0.5; }
+    .service.is-live .glow-ring { animation-name: neon-pulse-soft; }
+    .service.is-live .light-canvas { opacity: 0.75; }
+  }
+  @keyframes neon-pulse-soft {
+    0%, 100% { opacity: 0.42; }
+    50% { opacity: 0.22; }
   }
   @media (max-width: 620px) {
     .figma-wall { grid-template-columns: repeat(2, 1fr); height: 640px; }
@@ -1322,7 +1334,8 @@
           for (const p of this.pts) {
             p.x += p.vx; p.y += p.vy; p.vx += p.spin;
             p.r += SMOKE.grow; p.life -= p.decay;
-            const a = p.life * SMOKE.alpha;
+            /* keep it a hint on phones, where the cards are close to full width */
+            const a = p.life * SMOKE.alpha * (coarseSmoke ? 0.5 : 1);
             const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
             g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')');
             g.addColorStop(0.45, 'rgba(' + rgb + ',' + a * 0.35 + ')');
@@ -1568,7 +1581,9 @@
     }
 
     function buildTargets() {
-      R = Math.min(W, H) * (W > 860 ? 0.27 : 0.3);
+      /* smaller on phones so the swarm sits behind the headline as texture
+         rather than washing over the body copy */
+      R = Math.min(W, H) * (W > 860 ? 0.27 : 0.23);
       focal = R * 2.4;
       const sphere = [], helix = [], donut = [];
       const GA = Math.PI * (3 - Math.sqrt(5));
@@ -1626,8 +1641,10 @@
       const ry = rotY + tiltY, rx = baseRotX + tiltX;
       const cy = Math.cos(ry), sy = Math.sin(ry);
       const cx = Math.cos(rx), sx = Math.sin(rx);
-      /* sit in the open space right of the headline, above the CTA buttons */
-      const midX = W * (W > 860 ? 0.74 : 0.5), midY = H * 0.42;
+      /* desktop: the open space right of the headline, above the CTA buttons.
+         phones: centred behind the headline, which stays legible over it. */
+      const wide = W > 860;
+      const midX = W * (wide ? 0.74 : 0.5), midY = H * (wide ? 0.42 : 0.29);
       const tg = targets[formation];
       for (let i = 0; i < COUNT; i++) {
         const p = parts[i], g = tg[i];

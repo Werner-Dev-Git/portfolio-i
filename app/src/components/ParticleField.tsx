@@ -71,7 +71,9 @@ export function ParticleField({ formation, active }: ParticleFieldProps) {
     let lastFormation = formationRef.current;
 
     function buildTargets() {
-      R = Math.min(W, H) * (W > 860 ? 0.27 : 0.3);
+      // Smaller on phones so the swarm reads as texture behind the headline
+      // rather than washing over the body copy.
+      R = Math.min(W, H) * (W > 860 ? 0.27 : 0.23);
       focal = R * 2.4;
       const sphere: Vec3[] = [], helix: Vec3[] = [], donut: Vec3[] = [];
       const goldenAngle = Math.PI * (3 - Math.sqrt(5));
@@ -127,7 +129,10 @@ export function ParticleField({ formation, active }: ParticleFieldProps) {
       const ry = rotY + tiltY, rx = -0.22 + tiltX;
       const cy = Math.cos(ry), sy = Math.sin(ry);
       const cx = Math.cos(rx), sx = Math.sin(rx);
-      const midX = W * (W > 860 ? 0.74 : 0.5), midY = H * 0.42;
+      // Desktop: the open space right of the headline. Phones: centred behind
+      // the headline, which stays legible over it.
+      const wide = W > 860;
+      const midX = W * (wide ? 0.74 : 0.5), midY = H * (wide ? 0.42 : 0.29);
       const tg = targets[formationRef.current] ?? targets[0];
 
       for (let i = 0; i < count; i++) {
