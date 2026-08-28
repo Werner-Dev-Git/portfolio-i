@@ -184,20 +184,15 @@ nav.desktop a:hover, nav.desktop a.is-current { color: var(--text); background: 
 .hero-particles {
   /* height must be explicit: a canvas is a replaced element, so top/bottom
      alone leaves it at its intrinsic 2:1 ratio instead of filling the hero. */
-  position: absolute; top: 0; left: 50%; z-index: 0;
-  width: 100vw; height: 100%; transform: translateX(-50%); pointer-events: none;
+  position: absolute; top: 0; right: 0; z-index: 0;
+  width: min(52vw, 720px); height: 100%; pointer-events: none;
+  opacity: 0; transition: opacity 1.2s ease;
+  /* feathered so the swarm melts into the hero instead of ending on a hard
+     rectangular edge */
+  -webkit-mask-image: radial-gradient(ellipse 62% 52% at 52% 48%, #000 55%, transparent 82%);
+  mask-image: radial-gradient(ellipse 62% 52% at 52% 48%, #000 55%, transparent 82%);
 }
-.formation-chip {
-  position: absolute; right: 0; top: 132px; z-index: 1;
-  display: flex; align-items: center; gap: 8px;
-  color: var(--muted-2); font-size: 10px;
-  background: none; border: 0; cursor: pointer; padding: 6px 0;
-}
-.formation-chip:hover { color: var(--accent); }
-.formation-chip::before {
-  content: ''; width: 5px; height: 5px; border-radius: 99px;
-  background: var(--accent); box-shadow: 0 0 8px var(--glow);
-}
+.hero-particles.is-ready { opacity: 1; }
 .badge {
   display: inline-flex; align-self: flex-start; align-items: center; gap: 9px;
   padding: 7px 14px 7px 10px; margin-bottom: 34px;
@@ -556,7 +551,8 @@ footer a:hover { color: var(--accent); }
   .menu-btn { display: grid; }
   .container { padding-inline: 20px; }
   header { padding: 12px 20px; }
-  .formation-chip { top: 78px; font-size: 9px; }
+  /* full width and centred on phones */
+  .hero-particles { right: auto; left: 50%; width: 100vw; transform: translateX(-50%); }
   .site-meta { flex-wrap: wrap; }
   .smoke-ctrl { display: none; }
 }
@@ -572,7 +568,7 @@ footer a:hover { color: var(--accent); }
   /* Dial the effects back to a subtle accent on touch devices. The ring is
      driven by a keyframe, so it needs a softer animation — not an opacity
      declaration, which a running animation would override. */
-  .hero-particles { opacity: 0.5; }
+  .hero-particles.is-ready { opacity: 0.85; }
   .service.is-live .glow-ring { animation-name: neon-pulse-soft; }
   .service.is-live .light-layer { opacity: 0.75; }
 }
@@ -589,6 +585,9 @@ footer a:hover { color: var(--accent); }
     height: auto; overflow: visible;
     mask-image: none; -webkit-mask-image: none;
   }
-  .cursor-dot, .cursor-ring, .hero-particles, .formation-chip { display: none; }
-  .smoke-canvas, .light-layer, .glow-ring, .smoke-ctrl { display: none; }
+  .cursor-dot, .cursor-ring { display: none; }
+  .light-layer, .smoke-ctrl { display: none; }
+  /* The swarm, smoke and glow still render — as a single static frame.
+     Reduced motion means stop moving, not remove the artwork. */
+  .glow-ring { animation: none; opacity: 0.55; }
 }

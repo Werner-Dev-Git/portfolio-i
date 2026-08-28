@@ -13,6 +13,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<!-- three's examples/jsm modules import the bare specifier "three", so they
+     need an import map. Both WebGL effects resolve to this single copy. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&family=Martian+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <script>
   /* Apply saved theme before first paint (no flash) */
@@ -200,19 +210,15 @@
   #heroParticles {
     /* height must be explicit: a canvas is a replaced element, so top/bottom
        alone leaves it at its intrinsic 2:1 ratio instead of filling the hero. */
-    position: absolute; top: 0; left: 50%; z-index: 0;
-    width: 100vw; height: 100%; transform: translateX(-50%); pointer-events: none;
+    position: absolute; top: 0; right: 0; z-index: 0;
+    width: min(52vw, 720px); height: 100%; pointer-events: none;
+    opacity: 0; transition: opacity 1.2s ease;
+    /* feathered so the swarm melts into the hero instead of ending on a
+       hard rectangular edge */
+    -webkit-mask-image: radial-gradient(ellipse 62% 52% at 52% 48%, #000 55%, transparent 82%);
+    mask-image: radial-gradient(ellipse 62% 52% at 52% 48%, #000 55%, transparent 82%);
   }
-  .formation-chip {
-    position: absolute; right: 0; top: 132px; z-index: 1;
-    display: flex; align-items: center; gap: 8px;
-    color: var(--muted-2); font-size: 10px;
-    opacity: 1; transition: opacity 0.45s ease;
-  }
-  .formation-chip::before {
-    content: ''; width: 5px; height: 5px; border-radius: 99px;
-    background: var(--accent); box-shadow: 0 0 8px var(--glow);
-  }
+  #heroParticles.is-ready { opacity: 1; }
   .badge {
     display: inline-flex; align-self: flex-start; align-items: center; gap: 9px;
     padding: 7px 14px 7px 10px; margin-bottom: 34px;
@@ -590,7 +596,8 @@
     .menu-btn { display: grid; }
     .container { padding-inline: 20px; }
     header { padding: 12px 20px; }
-    .formation-chip { top: 78px; font-size: 9px; }
+    /* full width and centred on phones */
+    #heroParticles { right: auto; left: 50%; width: 100vw; transform: translateX(-50%); }
     .site-meta { flex-wrap: wrap; }
     .smoke-ctrl { display: none; }
   }
@@ -604,7 +611,7 @@
     /* dial the effects back to a subtle accent on touch devices. the ring is
        driven by a keyframe, so it needs a softer animation — not an opacity
        declaration, which a running animation would override. */
-    #heroParticles { opacity: 0.5; }
+    #heroParticles.is-ready { opacity: 0.85; }
     .service.is-live .glow-ring { animation-name: neon-pulse-soft; }
     .service.is-live .light-canvas { opacity: 0.75; }
   }
@@ -634,8 +641,10 @@
     [data-reveal] { opacity: 1; transform: none; transition: none; }
     .site-card:hover .screen { transition-duration: 0.8s; }
     .cursor-dot, .cursor-ring { display: none; }
-    #heroParticles, .formation-chip { display: none; }
-    .smoke-canvas, .light-canvas, .glow-ring, .smoke-ctrl { display: none; }
+    .light-canvas, .smoke-ctrl { display: none; }
+    /* The swarm, smoke and glow still render — as a single static frame.
+       Reduced motion means stop moving, not remove the artwork. */
+    .glow-ring { animation: none; opacity: 0.55; }
   }
 </style>
 </head>
@@ -681,7 +690,6 @@
   <!-- ============ HERO ============ -->
   <section class="hero container">
     <canvas id="heroParticles" aria-hidden="true"></canvas>
-    <div class="formation-chip mono" id="formationChip">Formation 01 — Geodesic Sphere</div>
     <div class="badge"><span class="pulse"></span> Available for select work — South Africa</div>
     <h1>
       <span class="line"><span>Werner</span></span>
@@ -1251,8 +1259,9 @@
   tickClock();
   setInterval(tickClock, 30000);
 
-  /* ============ Smoke + neon glow on service cards (always on) ============ */
-  if (!reducedMotion) {
+  /* ============ Smoke + neon glow on service cards (always on) ============
+     Under reduced motion this still paints, just as one static frame. */
+  {
     const SMOKE_DEFAULTS = {
       ppf: 4, spd: 0.55, spdV: 0.55, drift: 0.35, rMin: 8, rVar: 14,
       grow: 0.28, alpha: 0.21, decay: 0.008, decayV: 0.012, pad: 80,
@@ -1321,33 +1330,50 @@
           decay: SMOKE.decay + Math.random() * SMOKE.decayV, spin: (Math.random() - 0.5) * 0.009,
         });
       }
+      draw(advance) {
+        const ctx = this.ctx;
+        const rgb = hexRgb(palette()[this.i % 3]);
+        ctx.clearRect(0, 0, this.W, this.H);
+        this.pts = this.pts.filter((p) => p.life > 0);
+        for (const p of this.pts) {
+          if (advance) {
+            p.x += p.vx; p.y += p.vy; p.vx += p.spin;
+            p.r += SMOKE.grow; p.life -= p.decay;
+          }
+          /* keep it a hint on phones, where the cards are close to full width */
+          const a = p.life * SMOKE.alpha * (coarseSmoke ? 0.5 : 1);
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+          g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')');
+          g.addColorStop(0.45, 'rgba(' + rgb + ',' + a * 0.35 + ')');
+          g.addColorStop(1, 'rgba(' + rgb + ',0)');
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = g;
+          ctx.fill();
+        }
+      }
       run() {
         if (this.raf) return;
         const step = () => {
           this.raf = 0;
-          const ctx = this.ctx;
-          const rgb = hexRgb(palette()[this.i % 3]);
-          ctx.clearRect(0, 0, this.W, this.H);
           const n = coarseSmoke ? Math.ceil(SMOKE.ppf / 2) : SMOKE.ppf;
           if (this.on) for (let k = 0; k < n; k++) this.spawn();
-          this.pts = this.pts.filter((p) => p.life > 0);
-          for (const p of this.pts) {
-            p.x += p.vx; p.y += p.vy; p.vx += p.spin;
-            p.r += SMOKE.grow; p.life -= p.decay;
-            /* keep it a hint on phones, where the cards are close to full width */
-            const a = p.life * SMOKE.alpha * (coarseSmoke ? 0.5 : 1);
-            const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-            g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')');
-            g.addColorStop(0.45, 'rgba(' + rgb + ',' + a * 0.35 + ')');
-            g.addColorStop(1, 'rgba(' + rgb + ',0)');
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = g;
-            ctx.fill();
-          }
+          this.draw(true);
           if (this.on || this.pts.length) this.raf = requestAnimationFrame(step);
         };
         this.raf = requestAnimationFrame(step);
+      }
+      /* One still frame: a batch of puffs, each aged a different amount. */
+      renderStatic() {
+        this.pts = [];
+        for (let k = 0; k < 90; k++) {
+          this.spawn();
+          const p = this.pts[this.pts.length - 1];
+          const age = 10 + Math.random() * 55;
+          p.x += p.vx * age; p.y += p.vy * age;
+          p.r += SMOKE.grow * age; p.life -= p.decay * age;
+        }
+        this.draw(false);
       }
     }
     const smokeEngines = serviceCards
@@ -1359,6 +1385,7 @@
     const servicesEl = document.querySelector('.services');
     let servicesVisible = false;
     const syncSmoke = () => {
+      if (reducedMotion) { smokeEngines.forEach((e) => e.renderStatic()); return; }
       const on = servicesVisible && !document.hidden;
       smokeEngines.forEach((e) => { e.on = on; if (on) e.run(); });
     };
@@ -1542,187 +1569,239 @@
     }
   }
 
-  /* ============ Hero particles — morphing 3D swarm ============ */
-  /* Ref: particles.casberry.in — cycling its three best formations */
-  (function () {
-    const canvas = document.getElementById('heroParticles');
-    if (!canvas || reducedMotion) return;
-    const ctx = canvas.getContext('2d');
-    const hero = canvas.parentElement;
-    const chip = document.getElementById('formationChip');
-    const NAMES = ['Geodesic Sphere', 'Double Helix', 'Donut'];
-    const CYCLE_MS = 7000;
-    const TAU = Math.PI * 2;
-    const coarse = matchMedia('(pointer: coarse)').matches;
-    const COUNT = Math.round(
-      Math.min(1700, Math.max(550, innerWidth * 1.1)) * (coarse ? 0.55 : 1)
+})();
+</script>
+<script type="module">
+/* ============ Hero swarm — omnichannel data converging on a core ============
+   Ported from the point_code template: instanced tetrahedra ride a Fibonacci
+   sphere inward, chaotic at the rim and perfectly still at the centre, with
+   UnrealBloom for the glow. Three things from the template are deliberately
+   dropped: OrbitControls (it would swallow scroll and hero clicks), the opaque
+   background (the canvas must stay transparent) and the fixed 20k count.
+   Colour travels blue at the rim -> green at the core. */
+(async () => {
+  const canvas = document.getElementById('heroParticles');
+  if (!canvas) return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const heavy = !reduced && !coarse;
+
+  let THREE, Composer, Render, Bloom;
+  try {
+    THREE = await import('three');
+    if (heavy) {
+      [Composer, Render, Bloom] = await Promise.all([
+        import('three/addons/postprocessing/EffectComposer.js'),
+        import('three/addons/postprocessing/RenderPass.js'),
+        import('three/addons/postprocessing/UnrealBloomPass.js'),
+      ]);
+    }
+  } catch (e) { return; }
+
+  const COUNT = heavy ? 20000 : 6000;
+  const SPEED = 0.4, CHAOS = 20, CORE = 10, SPAN = 150;
+  const REPEL_R = 26, REPEL_R2 = REPEL_R * REPEL_R;
+  const GOLDEN = (1 + Math.sqrt(5)) / 2;
+  const dark = () => document.documentElement.dataset.theme !== 'light';
+
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      canvas, alpha: true, antialias: heavy, powerPreference: 'high-performance',
+    });
+  } catch (e) { return; }
+  renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2000);
+  camera.position.set(0, 0, 100);
+
+  const mesh = new THREE.InstancedMesh(
+    new THREE.TetrahedronGeometry(0.25),
+    new THREE.MeshBasicMaterial({ color: 0xffffff }),
+    COUNT,
+  );
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  mesh.frustumCulled = false;
+  scene.add(mesh);
+
+  const color = new THREE.Color();
+  const positions = new Array(COUNT);
+  for (let i = 0; i < COUNT; i++) {
+    positions[i] = new THREE.Vector3(
+      (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100,
     );
+    mesh.setColorAt(i, color.setHex(0x00ff88));
+  }
 
-    let W = 0, H = 0, R = 120, focal = 300;
-    let targets = [[], [], []];
-    let formation = 0;
-    let rotY = 0;
-    const baseRotX = -0.22;
-    let tiltX = 0, tiltY = 0, tiltTX = 0, tiltTY = 0;
-    let mouseX = -1e4, mouseY = -1e4;
-    let rgb = [34, 197, 94];
-    let dark = true;
-    let raf = 0, visible = false;
+  let composer = null, bloom = null;
+  if (heavy) {
+    composer = new Composer.EffectComposer(renderer);
+    composer.addPass(new Render.RenderPass(scene, camera));
+    bloom = new Bloom.UnrealBloomPass(new THREE.Vector2(1, 1), 1.5, 0.4, 0.85);
+    bloom.radius = 0.4;
+    bloom.threshold = 0;
+    composer.addPass(bloom);
+  }
+  /* Additive bloom on a near-white page blows out to white, so it is heavily
+     reduced in light mode rather than left at the template's strength. */
+  const syncBloom = () => { if (bloom) bloom.strength = dark() ? 1.8 : 0.4; };
+  syncBloom();
 
-    const parts = [];
+  const dummy = new THREE.Object3D();
+  const target = new THREE.Vector3();
+  const cursor = new THREE.Vector3();
+  const ray = new THREE.Vector3();
+  const clock = new THREE.Clock();
+
+  let elapsed = 0, spin = 0;
+  let tiltX = 0, tiltY = 0, wantTiltX = 0, wantTiltY = 0;
+  let ndcX = 0, ndcY = 0, cursorOn = false;
+  let raf = 0, visible = false, snap = false;
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+    if (composer) composer.setSize(w, h);
+    /* A resize clears the drawing buffer and still mode has no loop to
+       repaint it, so paint again here. */
+    if (reduced) paintStill();
+  }
+
+  function locateCursor() {
+    if (!cursorOn) return false;
+    mesh.updateMatrixWorld();
+    cursor.set(ndcX, ndcY, 0.5).unproject(camera);
+    ray.copy(cursor).sub(camera.position).normalize();
+    if (Math.abs(ray.z) < 1e-6) return false;
+    cursor.copy(camera.position).addScaledVector(ray, -camera.position.z / ray.z);
+    mesh.worldToLocal(cursor);
+    return true;
+  }
+
+  function build(time, delta) {
+    const isDark = dark();
+    const repel = locateCursor();
+    /* Frame-rate independent chase: a fixed per-frame lerp would crawl on a
+       slow device and the swarm would never catch its target. */
+    const chase = delta ? 1 - Math.pow(0.9, delta * 60) : 1;
     for (let i = 0; i < COUNT; i++) {
-      parts.push({
-        x: (Math.random() - 0.5) * 500,
-        y: (Math.random() - 0.5) * 500,
-        z: (Math.random() - 0.5) * 500,
-        ox: 0, oy: 0, vx: 0, vy: 0,
-        ease: 0.02 + Math.random() * 0.05,
-      });
-    }
+      const norm = i / COUNT;
+      const progress = (norm + time * SPEED * 0.2) % 1.0;
+      const eased = Math.pow(progress, 1.5);
 
-    function buildTargets() {
-      /* smaller on phones so the swarm sits behind the headline as texture
-         rather than washing over the body copy */
-      R = Math.min(W, H) * (W > 860 ? 0.27 : 0.23);
-      focal = R * 2.4;
-      const sphere = [], helix = [], donut = [];
-      const GA = Math.PI * (3 - Math.sqrt(5));
-      for (let i = 0; i < COUNT; i++) {
-        const t = i / (COUNT - 1);
-        const sy = 1 - t * 2;
-        const srad = Math.sqrt(Math.max(0, 1 - sy * sy));
-        const sth = GA * i;
-        sphere.push({ x: Math.cos(sth) * srad * R, y: sy * R, z: Math.sin(sth) * srad * R });
-        const ang = t * TAU * 3 + (i % 2) * Math.PI;
-        const hr = R * 0.55 * (0.9 + Math.random() * 0.2);
-        helix.push({ x: Math.cos(ang) * hr, y: (t - 0.5) * 2.3 * R, z: Math.sin(ang) * hr });
-        const a = Math.random() * TAU, b = Math.random() * TAU;
-        const TR = R * 0.76, tr = R * 0.27;
-        donut.push({
-          x: (TR + tr * Math.cos(b)) * Math.cos(a),
-          y: tr * Math.sin(b),
-          z: (TR + tr * Math.cos(b)) * Math.sin(a),
-        });
-      }
-      targets = [sphere, helix, donut];
-    }
+      const theta = (2 * Math.PI * i) / GOLDEN;
+      const phi = Math.acos(1 - 2 * norm);
+      const radius = CORE + SPAN * (1 - eased);
 
-    function readAccent() {
-      dark = root.dataset.theme !== 'light';
-      const hex = getComputedStyle(root).getPropertyValue('--accent').trim();
-      const m = /^#?([0-9a-f]{6})$/i.exec(hex);
-      if (m) {
-        rgb = [
-          parseInt(m[1].slice(0, 2), 16),
-          parseInt(m[1].slice(2, 4), 16),
-          parseInt(m[1].slice(4, 6), 16),
-        ];
-      }
-    }
+      /* Noise is loudest at the rim and resolves to nothing at the core. */
+      const instability = Math.pow(1 - progress, 2);
+      const sinPhi = Math.sin(phi);
+      target.set(
+        radius * sinPhi * Math.cos(theta) + Math.sin(time * 2 + norm * 100) * CHAOS * instability,
+        radius * sinPhi * Math.sin(theta) + Math.cos(time * 1.5 + norm * 200) * CHAOS * instability,
+        radius * Math.cos(phi) + Math.sin(time * 3 - norm * 300) * CHAOS * instability,
+      );
 
-    function resize() {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(2, devicePixelRatio || 1);
-      W = rect.width; H = rect.height;
-      canvas.width = Math.round(W * dpr);
-      canvas.height = Math.round(H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      buildTargets();
-    }
-
-    function frame() {
-      raf = 0;
-      ctx.clearRect(0, 0, W, H);
-      ctx.globalCompositeOperation = dark ? 'lighter' : 'source-over';
-      ctx.fillStyle = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
-      rotY += 0.0022;
-      tiltX += (tiltTX - tiltX) * 0.04;
-      tiltY += (tiltTY - tiltY) * 0.04;
-      const ry = rotY + tiltY, rx = baseRotX + tiltX;
-      const cy = Math.cos(ry), sy = Math.sin(ry);
-      const cx = Math.cos(rx), sx = Math.sin(rx);
-      /* desktop: the open space right of the headline, above the CTA buttons.
-         phones: centred behind the headline, which stays legible over it. */
-      const wide = W > 860;
-      const midX = W * (wide ? 0.74 : 0.5), midY = H * (wide ? 0.42 : 0.29);
-      const tg = targets[formation];
-      for (let i = 0; i < COUNT; i++) {
-        const p = parts[i], g = tg[i];
-        p.x += (g.x - p.x) * p.ease;
-        p.y += (g.y - p.y) * p.ease;
-        p.z += (g.z - p.z) * p.ease;
-        const X = p.x * cy + p.z * sy;
-        let Z = p.z * cy - p.x * sy;
-        const Y = p.y * cx - Z * sx;
-        Z = p.y * sx + Z * cx;
-        const s = focal / (focal + Z + R * 1.7);
-        let px = midX + X * s;
-        let py = midY + Y * s;
-        const dx = px - mouseX, dy = py - mouseY;
-        const d2 = dx * dx + dy * dy;
-        if (d2 < 16900) { /* 130px repel radius */
-          const d = Math.sqrt(d2) || 1;
-          const force = (1 - d / 130) * 9;
-          p.vx += (dx / d) * force;
-          p.vy += (dy / d) * force;
+      if (repel) {
+        const dx = target.x - cursor.x, dy = target.y - cursor.y, dz = target.z - cursor.z;
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 < REPEL_R2 && d2 > 1e-4) {
+          const d = Math.sqrt(d2);
+          /* Scaled by instability so the settled core holds its shape and the
+             cursor only parts the loose outer flow. */
+          const push = (1 - d / REPEL_R) * 14 * instability;
+          target.x += (dx / d) * push;
+          target.y += (dy / d) * push;
+          target.z += (dz / d) * push;
         }
-        p.vx = (p.vx - p.ox * 0.06) * 0.86;
-        p.vy = (p.vy - p.oy * 0.06) * 0.86;
-        p.ox += p.vx; p.oy += p.vy;
-        px += p.ox; py += p.oy;
-        const sn = Math.max(0, Math.min(1, (s - 0.5) * 3));
-        ctx.globalAlpha = (dark ? 0.16 + sn * 0.55 : 0.18 + sn * 0.5);
-        const size = 0.7 + sn * 1.5;
-        ctx.beginPath();
-        ctx.arc(px, py, size, 0, TAU);
-        ctx.fill();
       }
-      ctx.globalAlpha = 1;
-      if (visible && !document.hidden) raf = requestAnimationFrame(frame);
+
+      positions[i].lerp(target, snap ? 1 : chase);
+      dummy.position.copy(positions[i]);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+
+      /* Blue at the rim resolving to a hot green core. */
+      const pulse = progress > 0.95 ? Math.sin(time * 10) * 0.3 : 0;
+      /* Capped below 1 so the bloomed core stays a vivid green instead of
+         blowing out to white. */
+      const lightness = isDark
+        ? 0.2 + 0.45 * progress + pulse * 0.25
+        : 0.12 + 0.28 * progress + pulse * 0.15;
+      color.setHSL(
+        0.6 - 0.36 * progress,
+        0.8 + 0.2 * progress,
+        Math.max(0, Math.min(1, lightness)),
+      );
+      mesh.setColorAt(i, color);
     }
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }
 
-    function play() {
-      if (!raf && visible && !document.hidden) raf = requestAnimationFrame(frame);
-    }
+  function draw() {
+    if (composer) composer.render();
+    else renderer.render(scene, camera);
+    canvas.classList.add('is-ready');
+  }
 
-    setInterval(() => {
-      if (!visible || document.hidden) return;
-      formation = (formation + 1) % 3;
-      parts.forEach((p) => { p.ease = 0.02 + Math.random() * 0.05; });
-      chip.style.opacity = '0';
-      setTimeout(() => {
-        chip.textContent =
-          'Formation 0' + (formation + 1) + ' — ' + NAMES[formation];
-        chip.style.opacity = '1';
-        if (motionOn) {
-          Motion.animate(chip,
-            { transform: ['translateY(7px)', 'translateY(0)'] },
-            { type: 'spring', stiffness: 320, damping: 22 });
-        }
-      }, 450);
-    }, CYCLE_MS);
+  function paintStill() {
+    snap = true;
+    mesh.rotation.set(-0.15, 0.6, 0);
+    build(6, 0);
+    snap = false;
+    draw();
+  }
 
+  function frame() {
+    raf = 0;
+    const delta = Math.min(0.1, clock.getDelta());
+    elapsed += delta;
+    spin += delta * 0.25;
+    tiltX += (wantTiltX - tiltX) * 0.05;
+    tiltY += (wantTiltY - tiltY) * 0.05;
+    mesh.rotation.set(-0.15 + tiltX, spin + tiltY, 0);
+    build(elapsed, delta);
+    draw();
+    if (!reduced && visible && !document.hidden) raf = requestAnimationFrame(frame);
+  }
+
+  const play = () => {
+    if (reduced || raf || !visible || document.hidden) return;
+    clock.getDelta();
+    raf = requestAnimationFrame(frame);
+  };
+
+  if (heavy) {
     addEventListener('mousemove', (e) => {
       const r = canvas.getBoundingClientRect();
-      mouseX = e.clientX - r.left;
-      mouseY = e.clientY - r.top;
-      tiltTY = (e.clientX / innerWidth - 0.5) * 0.55;
-      tiltTX = (e.clientY / innerHeight - 0.5) * 0.4;
+      ndcX = ((e.clientX - r.left) / r.width) * 2 - 1;
+      ndcY = -(((e.clientY - r.top) / r.height) * 2 - 1);
+      cursorOn = e.clientX > r.left - 160 && e.clientX < r.right + 160
+        && e.clientY > r.top - 160 && e.clientY < r.bottom + 160;
+      wantTiltY = (e.clientX / innerWidth - 0.5) * 0.5;
+      wantTiltX = (e.clientY / innerHeight - 0.5) * 0.35;
     }, { passive: true });
-    document.addEventListener('mouseleave', () => { mouseX = -1e4; mouseY = -1e4; });
+    document.addEventListener('mouseleave', () => { cursorOn = false; });
+  }
 
-    new IntersectionObserver((entries) => {
-      visible = entries[0].isIntersecting;
-      play();
-    }).observe(hero);
-    document.addEventListener('visibilitychange', play);
-    new MutationObserver(readAccent).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-    let sizeTimer;
-    addEventListener('resize', () => { clearTimeout(sizeTimer); sizeTimer = setTimeout(resize, 150); });
+  new IntersectionObserver((entries) => {
+    visible = entries[0].isIntersecting;
+    play();
+  }, { rootMargin: '120px' }).observe(canvas.parentElement || canvas);
+  document.addEventListener('visibilitychange', play);
+  new MutationObserver(syncBloom)
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-    readAccent();
-    resize();
-  })();
+  let sizeTimer;
+  addEventListener('resize', () => { clearTimeout(sizeTimer); sizeTimer = setTimeout(resize, 150); });
+
+  resize();
+  if (reduced) paintStill();
 })();
 </script>
 <script type="module">
@@ -1737,7 +1816,7 @@
   if (reduced) return;
   let THREE;
   try {
-    THREE = await import('https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js');
+    THREE = await import('three');
   } catch (e) { return; }
   const root = document.documentElement;
   const dark = () => root.dataset.theme !== 'light';

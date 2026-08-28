@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
@@ -7,31 +7,17 @@ import { useInView } from '@/hooks/useInView';
 import { useReducedMotion } from '@/hooks/useMediaQuery';
 import { projects } from '@/data/projects';
 import { FIGMA_COUNT } from '@/data/figma';
-import { FORMATIONS, ParticleField } from './ParticleField';
+import { HeroSwarm } from './HeroSwarm';
 import { Magnetic } from './Magnetic';
 import { Reveal } from './Reveal';
 import { CountUp } from './CountUp';
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
-const CYCLE_MS = 7000;
-
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
   const inView = useInView(ref, { rootMargin: '120px' });
-  const [formation, setFormation] = useState(0);
-
-  // Auto-cycle formations while the hero is on screen.
-  useEffect(() => {
-    if (reduced || !inView) return;
-    const id = window.setInterval(
-      () => setFormation((f) => (f + 1) % FORMATIONS.length),
-      CYCLE_MS,
-    );
-    return () => clearInterval(id);
-  }, [reduced, inView]);
-
   useGSAP(
     () => {
       if (reduced) return;
@@ -50,17 +36,7 @@ export function Hero() {
 
   return (
     <section className="hero container" ref={ref} id="top">
-      {!reduced && <ParticleField formation={formation} active={inView} />}
-      {!reduced && (
-        <button
-          type="button"
-          className="formation-chip mono"
-          title="Change formation"
-          onClick={() => setFormation((f) => (f + 1) % FORMATIONS.length)}
-        >
-          Formation 0{formation + 1} — {FORMATIONS[formation]}
-        </button>
-      )}
+      <HeroSwarm active={inView} still={reduced} />
 
       <div className="badge">
         <span className="pulse" /> Available for select work — South Africa

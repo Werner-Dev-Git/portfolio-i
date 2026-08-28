@@ -58,7 +58,6 @@ export function ServiceCard({ service, index }: { service: Service; index: numbe
   const refitRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    if (reduced) return;
     const canvas = canvasRef.current;
     const card = cardRef.current;
     if (!canvas || !card) return;
@@ -103,20 +102,18 @@ export function ServiceCard({ service, index }: { service: Service; index: numbe
     }
 
     const running = { value: false };
-    function frame() {
-      raf = 0;
+
+    function draw(advance: boolean) {
       const s = settingsRef.current;
       const [cr, cg, cb] = hexToRgb(colorRef.current);
       const tint = `${cr},${cg},${cb}`;
       ctx!.clearRect(0, 0, W, H);
-      if (running.value) {
-        const n = coarse ? Math.ceil(s.ppf / 2) : s.ppf;
-        for (let i = 0; i < n; i++) spawn();
-      }
       puffs = puffs.filter((p) => p.life > 0);
       for (const p of puffs) {
-        p.x += p.vx; p.y += p.vy; p.vx += p.spin;
-        p.r += s.grow; p.life -= p.decay;
+        if (advance) {
+          p.x += p.vx; p.y += p.vy; p.vx += p.spin;
+          p.r += s.grow; p.life -= p.decay;
+        }
         // Keep it a hint on phones, where cards are close to full width.
         const a = p.life * s.alpha * (coarse ? 0.5 : 1);
         const grad = ctx!.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
@@ -128,18 +125,47 @@ export function ServiceCard({ service, index }: { service: Service; index: numbe
         ctx!.fillStyle = grad;
         ctx!.fill();
       }
+    }
+
+    function frame() {
+      raf = 0;
+      if (running.value) {
+        const s = settingsRef.current;
+        const n = coarse ? Math.ceil(s.ppf / 2) : s.ppf;
+        for (let i = 0; i < n; i++) spawn();
+      }
+      draw(true);
       if (running.value || puffs.length) raf = requestAnimationFrame(frame);
     }
 
+    // One still frame: a batch of puffs, each aged a different amount.
+    function paintStill() {
+      const s = settingsRef.current;
+      puffs = [];
+      for (let i = 0; i < 90; i++) {
+        spawn();
+        const p = puffs[puffs.length - 1];
+        const age = 10 + Math.random() * 55;
+        p.x += p.vx * age; p.y += p.vy * age;
+        p.r += s.grow * age; p.life -= p.decay * age;
+      }
+      draw(false);
+    }
+
     fit();
+    if (reduced) paintStill();
     runRef.current = (on: boolean) => {
+      if (reduced) { paintStill(); return; }
       running.value = on;
       if (on && !raf) raf = requestAnimationFrame(frame);
     };
-    refitRef.current = fit;
+    refitRef.current = () => { fit(); if (reduced) paintStill(); };
 
     let timer: number | undefined;
-    const onResize = () => { clearTimeout(timer); timer = window.setTimeout(fit, 180); };
+    const onResize = () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(() => refitRef.current?.(), 180);
+    };
     addEventListener('resize', onResize);
     return () => {
       cancelAnimationFrame(raf);
@@ -174,8 +200,8 @@ export function ServiceCard({ service, index }: { service: Service; index: numbe
         pointerRef.current.y = -(e.clientY - b.top - b.height / 2);
       }}
     >
-      {!reduced && <div className="glow-ring" style={ringStyle} aria-hidden="true" />}
-      {!reduced && <canvas className="smoke-canvas" ref={canvasRef} aria-hidden="true" />}
+      <div className="glow-ring" style={ringStyle} aria-hidden="true" />
+      <canvas className="smoke-canvas" ref={canvasRef} aria-hidden="true" />
       {!reduced && inView && (
         <Suspense fallback={null}>
           <LightRig pointer={pointerRef} color={color} />
