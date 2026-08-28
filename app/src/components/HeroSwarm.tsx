@@ -67,7 +67,7 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
 
       const COUNT = heavy ? 20000 : 6000;
       const SPEED = 0.4, CHAOS = 20, CORE = 10, SPAN = 150;
-      const REPEL_R = 26, REPEL_R2 = REPEL_R * REPEL_R;
+      const REPEL_R = 26, REPEL_R2 = REPEL_R * REPEL_R, REPEL_FORCE = 24;
       const GOLDEN = (1 + Math.sqrt(5)) / 2;
 
       let renderer: import('three').WebGLRenderer;
@@ -120,6 +120,8 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
       const target = new THREE.Vector3();
       const cursor = new THREE.Vector3();
       const ray = new THREE.Vector3();
+      const viewAxis = new THREE.Vector3();
+      const spinInv = new THREE.Quaternion();
       const clock = new THREE.Clock();
 
       let elapsed = 0, spin = 0;
@@ -135,6 +137,10 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
         if (Math.abs(ray.z) < 1e-6) return false;
         cursor.copy(camera.position).addScaledVector(ray, -camera.position.z / ray.z);
         mesh.worldToLocal(cursor);
+        // The camera looks down -Z in world space. Carrying that direction into
+        // the mesh's own space keeps the cavity a circle on screen however far
+        // the swarm has spun.
+        viewAxis.set(0, 0, -1).applyQuaternion(spinInv.copy(mesh.quaternion).invert());
         return true;
       }
 
@@ -164,16 +170,24 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
           );
 
           if (repel) {
+            // Measure distance perpendicular to the view axis, so the cursor
+            // carves a cylinder through the swarm — on screen that reads as a
+            // clean circle of particles shoved aside, wherever the pointer is.
             const dx = target.x - cursor.x, dy = target.y - cursor.y, dz = target.z - cursor.z;
-            const d2 = dx * dx + dy * dy + dz * dz;
+            const along = dx * viewAxis.x + dy * viewAxis.y + dz * viewAxis.z;
+            const px = dx - along * viewAxis.x;
+            const py = dy - along * viewAxis.y;
+            const pz = dz - along * viewAxis.z;
+            const d2 = px * px + py * py + pz * pz;
             if (d2 < REPEL_R2 && d2 > 1e-4) {
               const d = Math.sqrt(d2);
-              // Scaled by instability so the settled core holds its shape and
-              // the cursor only parts the loose outer flow.
-              const push = (1 - d / REPEL_R) * 14 * instability;
-              target.x += (dx / d) * push;
-              target.y += (dy / d) * push;
-              target.z += (dz / d) * push;
+              const t = 1 - d / REPEL_R;
+              // smoothstep for a soft rim; the settled core resists a little
+              // so it is disturbed rather than blown apart
+              const push = t * t * (3 - 2 * t) * REPEL_FORCE * (0.55 + 0.45 * (1 - progress));
+              target.x += (px / d) * push;
+              target.y += (py / d) * push;
+              target.z += (pz / d) * push;
             }
           }
 
