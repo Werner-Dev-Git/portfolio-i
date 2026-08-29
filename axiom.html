@@ -206,33 +206,50 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 }
 .trusted-logos{
   display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
-  gap:clamp(18px,2.5vw,46px);
+  gap:clamp(18px,2.5vw,46px);padding-bottom:18px;
 }
-/* Idle at 40%: social proof should not compete with the work above it. */
+/* Idle in greyscale at 42%: the stack should not compete with the work above it.
+   --lit is written per frame by the travelling pulse, 0 → 1, and here it lifts
+   each mark out of grey into its own brand colour as the light passes over. */
 .trusted-logo{
-  font-family:var(--f-disp);font-size:clamp(.82rem,1.05vw,1.02rem);font-weight:700;
-  text-transform:uppercase;letter-spacing:-.5px;
-  /* --lit is written per frame by the travelling pulse, 0 → 1 */
-  color:color-mix(in srgb, var(--acc) calc(var(--lit,0) * 100%), var(--mute));
-  opacity:calc(.4 + var(--lit,0) * .5);
-  text-shadow:
-    0 0 calc(26px * var(--lit,0)) rgba(34,197,94,.75),
-    0 0 calc(8px  * var(--lit,0)) rgba(34,197,94,.9),
-    0 0 calc(2px  * var(--lit,0)) rgba(255,255,255,calc(var(--lit,0) * .9));
+  position:relative;display:flex;align-items:center;justify-content:center;
+  text-decoration:none;padding:2px 4px;
+  opacity:calc(.42 + var(--lit,0) * .58);
   transition:300ms var(--ease);
 }
-.trusted-section:hover .trusted-logo,.trusted-section.awake .trusted-logo{
-  opacity:.75;color:#7ef0ab;
-  text-shadow:0 0 18px rgba(34,197,94,.55),0 0 4px rgba(34,197,94,.4);
+.trusted-logo img{
+  display:block;width:clamp(21px,2.1vw,27px);height:auto;
+  /* The marks arrive from the CDN already flat grey, so the pulse only has to
+     brighten them and add the glow. */
+  filter:
+    brightness(calc(.72 + var(--lit,0) * .55))
+    drop-shadow(0 0 calc(17px * var(--lit,0)) rgba(34,197,94,.7))
+    drop-shadow(0 0 calc(4px  * var(--lit,0)) rgba(34,197,94,.85));
 }
-/* Stage 2 — the one under the pointer goes hot. The 2px white core is what
-   separates "green text" from "glowing text". */
-.trusted-logo:hover,.trusted-logo:focus-visible{
-  opacity:1;color:var(--acc);
-  text-shadow:0 0 24px rgba(34,197,94,.9),0 0 8px rgba(34,197,94,.7),0 0 2px #fff;
+/* The name is only worth the width when the mark is actually lit. */
+.trusted-logo span{
+  position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);
+  font-family:var(--f-disp);font-size:.6rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;white-space:nowrap;color:var(--ink);
+  opacity:var(--lit,0);pointer-events:none;
+  text-shadow:0 0 12px rgba(34,197,94,.7);
 }
-@media(max-width:768px){ .trusted-logos{gap:clamp(14px,4vw,26px)}
-  .trusted-logo{font-size:.8rem} }
+.trusted-section:hover .trusted-logo,.trusted-section.awake .trusted-logo{opacity:.8}
+.trusted-section:hover .trusted-logo img,.trusted-section.awake .trusted-logo img{
+  filter:brightness(calc(.9 + var(--lit,0) * .4))
+    drop-shadow(0 0 calc(17px * var(--lit,0)) rgba(34,197,94,.7));
+}
+/* Stage 2 — the one under the pointer goes fully to brand colour. */
+.trusted-logo:hover,.trusted-logo:focus-visible{opacity:1;transform:translateY(-2px)}
+.trusted-logo:hover img,.trusted-logo:focus-visible img{
+  filter:brightness(1.45)
+    drop-shadow(0 0 20px rgba(34,197,94,.85)) drop-shadow(0 0 6px rgba(255,255,255,.4));
+}
+.trusted-logo:hover span,.trusted-logo:focus-visible span{opacity:1}
+@media(max-width:768px){
+  .trusted-logos{gap:clamp(15px,4.4vw,26px)}
+  .trusted-logo span{display:none}
+}
 @media(prefers-reduced-motion:reduce){ .trusted-section,.trusted-logo{transition:none} }
 
 /* ============================================================
@@ -808,6 +825,133 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <button id="lbNext" aria-label="Next">→</button>
         <button id="lbClose" aria-label="Close">✕</button>
       </div>
+    </div>
+  </figure>
+</div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <button class="menu-btn" id="menuOpen">
+    <span class="burger"><i></i><i></i></span> Menu
+  </button>
+  <a href="#top" class="nav-logo">WER<b>N</b>ER</a>
+  <span class="mag"><a href="#contact" class="btn">
+    <span class="btn-swap"><span>Contact us</span><span>Say hello</span></span>
+    <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+  </a></span>
+</nav>
+
+<!-- MENU OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="ov-top">
+    <span class="nav-logo">WER<b>N</b>ER</span>
+    <button class="ov-close" id="menuClose">Close ✕</button>
+  </div>
+  <div class="ov-list">
+    <a href="#work"><span>Work</span></a>
+    <a href="#design"><span>Design</span></a>
+    <a href="#services"><span>Services</span></a>
+    <a href="#process"><span>Process</span></a>
+    <a href="#contact"><span>Contact</span></a>
+  </div>
+  <div class="ov-foot"><span>South Africa</span><span>wbotha.work@gmail.com</span><span>© 2026</span></div>
+</div>
+
+<main class="wrap">
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero" id="top">
+  <div class="container hero-split">
+    <div class="hero-copy">
+      <span class="eyebrow">Werner · South Africa · Available for select work</span>
+      <h1 class="display h1 hero-title" data-split="chars">Developer<br>&amp; Designer</h1>
+      <p class="hero-sub">I build the sites, and design them because the build keeps asking.
+        Ten live projects, taken the whole distance by one person.</p>
+      <div class="hero-actions">
+        <span class="mag"><a href="#work" class="btn ghost">
+          <span class="btn-swap"><span>See the work</span><span>Ten live sites</span></span>
+          <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+        </a></span>
+        <span class="mag"><a href="#contact" class="btn solid">
+          <span class="btn-swap"><span>Get in touch</span><span>Say hello</span></span>
+          <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+        </a></span>
+      </div>
+    </div>
+    <div class="hero-visual"><canvas id="heroParticles" aria-hidden="true"></canvas></div>
+  </div>
+
+  <div class="container hero-cards" id="heroCards">
+    <a class="hero-card" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener">
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b>Live</b></div>
+      <div class="hero-shot"><img src="assets/screens/satreach.jpg" alt="SatReach" loading="eager" decoding="async"></div>
+    </a>
+    <a class="hero-card" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener">
+      <div class="work-bar"><i></i><i></i><i></i><span>froggrecruit-sa.co.za</span><b>Live</b></div>
+      <div class="hero-shot"><img src="assets/screens/frogg.jpg" alt="FROGG Recruitment" loading="eager" decoding="async"></div>
+    </a>
+    <a class="hero-card" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener">
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b>Live</b></div>
+      <div class="hero-shot"><img src="assets/screens/inbody.jpg" alt="InBody SA" loading="eager" decoding="async"></div>
+    </a>
+  </div>
+</section>
+
+<!-- ══════════════ TRUST STRIP ══════════════ -->
+<section class="trusted-section" id="clients">
+  <canvas id="trustSpark" aria-hidden="true"></canvas>
+  <div class="container">
+    <p class="trusted-label">Built with</p>
+    <div class="trusted-logos">
+      <a class="trusted-logo" href="https://www.typescriptlang.org/" target="_blank" rel="noopener" aria-label="TypeScript">
+        <img src="https://cdn.simpleicons.org/typescript/aeb6b2" alt="TypeScript" loading="lazy" decoding="async" width="28" height="28">
+        <span>TypeScript</span>
+      </a>
+      <a class="trusted-logo" href="https://react.dev/" target="_blank" rel="noopener" aria-label="React">
+        <img src="https://cdn.simpleicons.org/react/aeb6b2" alt="React" loading="lazy" decoding="async" width="28" height="28">
+        <span>React</span>
+      </a>
+      <a class="trusted-logo" href="https://nextjs.org/" target="_blank" rel="noopener" aria-label="Next.js">
+        <img src="https://cdn.simpleicons.org/nextdotjs/aeb6b2" alt="Next.js" loading="lazy" decoding="async" width="28" height="28">
+        <span>Next.js</span>
+      </a>
+      <a class="trusted-logo" href="https://tailwindcss.com/" target="_blank" rel="noopener" aria-label="Tailwind CSS">
+        <img src="https://cdn.simpleicons.org/tailwindcss/aeb6b2" alt="Tailwind CSS" loading="lazy" decoding="async" width="28" height="28">
+        <span>Tailwind CSS</span>
+      </a>
+      <a class="trusted-logo" href="https://gsap.com/" target="_blank" rel="noopener" aria-label="GSAP">
+        <img src="https://cdn.simpleicons.org/greensock/aeb6b2" alt="GSAP" loading="lazy" decoding="async" width="28" height="28">
+        <span>GSAP</span>
+      </a>
+      <a class="trusted-logo" href="https://threejs.org/" target="_blank" rel="noopener" aria-label="Three.js">
+        <img src="https://cdn.simpleicons.org/threedotjs/aeb6b2" alt="Three.js" loading="lazy" decoding="async" width="28" height="28">
+        <span>Three.js</span>
+      </a>
+      <a class="trusted-logo" href="https://vite.dev/" target="_blank" rel="noopener" aria-label="Vite">
+        <img src="https://cdn.simpleicons.org/vite/aeb6b2" alt="Vite" loading="lazy" decoding="async" width="28" height="28">
+        <span>Vite</span>
+      </a>
+      <a class="trusted-logo" href="https://supabase.com/" target="_blank" rel="noopener" aria-label="Supabase">
+        <img src="https://cdn.simpleicons.org/supabase/aeb6b2" alt="Supabase" loading="lazy" decoding="async" width="28" height="28">
+        <span>Supabase</span>
+      </a>
+      <a class="trusted-logo" href="https://www.prisma.io/" target="_blank" rel="noopener" aria-label="Prisma">
+        <img src="https://cdn.simpleicons.org/prisma/aeb6b2" alt="Prisma" loading="lazy" decoding="async" width="28" height="28">
+        <span>Prisma</span>
+      </a>
+      <a class="trusted-logo" href="https://www.figma.com/" target="_blank" rel="noopener" aria-label="Figma">
+        <img src="https://cdn.simpleicons.org/figma/aeb6b2" alt="Figma" loading="lazy" decoding="async" width="28" height="28">
+        <span>Figma</span>
+      </a>
+      <a class="trusted-logo" href="https://github.com/" target="_blank" rel="noopener" aria-label="GitHub">
+        <img src="https://cdn.simpleicons.org/github/aeb6b2" alt="GitHub" loading="lazy" decoding="async" width="28" height="28">
+        <span>GitHub</span>
+      </a>
+      <a class="trusted-logo" href="https://vercel.com/" target="_blank" rel="noopener" aria-label="Vercel">
+        <img src="https://cdn.simpleicons.org/vercel/aeb6b2" alt="Vercel" loading="lazy" decoding="async" width="28" height="28">
+        <span>Vercel</span>
+      </a>
+    </div>
     </div>
   </figure>
 </div>
