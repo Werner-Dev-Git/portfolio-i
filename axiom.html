@@ -309,6 +309,43 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 .about-head{max-width:22ch}
 .scrub-word{color:rgba(255,255,255,.16);transition:none}
 .about-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(28px,5vw,80px);margin-top:clamp(40px,6vw,90px)}
+.about-split{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(28px,4vw,64px);
+  align-items:center;margin-top:clamp(40px,6vw,84px)}
+.about-copy{display:grid;gap:clamp(16px,1.6vw,22px);align-content:start}
+.about-copy .chips{margin-top:6px}
+/* the skeleton had no chip styling — these came across with the copy */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.8rem;color:var(--ink-dim);border:1px solid var(--line);border-radius:999px;
+  padding:7px 14px;transition:border-color .3s,color .3s,background .3s}
+.chip:hover{border-color:var(--acc);color:var(--acc);background:rgba(34,197,94,.07)}
+
+/* a panel of the page's own source — the most direct proof a dev-first
+   portfolio can offer */
+.code-panel{margin:0;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;
+  background:#0a0d11;box-shadow:0 40px 90px -55px rgba(0,0,0,.95)}
+.code-bar{display:flex;align-items:center;gap:7px;padding:12px 16px;
+  border-bottom:1px solid var(--line);background:rgba(255,255,255,.022)}
+.code-bar i{width:8px;height:8px;border-radius:50%;background:var(--line-2);flex:none}
+.code-panel:hover .code-bar i:nth-child(1){background:#ff5f57}
+.code-panel:hover .code-bar i:nth-child(2){background:#febc2e}
+.code-panel:hover .code-bar i:nth-child(3){background:#28c840}
+.code-bar span{margin-left:10px;font-family:var(--f-disp);font-size:.66rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--mute)}
+.code-panel pre{margin:0;padding:clamp(16px,1.7vw,26px);overflow-x:auto;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:clamp(.66rem,.8vw,.79rem);line-height:1.8}
+.code-panel .ln{display:block;white-space:pre;min-height:1.8em}
+.code-panel figcaption{padding:14px 18px;border-top:1px solid var(--line);
+  font-size:.78rem;color:var(--mute);background:rgba(255,255,255,.015)}
+.tok-c{color:#55606b;font-style:italic}
+.tok-k{color:var(--acc)}
+.tok-f{color:#7dd3fc}
+.tok-n{color:#fbbf24}
+.tok-p{color:var(--ink-dim)}
+@media(max-width:900px){
+  .about-split{grid-template-columns:1fr;gap:30px}
+  .code-panel pre{font-size:.66rem}
+}
 @media(max-width:900px){.about-grid{grid-template-columns:1fr}}
 .rating{display:flex;gap:18px;align-items:flex-start}
 .avatar{width:58px;height:58px;border-radius:50%;overflow:hidden;position:relative;flex:none;border:1px solid var(--line-2)}
@@ -593,9 +630,9 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
   <div class="container hero-split">
     <div class="hero-copy">
       <span class="eyebrow">Werner · South Africa · Available for select work</span>
-      <h1 class="display h1 hero-title" data-split="chars">Designer<br>&amp; Developer</h1>
-      <p class="hero-sub">I design in Figma and ship to production — live sites, motion systems
-        and product interfaces, taken the whole distance by one person.</p>
+      <h1 class="display h1 hero-title" data-split="chars">Developer<br>&amp; Designer</h1>
+      <p class="hero-sub">I build the sites, and design them because the build keeps asking.
+        Ten live projects, taken the whole distance by one person.</p>
       <div class="hero-actions">
         <span class="mag"><a href="#work" class="btn ghost">
           <span class="btn-swap"><span>See the work</span><span>Ten live sites</span></span>
@@ -650,27 +687,37 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
   <div class="container">
     <span class="eyebrow" data-fade>About</span>
     <h2 class="display h2 about-head" style="margin-top:26px" data-scrub-words>
-      I design in Figma and ship to production, so nothing gets lost in translation between design and code.
+      Developer first, designer second. Which is backwards — and exactly why nothing gets lost between the two.
     </h2>
 
-    <div class="about-grid">
-      <div class="rating" data-fade>
-        <div class="avatar"><div class="art v3"></div></div>
-        <div style="display:grid;gap:10px">
-          <div style="display:flex;align-items:center;gap:14px">
-            <strong class="h4">Design → deployed</strong>
-          </div>
-          <p class="lead" style="font-size:1rem">Every site in the work section was designed and built by hand and is live right now — no page builder in the stack, and the source ships with the project.</p>
+    <div class="about-split">
+      <div class="about-copy">
+        <p class="lead" data-fade>Most of my time is in the code. I design because the build keeps
+          asking questions — type scale, spacing, colour, how a thing should move — and answering
+          them myself is faster than handing the question back and waiting.</p>
+        <p class="lead" data-fade>So the order is inverted on paper, and it means the design has
+          never once arrived as something that could not be built. Everything on this page is
+          hand-written, WebGL included.</p>
+        <div class="chips" data-stagger>
+          <span class="chip">TypeScript</span><span class="chip">JavaScript</span>
+          <span class="chip">React</span><span class="chip">HTML / CSS</span>
+          <span class="chip">GSAP</span><span class="chip">Three.js</span>
+          <span class="chip">GLSL</span><span class="chip">Vite</span>
+          <span class="chip">Git</span><span class="chip">Figma</span>
+          <span class="chip">Design systems</span><span class="chip">Accessibility</span>
         </div>
       </div>
-      <div data-fade style="display:grid;gap:14px;align-content:start">
-        <h3 class="h4">Real businesses, real sites</h3>
-        <p class="lead">Clients range from satellite connectivity and drilling to recruitment, health tech and e-commerce — businesses that need sites which load fast, look sharp and convert.</p>
-      </div>
+
+      <!-- real source from the swarm running in the hero of this page -->
+      <figure class="code-panel" data-fade>
+        <div class="code-bar"><i></i><i></i><i></i><span>hero-swarm.js — running above</span></div>
+        <pre data-stagger><code><span class="ln"><span class="tok-c">// every particle rides a Fibonacci sphere inward to the core</span></span><span class="ln"><span class="tok-k">const</span> <span class="tok-p">norm</span>  <span class="tok-k">=</span> <span class="tok-p">i</span> <span class="tok-k">/</span> <span class="tok-p">count</span><span class="tok-p">;</span></span><span class="ln"><span class="tok-k">const</span> <span class="tok-p">theta</span> <span class="tok-k">=</span> <span class="tok-p">(</span><span class="tok-n">2</span> <span class="tok-k">*</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">PI</span> <span class="tok-k">*</span> <span class="tok-p">i)</span> <span class="tok-k">/</span> <span class="tok-p">GOLDEN</span><span class="tok-p">;</span></span><span class="ln"><span class="tok-k">const</span> <span class="tok-p">phi</span>   <span class="tok-k">=</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">acos</span><span class="tok-p">(</span><span class="tok-n">1</span> <span class="tok-k">-</span> <span class="tok-n">2</span> <span class="tok-k">*</span> <span class="tok-p">norm)</span><span class="tok-p">;</span></span><span class="ln"></span><span class="ln"><span class="tok-c">// radius falls from the rim to the core as it converges</span></span><span class="ln"><span class="tok-k">const</span> <span class="tok-p">radius</span> <span class="tok-k">=</span> <span class="tok-p">P</span><span class="tok-p">.</span><span class="tok-f">core</span> <span class="tok-k">+</span> <span class="tok-p">P</span><span class="tok-p">.</span><span class="tok-f">span</span> <span class="tok-k">*</span> <span class="tok-p">(</span><span class="tok-n">1</span> <span class="tok-k">-</span> <span class="tok-p">eased)</span><span class="tok-p">;</span></span><span class="ln"></span><span class="ln"><span class="tok-p">target</span><span class="tok-p">.</span><span class="tok-f">set</span><span class="tok-p">(</span></span><span class="ln">  <span class="tok-p">radius</span> <span class="tok-k">*</span> <span class="tok-p">sinPhi</span> <span class="tok-k">*</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">cos</span><span class="tok-p">(theta)</span> <span class="tok-k">+</span> <span class="tok-p">wobbleX</span><span class="tok-p">,</span></span><span class="ln">  <span class="tok-p">radius</span> <span class="tok-k">*</span> <span class="tok-p">sinPhi</span> <span class="tok-k">*</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">sin</span><span class="tok-p">(theta)</span> <span class="tok-k">+</span> <span class="tok-p">wobbleY</span><span class="tok-p">,</span></span><span class="ln">  <span class="tok-p">radius</span> <span class="tok-k">*</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">cos</span><span class="tok-p">(phi)</span>    <span class="tok-k">+</span> <span class="tok-p">wobbleZ</span><span class="tok-p">,</span></span><span class="ln"><span class="tok-p">);</span></span></code></pre>
+        <figcaption>The swarm in the hero is this, twenty thousand times a frame.</figcaption>
+      </figure>
     </div>
 
     <div class="counters">
-      <div class="counter"><div class="odo" data-count="10" data-suffix=""></div><span class="muted">Live sites, designed and built</span></div>
+      <div class="counter"><div class="odo" data-count="10" data-suffix=""></div><span class="muted">Live sites, built and shipped</span></div>
       <div class="counter"><div class="odo" data-count="48" data-suffix=""></div><span class="muted">Figma explorations in the design wall</span></div>
       <div class="counter"><div class="odo" data-count="60" data-suffix="fps"></div><span class="muted">Motion budget, non-negotiable</span></div>
     </div>
