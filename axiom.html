@@ -12,7 +12,7 @@
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
-    "cobe": "https://cdn.jsdelivr.net/npm/cobe@latest/+esm"
+    "cobe": "https://cdn.jsdelivr.net/npm/cobe@0.6.3/+esm"
   }
 }
 </script>
@@ -2183,34 +2183,37 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
   let globe = null, width = 0;
   let phi = 0, drag = 0, dragTarget = 0, grabbing = null;
 
-  const size = () => { width = canvas.offsetWidth; };
+  /* cobe scales the sphere by width / devicePixelRatio, so the two have to
+     agree — pairing width*2 with a dpr of 1 draws the globe at double size
+     and crops it. */
+  const DPR = () => Math.min(2, devicePixelRatio || 1);
+  const size = () => { width = Math.round(canvas.getBoundingClientRect().width); };
 
   function build() {
     if (globe) return;
     size();
     if (!width) return;
+    const d = DPR();
     globe = createGlobe(canvas, {
-      devicePixelRatio: Math.min(2, devicePixelRatio || 1),
-      width: width * 2,
-      height: width * 2,
+      devicePixelRatio: d,
+      width: width * d,
+      height: width * d,
       phi: 0,
       theta: 0.22,
       dark: 1,
-      /* kept close to cobe's documented defaults: the land dots cannot be
-         verified under software WebGL, so this is not tuned by eye */
       diffuse: 1.25,
-      mapSamples: 16000,
-      mapBrightness: 6,
-      baseColor: [0.29, 0.33, 0.31],
+      mapSamples: 20000,
+      mapBrightness: 6.5,
+      baseColor: [0.26, 0.32, 0.29],
       markerColor: [0.13, 0.77, 0.37],   /* the site accent */
-      glowColor: [0.16, 0.4, 0.26],
+      glowColor: [0.22, 0.48, 0.32],
       markers: MARKERS,
       onRender: (state) => {
         if (!grabbing && !REDUCED) phi += 0.0038;
         drag += (dragTarget - drag) * 0.08;
         state.phi = phi + drag;
-        state.width = width * 2;
-        state.height = width * 2;
+        state.width = width * DPR();
+        state.height = width * DPR();
       },
     });
     requestAnimationFrame(() => canvas.classList.add("is-ready"));
@@ -2230,7 +2233,11 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
   canvas.addEventListener("pointerup", onUp);
   canvas.addEventListener("pointercancel", onUp);
   canvas.addEventListener("pointermove", (e) => onMove(e.clientX));
-  addEventListener("resize", size);
+  let rt;
+  addEventListener("resize", () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => { const had = !!globe; size(); if (had) { teardown(); build(); } }, 200);
+  });
 })();
 </script>
 </body>
