@@ -597,6 +597,85 @@ section.block { position: relative; z-index: 2; padding-block: 112px 60px; }
 }
 .sc-reset:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ============ Pinned case studies ============ */
+.case {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px;
+  align-items: center; min-height: 100svh; padding-block: 40px;
+}
+.case-frame {
+  position: relative; overflow: hidden; border-radius: var(--radius);
+  border: 1px solid var(--glass-edge); aspect-ratio: 16 / 11;
+  background: linear-gradient(160deg, var(--glass-bg-strong), var(--glass-bg));
+  box-shadow: inset 0 1px 0 var(--glass-sheen), var(--shadow);
+}
+.case-frame img { width: 100%; height: auto; will-change: transform; }
+.case-steps { position: relative; min-height: 320px; }
+.case-step {
+  position: absolute; left: 0; right: 0; top: 50%;
+  opacity: 0; transform: translateY(16px); pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s var(--ease-out);
+}
+.case-step.is-on { opacity: 1; transform: translateY(-50%); pointer-events: auto; }
+.case-step h3 { margin: 14px 0 12px; font-size: clamp(26px, 3.2vw, 40px);
+  letter-spacing: -0.03em; line-height: 1.05; }
+.case-step p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--muted); max-width: 46ch; }
+.case-count { font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+.case-dots { display: flex; gap: 7px; margin-top: 26px; }
+.case-dots i {
+  width: 26px; height: 3px; border-radius: 3px; background: var(--border-strong);
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+}
+.case-dots i.is-on { background: var(--accent); box-shadow: 0 0 10px var(--glow); }
+
+/* ============ Horizontal process timeline ============ */
+.process {
+  position: relative; z-index: 2; overflow: hidden; padding-block: 80px;
+  /* fills the pinned viewport, so the track sits centred rather than
+     stranded at the top with dead space under it */
+  min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
+}
+.process-viewport { overflow: hidden; }
+.process-track { display: flex; gap: 22px; width: max-content; will-change: transform; }
+.process-card {
+  width: min(74vw, 400px); padding: 30px 28px; border-radius: var(--radius);
+  border: 1px solid var(--glass-edge);
+  background: linear-gradient(160deg, var(--glass-bg-strong), var(--glass-bg));
+  box-shadow: inset 0 1px 0 var(--glass-sheen);
+}
+.process-card .num { font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.14em; color: var(--accent); }
+.process-card h3 { margin: 14px 0 10px; font-size: 22px; letter-spacing: -0.02em; }
+.process-card p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+.process-rail { position: relative; height: 2px; margin-top: 40px; background: var(--border); border-radius: 2px; }
+.process-rail span {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 12px var(--glow); border-radius: 2px;
+}
+
+/* ============ Signature swarm ============ */
+.signature {
+  position: relative; z-index: 2; min-height: 100svh;
+  /* copy sits below the word, not on top of it */
+  display: grid; align-content: end; justify-items: center;
+  padding-bottom: 11vh; text-align: center; overflow: hidden;
+}
+.signature-particles {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; height: 100%; z-index: 0; pointer-events: none;
+  opacity: 0; transition: opacity 1.2s ease;
+}
+.signature-particles.is-ready { opacity: 1; }
+:root[data-theme='light'] .signature-particles.is-ready { opacity: 0.6; }
+.signature-copy { position: relative; z-index: 1; }
+.signature-copy p {
+  margin: 14px auto 0; max-width: 40ch; font-size: 16px;
+  line-height: 1.6; color: var(--muted);
+  text-shadow: 0 0 30px var(--bg), 0 0 12px var(--bg);
+}
+
 /* ============ Contact / footer ============ */
 .contact { padding-block: 130px 40px; text-align: center; }
 .contact h2 {
@@ -634,6 +713,15 @@ footer a:hover { color: var(--accent); }
   /* full width and centred on phones */
   .hero-particles { right: auto; left: 50%; width: 100vw; transform: translateX(-50%); }
   .site-meta { flex-wrap: wrap; }
+  /* No pinned or horizontal scroll on touch — it fights native scrolling. */
+  .case { grid-template-columns: 1fr; min-height: auto; gap: 28px; padding-block: 40px; }
+  .case-steps { min-height: 0; }
+  .case-step { position: static; opacity: 1; transform: none; margin-bottom: 26px; }
+  .case-step.is-on { transform: none; }
+  .case-dots { display: none; }
+  .process-track { flex-direction: column; width: auto; }
+  .process-card { width: auto; }
+  .signature { min-height: 74svh; }
   .smoke-ctrl { display: none; }
 }
 @media (max-width: 620px) {
@@ -690,4 +778,9 @@ footer a:hover { color: var(--accent); }
   /* The swarm, smoke and glow still render — as a single static frame.
      Reduced motion means stop moving, not remove the artwork. */
   .glow-ring { animation: none; opacity: 0.55; }
+  .case { grid-template-columns: 1fr; min-height: auto; }
+  .case-step { position: static; opacity: 1; transform: none; margin-bottom: 24px; }
+  .case-dots { display: none; }
+  .process-track { flex-direction: column; width: auto; }
+  .process-card { width: auto; }
 }

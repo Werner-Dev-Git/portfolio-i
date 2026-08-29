@@ -1,11 +1,23 @@
 import { useEffect, useRef } from 'react';
 import { useTheme } from '@/lib/theme';
 
+export interface SwarmParams {
+  speed: number; chaos: number; core: number; span: number;
+  /** 0 = the procedural sphere, 1 = the sampled word. */
+  morph: number;
+}
+
 interface HeroSwarmProps {
-  /** Pauses the render loop when the hero scrolls out of view. */
+  /** Pauses the render loop when the swarm scrolls out of view. */
   active: boolean;
   /** Paint one still frame instead of animating (reduced-motion preference). */
   still?: boolean;
+  /** 'text' reassembles the same points into `text`. */
+  mode?: 'converge' | 'text';
+  text?: string;
+  className?: string;
+  /** Filled with the live parameter object so scroll can drive the swarm. */
+  paramsRef?: React.MutableRefObject<SwarmParams | null>;
 }
 
 /**
@@ -19,7 +31,10 @@ interface HeroSwarmProps {
  * Three.js is imported dynamically so the ~600KB library never lands in the
  * initial bundle; the canvas fades in once it is ready.
  */
-export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
+export function HeroSwarm({
+  active, still = false, mode = 'converge', text = 'WERNER',
+  className = 'hero-particles', paramsRef,
+}: HeroSwarmProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { theme } = useTheme();
 
@@ -66,7 +81,8 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
       if (disposed) return;
 
       const COUNT = heavy ? 20000 : 6000;
-      const SPEED = 0.4, CHAOS = 20, CORE = 10, SPAN = 150;
+      const P: SwarmParams = { speed: 0.4, chaos: 20, core: 10, span: 150, morph: 0 };
+      if (paramsRef) paramsRef.current = P;
       const REPEL_R = 26, REPEL_R2 = REPEL_R * REPEL_R, REPEL_FORCE = 24;
       const GOLDEN = (1 + Math.sqrt(5)) / 2;
 
@@ -153,21 +169,31 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
 
         for (let i = 0; i < COUNT; i++) {
           const norm = i / COUNT;
-          const progress = (norm + time * SPEED * 0.2) % 1.0;
+          const progress = (norm + time * P.speed * 0.2) % 1.0;
           const eased = Math.pow(progress, 1.5);
 
           const theta = (2 * Math.PI * i) / GOLDEN;
           const phi = Math.acos(1 - 2 * norm);
-          const radius = CORE + SPAN * (1 - eased);
+          const radius = P.core + P.span * (1 - eased);
 
           // Noise is loudest at the rim and resolves to nothing at the core.
           const instability = Math.pow(1 - progress, 2);
           const sinPhi = Math.sin(phi);
           target.set(
-            radius * sinPhi * Math.cos(theta) + Math.sin(time * 2 + norm * 100) * CHAOS * instability,
-            radius * sinPhi * Math.sin(theta) + Math.cos(time * 1.5 + norm * 200) * CHAOS * instability,
-            radius * Math.cos(phi) + Math.sin(time * 3 - norm * 300) * CHAOS * instability,
+            radius * sinPhi * Math.cos(theta) + Math.sin(time * 2 + norm * 100) * P.chaos * instability,
+            radius * sinPhi * Math.sin(theta) + Math.cos(time * 1.5 + norm * 200) * P.chaos * instability,
+            radius * Math.cos(phi) + Math.sin(time * 3 - norm * 300) * P.chaos * instability,
           );
+
+          // Blend from the procedural swarm toward the word. Applied to the
+          // target, so the chase and the repel below still work — the pointer
+          // parts the letters exactly as it parts the sphere.
+          if (P.morph > 0 && textTargets) {
+            const k = i * 3;
+            target.x += (textTargets[k] - target.x) * P.morph;
+            target.y += (textTargets[k + 1] - target.y) * P.morph;
+            target.z += (textTargets[k + 2] - target.z) * P.morph;
+          }
 
           if (repel) {
             // Measure distance perpendicular to the view axis, so the cursor
@@ -236,7 +262,15 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
         spin += delta * 0.25;
         tiltX += (wantTiltX - tiltX) * 0.05;
         tiltY += (wantTiltY - tiltY) * 0.05;
-        mesh.rotation.set(-0.15 + tiltX, spin + tiltY, 0);
+        // Targets live in the mesh's own space, so a spinning mesh would show
+        // the word edge-on. Level out as the morph rises: the swarm spins down
+        // and squares up to the camera, then resumes as it disperses.
+        const flat = 1 - P.morph;
+        mesh.rotation.set(
+          (-0.15 + tiltX) * flat,
+          ((spin % (Math.PI * 2)) + tiltY) * flat,
+          0,
+        );
         build(elapsed, delta);
         paint();
         if (!stillRef.current && activeRef.current && !document.hidden) {
@@ -251,6 +285,64 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
       };
       playRef.current = play;
 
+      // ---- text mode ----------------------------------------------------
+      // Sample the word to an offscreen canvas and keep every lit pixel as a
+      // target, so the same points can reassemble into letterforms.
+      let textPts: number[] | null = null;
+      let textW = 0, textH = 0;
+      let textTargets: Float32Array | null = null;
+
+      async function sampleText(word: string) {
+        // Wait for the real face: sampling before fonts load traces the
+        // fallback and the letterforms come out wrong.
+        try { await document.fonts.ready; } catch { /* older browsers */ }
+        const cv = document.createElement('canvas');
+        textW = 1000; textH = 260;
+        cv.width = textW; cv.height = textH;
+        const c = cv.getContext('2d', { willReadFrequently: true });
+        if (!c) return;
+        c.fillStyle = '#fff';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        const face = (px: number) => `600 ${px}px 'Familjen Grotesk', system-ui, sans-serif`;
+        let size = 210;
+        c.font = face(size);
+        while (c.measureText(word).width > textW * 0.92 && size > 40) {
+          size -= 8;
+          c.font = face(size);
+        }
+        c.fillText(word, textW / 2, textH / 2);
+        const data = c.getImageData(0, 0, textW, textH).data;
+        const pts: number[] = [];
+        for (let y = 0; y < textH; y += 2) {
+          for (let x = 0; x < textW; x += 2) {
+            if (data[(y * textW + x) * 4 + 3] > 128) pts.push(x, y);
+          }
+        }
+        if (!pts.length) return;
+        textPts = pts;
+        fitText();
+      }
+
+      // World positions depend on the camera, so rebuild them on resize.
+      function fitText() {
+        if (!textPts) return;
+        const visH = 2 * Math.tan(((camera.fov * Math.PI) / 180) / 2) * camera.position.z;
+        const scale = (visH * camera.aspect * 0.7) / textW;
+        const out = new Float32Array(COUNT * 3);
+        const n = textPts.length / 2;
+        for (let i = 0; i < COUNT; i++) {
+          const j = (i % n) * 2;
+          // Repeats get a little jitter so they do not stack into brighter dots.
+          const jx = i >= n ? (Math.random() - 0.5) * 2.2 : 0;
+          const jy = i >= n ? (Math.random() - 0.5) * 2.2 : 0;
+          out[i * 3] = (textPts[j] - textW / 2) * scale + jx;
+          out[i * 3 + 1] = -(textPts[j + 1] - textH / 2) * scale + jy;
+          out[i * 3 + 2] = (Math.random() - 0.5) * 6;
+        }
+        textTargets = out;
+      }
+
       function resize() {
         const w = canvas!.clientWidth, h = canvas!.clientHeight;
         if (!w || !h) return;
@@ -258,6 +350,7 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
         camera.updateProjectionMatrix();
         renderer.setSize(w, h, false);
         composer?.setSize(w, h);
+        fitText();
         // A resize clears the drawing buffer and still mode has no loop to
         // repaint it, so paint again here.
         if (stillRef.current) paintStill();
@@ -287,6 +380,7 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
       addEventListener('resize', onResize);
 
       resize();
+      if (mode === 'text') void sampleText(text);
       if (reduced) paintStill();
       else play();
 
@@ -310,5 +404,5 @@ export function HeroSwarm({ active, still = false }: HeroSwarmProps) {
     return () => { disposed = true; cleanup?.(); };
   }, []);
 
-  return <canvas className="hero-particles" ref={canvasRef} aria-hidden="true" />;
+  return <canvas className={className} ref={canvasRef} aria-hidden="true" />;
 }

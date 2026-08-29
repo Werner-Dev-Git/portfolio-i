@@ -1,12 +1,15 @@
 import { ThemeProvider } from '@/lib/theme';
 import { SmokeProvider } from '@/lib/smokeConfig';
-import { marqueeItems } from '@/data/projects';
+import { marqueeItems, caseStudies } from '@/data/projects';
 import { Header } from '@/components/Header';
 import { Cursor } from '@/components/Cursor';
 import { ScrollProgress } from '@/components/ScrollProgress';
 import { Hero } from '@/components/Hero';
 import { Marquee } from '@/components/Marquee';
 import { DevSection } from '@/components/DevSection';
+import { CaseStudy } from '@/components/CaseStudy';
+import { ProcessTimeline } from '@/components/ProcessTimeline';
+import { Signature } from '@/components/Signature';
 import { DesignSection } from '@/components/DesignSection';
 import { AboutSection } from '@/components/AboutSection';
 import { ContactSection } from '@/components/ContactSection';
@@ -35,8 +38,17 @@ export default function App() {
           </Marquee>
 
           <DevSection />
+
+          <div className="cases container" id="cases">
+            {caseStudies.map((study) => (
+              <CaseStudy study={study} key={study.name} />
+            ))}
+          </div>
+
           <DesignSection />
           <AboutSection />
+          <ProcessTimeline />
+          <Signature />
 
           <Marquee duration={44} big>
             <span>Let&rsquo;s work together</span><span className="fill">✳</span>

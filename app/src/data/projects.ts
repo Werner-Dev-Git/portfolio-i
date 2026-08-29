@@ -121,5 +121,83 @@ export const marqueeItems: string[] = [
   'Design Systems', 'Motion', 'Three.js', 'Interaction Design',
 ];
 
+
+export interface CaseStudyEntry {
+  name: string;
+  img: string;
+  steps: { title: string; body: string }[];
+}
+
+/** Two flagship builds, told in three beats each as the capture scrolls.
+ *  Copy is drawn from what the live sites actually say — no invented metrics.
+ *  The TODO slots are for Werner to drop in real figures. */
+export const caseStudies: CaseStudyEntry[] = [
+  {
+    name: 'SatReach',
+    img: 'screens/satreach.jpg',
+    steps: [
+      {
+        title: 'Connectivity, from the Karoo to Kilimanjaro',
+        body: 'A Starlink installer serving farms, lodges, expeditions and events — four very different buyers who all arrive on the same homepage. The brief was to speak to each without turning the site into a catalogue.',
+      },
+      {
+        title: 'Space-dark, over real landscape',
+        body: 'A near-black palette lets the night-sky and landscape photography carry the page. Solutions are split terrain by terrain, so a farmer and an expedition outfitter each find themselves within one scroll.',
+      },
+      {
+        title: 'Hand-built and shipped',
+        body: 'Product line, rental plans, process and enquiry flow — hand-written and deployed to GitHub Pages, no page builder in the stack. TODO: add a real figure here — installs completed, enquiries, or time-to-launch.',
+      },
+    ],
+  },
+  {
+    name: 'FROGG Recruitment',
+    img: 'screens/frogg.jpg',
+    steps: [
+      {
+        title: 'Two audiences, one front door',
+        body: 'A recruitment agency running since 2010, placing permanent, fixed-term and executive roles. Employers and candidates want opposite things from the same page, and the old site made both of them hunt.',
+      },
+      {
+        title: 'Split the path immediately',
+        body: 'The hero forks straight away — Looking for Staff, or Vacancies — so each visitor is one click from their own journey, with the agency\u2019s track record carried underneath.',
+      },
+      {
+        title: 'Live and in service',
+        body: 'Running at froggrecruit-sa.co.za with job posting, vacancy listings and candidate intake. TODO: add a real figure here — placements, listings live, or enquiries per month.',
+      },
+    ],
+  },
+];
+
+export interface ProcessStep {
+  num: string;
+  title: string;
+  body: string;
+}
+
+export const processSteps: ProcessStep[] = [
+  {
+    num: '/ 01',
+    title: 'Discover',
+    body: 'Who is arriving, what they need in the first ten seconds, and what the business needs them to do. Written down before a single frame exists.',
+  },
+  {
+    num: '/ 02',
+    title: 'Design',
+    body: 'Figma, properly: a type scale, a grid, real colour tokens and components — so the build has something to follow instead of a picture to copy.',
+  },
+  {
+    num: '/ 03',
+    title: 'Build',
+    body: 'Hand-written and responsive from the first breakpoint. Motion is added where it explains something, and it always respects reduced-motion.',
+  },
+  {
+    num: '/ 04',
+    title: 'Ship',
+    body: 'Deployed, checked on a real phone, and handed over — with the source in your hands, not locked inside a builder.',
+  },
+];
+
 export const EMAIL = 'wbotha.work@gmail.com';
 export const GITHUB_URL = 'https://github.com/werner-dev-git';

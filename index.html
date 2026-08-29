@@ -639,6 +639,85 @@
   .service h3 { margin: 14px 0 10px; font-size: 20px; letter-spacing: -0.02em; }
   .service p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--muted); }
 
+  /* ============ Pinned case studies ============ */
+  .case {
+    position: relative; z-index: 2;
+    display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px;
+    align-items: center; min-height: 100svh; padding-block: 40px;
+  }
+  .case-frame {
+    position: relative; overflow: hidden; border-radius: var(--radius);
+    border: 1px solid var(--glass-edge); aspect-ratio: 16 / 11;
+    background: linear-gradient(160deg, var(--glass-bg-strong), var(--glass-bg));
+    box-shadow: inset 0 1px 0 var(--glass-sheen), var(--shadow);
+  }
+  .case-frame img { width: 100%; height: auto; will-change: transform; }
+  .case-steps { position: relative; min-height: 320px; }
+  .case-step {
+    position: absolute; left: 0; right: 0; top: 50%;
+    opacity: 0; transform: translateY(16px); pointer-events: none;
+    transition: opacity 0.45s ease, transform 0.45s var(--ease-out);
+  }
+  .case-step.is-on { opacity: 1; transform: translateY(-50%); pointer-events: auto; }
+  .case-step h3 { margin: 14px 0 12px; font-size: clamp(26px, 3.2vw, 40px);
+    letter-spacing: -0.03em; line-height: 1.05; }
+  .case-step p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--muted); max-width: 46ch; }
+  .case-count { font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .case-dots { display: flex; gap: 7px; margin-top: 26px; }
+  .case-dots i {
+    width: 26px; height: 3px; border-radius: 3px; background: var(--border-strong);
+    transition: background 0.35s ease, box-shadow 0.35s ease;
+  }
+  .case-dots i.is-on { background: var(--accent); box-shadow: 0 0 10px var(--glow); }
+
+  /* ============ Horizontal process timeline ============ */
+  .process {
+    position: relative; z-index: 2; overflow: hidden; padding-block: 80px;
+    /* fills the pinned viewport, so the track sits centred rather than
+       stranded at the top with dead space under it */
+    min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
+  }
+  .process-viewport { overflow: hidden; }
+  .process-track { display: flex; gap: 22px; width: max-content; will-change: transform; }
+  .process-card {
+    width: min(74vw, 400px); padding: 30px 28px; border-radius: var(--radius);
+    border: 1px solid var(--glass-edge);
+    background: linear-gradient(160deg, var(--glass-bg-strong), var(--glass-bg));
+    box-shadow: inset 0 1px 0 var(--glass-sheen);
+  }
+  .process-card .num { font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.14em; color: var(--accent); }
+  .process-card h3 { margin: 14px 0 10px; font-size: 22px; letter-spacing: -0.02em; }
+  .process-card p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+  .process-rail { position: relative; height: 2px; margin-top: 40px; background: var(--border); border-radius: 2px; }
+  .process-rail span {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    box-shadow: 0 0 12px var(--glow); border-radius: 2px;
+  }
+
+  /* ============ Signature swarm ============ */
+  .signature {
+    position: relative; z-index: 2; min-height: 100svh;
+    /* copy sits below the word, not on top of it */
+    display: grid; align-content: end; justify-items: center;
+    padding-bottom: 11vh; text-align: center; overflow: hidden;
+  }
+  #signatureParticles {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; height: 100%; z-index: 0; pointer-events: none;
+    opacity: 0; transition: opacity 1.2s ease;
+  }
+  #signatureParticles.is-ready { opacity: 1; }
+  :root[data-theme='light'] #signatureParticles.is-ready { opacity: 0.6; }
+  .signature-copy { position: relative; z-index: 1; }
+  .signature-copy p {
+    margin: 14px auto 0; max-width: 40ch; font-size: 16px;
+    line-height: 1.6; color: var(--muted);
+    text-shadow: 0 0 30px var(--bg), 0 0 12px var(--bg);
+  }
+
   /* ============ Contact / footer ============ */
   .contact { padding-block: 130px 40px; text-align: center; }
   .contact h2 {
@@ -676,6 +755,15 @@
     /* full width and centred on phones */
     #heroParticles { right: auto; left: 50%; width: 100vw; transform: translateX(-50%); }
     .site-meta { flex-wrap: wrap; }
+    /* No pinned or horizontal scroll on touch — it fights native scrolling. */
+    .case { grid-template-columns: 1fr; min-height: auto; gap: 28px; padding-block: 40px; }
+    .case-steps { min-height: 0; }
+    .case-step { position: static; opacity: 1; transform: none; margin-bottom: 26px; }
+    .case-step.is-on { transform: none; }
+    .case-dots { display: none; }
+    .process-track { flex-direction: column; width: auto; }
+    .process-card { width: auto; }
+    .signature { min-height: 74svh; }
     .smoke-ctrl { display: none; }
   }
   @media (max-width: 420px) {
@@ -742,6 +830,11 @@
     .site-card:hover .screen { transition-duration: 0.8s; }
     .cursor-dot, .cursor-ring { display: none; }
     .light-canvas, .smoke-ctrl { display: none; }
+    .case { grid-template-columns: 1fr; min-height: auto; }
+    .case-step { position: static; opacity: 1; transform: none; margin-bottom: 24px; }
+    .case-dots { display: none; }
+    .process-track { flex-direction: column; width: auto; }
+    .process-card { width: auto; }
     /* The swarm, smoke and glow still render — as a single static frame.
        Reduced motion means stop moving, not remove the artwork. */
     .glow-ring { animation: none; opacity: 0.55; }
@@ -839,6 +932,78 @@
     <div class="work-grid" id="workGrid"><!-- rendered by JS --></div>
   </section>
 
+  <!-- ============ CASE STUDIES ============ -->
+  <div class="cases container" id="cases">
+    <div class="section-head">
+      <div>
+        <div class="kicker mono">01b — Selected in depth</div>
+        <h2 data-reveal>Two, up close</h2>
+      </div>
+      <p data-reveal>Scroll through a build. The capture moves with you while the
+        story of the project keeps pace beside it.</p>
+    </div>
+
+    <section class="case" data-case>
+      <div class="case-frame">
+        <img src="assets/screens/satreach.jpg" alt="SatReach, full page" loading="lazy" decoding="async" />
+      </div>
+      <div class="case-steps">
+        <div class="case-step is-on">
+          <div class="case-count">SatReach · 01 / 03</div>
+          <h3>Connectivity, from the Karoo to Kilimanjaro</h3>
+          <p>A Starlink installer serving farms, lodges, expeditions and events —
+            four very different buyers who all arrive on the same homepage. The brief
+            was to speak to each without turning the site into a catalogue.</p>
+        </div>
+        <div class="case-step">
+          <div class="case-count">SatReach · 02 / 03</div>
+          <h3>Space-dark, over real landscape</h3>
+          <p>A near-black palette lets the night-sky and landscape photography carry
+            the page. Solutions are split terrain by terrain, so a farmer and an
+            expedition outfitter each find themselves within one scroll.</p>
+        </div>
+        <div class="case-step">
+          <div class="case-count">SatReach · 03 / 03</div>
+          <h3>Hand-built and shipped</h3>
+          <p>Product line, rental plans, process and enquiry flow — hand-written and
+            deployed to GitHub Pages, no page builder in the stack.
+            <em>TODO: add a real figure here — installs completed, enquiries, or
+            time-to-launch.</em></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="case" data-case>
+      <div class="case-frame">
+        <img src="assets/screens/frogg.jpg" alt="FROGG Recruitment, full page" loading="lazy" decoding="async" />
+      </div>
+      <div class="case-steps">
+        <div class="case-step is-on">
+          <div class="case-count">FROGG Recruitment · 01 / 03</div>
+          <h3>Two audiences, one front door</h3>
+          <p>A recruitment agency running since 2010, placing permanent, fixed-term
+            and executive roles. Employers and candidates want opposite things from
+            the same page, and the old site made both of them hunt.</p>
+        </div>
+        <div class="case-step">
+          <div class="case-count">FROGG Recruitment · 02 / 03</div>
+          <h3>Split the path immediately</h3>
+          <p>The hero forks straight away — <em>Looking for Staff</em> or
+            <em>Vacancies</em> — so each visitor is one click from their own journey,
+            with the agency's track record carried underneath.</p>
+        </div>
+        <div class="case-step">
+          <div class="case-count">FROGG Recruitment · 03 / 03</div>
+          <h3>Live and in service</h3>
+          <p>Running at froggrecruit-sa.co.za with job posting, vacancy listings and
+            candidate intake.
+            <em>TODO: add a real figure here — placements, listings live, or
+            enquiries per month.</em></p>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <!-- ============ DESIGN ============ -->
   <section id="design" class="block container">
     <div class="section-head">
@@ -920,6 +1085,57 @@
             interface feel alive without getting in the way.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ============ PROCESS ============ -->
+  <section class="process container" id="process">
+    <div class="section-head">
+      <div>
+        <div class="kicker mono">03b — How it goes</div>
+        <h2 data-reveal>Discover, design, build, ship</h2>
+      </div>
+      <p data-reveal>The same four moves on every project, whether it is a landing
+        page or a full product surface.</p>
+    </div>
+    <div class="process-viewport">
+      <div class="process-track" id="processTrack">
+        <article class="process-card">
+          <div class="num">/ 01</div>
+          <h3>Discover</h3>
+          <p>Who is arriving, what they need in the first ten seconds, and what the
+            business needs them to do. Written down before a single frame exists.</p>
+        </article>
+        <article class="process-card">
+          <div class="num">/ 02</div>
+          <h3>Design</h3>
+          <p>Figma, properly: a type scale, a grid, real colour tokens and components —
+            so the build has something to follow instead of a picture to copy.</p>
+        </article>
+        <article class="process-card">
+          <div class="num">/ 03</div>
+          <h3>Build</h3>
+          <p>Hand-written and responsive from the first breakpoint. Motion is added
+            where it explains something, and it always respects reduced-motion.</p>
+        </article>
+        <article class="process-card">
+          <div class="num">/ 04</div>
+          <h3>Ship</h3>
+          <p>Deployed, checked on a real phone, and handed over — with the source in
+            your hands, not locked inside a builder.</p>
+        </article>
+      </div>
+    </div>
+    <div class="process-rail"><span id="processRail"></span></div>
+  </section>
+
+  <!-- ============ SIGNATURE ============ -->
+  <section class="signature container" id="signature">
+    <canvas id="signatureParticles" aria-hidden="true"></canvas>
+    <div class="signature-copy">
+      <div class="kicker mono" data-reveal>The short version</div>
+      <p data-reveal>Twenty thousand points, one name. Same engine as the hero —
+        pointed at letterforms instead of a core.</p>
     </div>
   </section>
 
@@ -1667,6 +1883,71 @@
         card.addEventListener('mouseleave', () => { rx(0); ry(0); });
       });
     }
+
+    /* ---- Pinned scroll narrative ------------------------------------
+       One helper for every pinned scene. Pinning is skipped on touch and
+       under reduced motion, where the sections read as stacked content. */
+    const canPin = !matchMedia('(max-width: 860px)').matches;
+    function pinnedScene(trigger, end, onUpdate) {
+      if (!canPin) return null;
+      return ScrollTrigger.create({
+        trigger, start: 'top top', end, pin: true, scrub: true, anticipatePin: 1,
+        onUpdate: (self) => onUpdate(self.progress),
+      });
+    }
+
+    /* The hero swarm answers to scroll: calm and wide at the top, tightening
+       toward the core through the middle, chaos spiking as the hero leaves. */
+    ScrollTrigger.create({
+      trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true,
+      onUpdate: (self) => {
+        const sw = window.__swarmHero;
+        if (!sw) return;
+        const p = self.progress;
+        sw.set('speed', 0.4 + p * 0.45);
+        sw.set('core', 10 + p * 24);
+        sw.set('chaos', 20 + p * p * 42);
+      },
+    });
+
+    /* Case studies: the capture pans while the captions keep pace. */
+    document.querySelectorAll('[data-case]').forEach((sec) => {
+      const frame = sec.querySelector('.case-frame');
+      const img = sec.querySelector('.case-frame img');
+      const steps = Array.from(sec.querySelectorAll('.case-step'));
+      if (!img || !steps.length) return;
+      pinnedScene(sec, '+=120%', (p) => {
+        const travel = Math.max(0, img.clientHeight - frame.clientHeight);
+        gsap.set(img, { y: -travel * p });
+        const i = Math.min(steps.length - 1, Math.floor(p * steps.length));
+        steps.forEach((el, n) => el.classList.toggle('is-on', n === i));
+      });
+    });
+
+    /* Process: the pinned section walks its track sideways. */
+    const pTrack = document.getElementById('processTrack');
+    const pRail = document.getElementById('processRail');
+    if (pTrack) {
+      pinnedScene('#process', '+=110%', (p) => {
+        const travel = Math.max(0, pTrack.scrollWidth - pTrack.parentElement.clientWidth);
+        gsap.set(pTrack, { x: -travel * p });
+        if (pRail) pRail.style.width = (p * 100).toFixed(1) + '%';
+      });
+    }
+
+    /* Signature: sphere -> the name -> disperse. */
+    pinnedScene('#signature', '+=130%', (p) => {
+      const sw = window.__swarmSignature;
+      if (!sw) return;
+      const rise = gsap.utils.clamp(0, 1, (p - 0.12) / 0.38);
+      const fall = gsap.utils.clamp(0, 1, (p - 0.74) / 0.24);
+      sw.set('morph', rise * (1 - fall));
+      sw.set('chaos', 20 + fall * 66);
+    });
+
+    /* A pin measured before the tall captures have a height throws every
+       trigger below it out of position, so re-measure once they are in. */
+    addEventListener('load', () => ScrollTrigger.refresh());
   }
 
 })();
@@ -1680,8 +1961,9 @@
    background (the canvas must stay transparent) and the fixed 20k count.
    Colour travels blue at the rim -> green at the core. */
 (async () => {
-  const canvas = document.getElementById('heroParticles');
-  if (!canvas) return;
+  const heroCanvas = document.getElementById('heroParticles');
+  const sigCanvas = document.getElementById('signatureParticles');
+  if (!heroCanvas && !sigCanvas) return;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarse = matchMedia('(pointer: coarse)').matches;
   const heavy = !reduced && !coarse;
@@ -1698,226 +1980,317 @@
     }
   } catch (e) { return; }
 
-  const COUNT = heavy ? 20000 : 6000;
-  const SPEED = 0.4, CHAOS = 20, CORE = 10, SPAN = 150;
-  const REPEL_R = 26, REPEL_R2 = REPEL_R * REPEL_R, REPEL_FORCE = 24;
-  const GOLDEN = (1 + Math.sqrt(5)) / 2;
-  const dark = () => document.documentElement.dataset.theme !== 'light';
+  /* One engine, two instances: the hero converges on a core, the signature
+     section reassembles the same points into a word. Everything below is
+     shared — only the target positions differ. */
+  function createSwarm(canvas, opts) {
+    const MODE = (opts && opts.mode) || 'converge';
+    const COUNT = heavy ? 20000 : 6000;
+    const P = { speed: 0.4, chaos: 20, core: 10, span: 150, morph: 0 };
+    const REPEL_R = 26, REPEL_R2 = REPEL_R * REPEL_R, REPEL_FORCE = 24;
+    const GOLDEN = (1 + Math.sqrt(5)) / 2;
+    const dark = () => document.documentElement.dataset.theme !== 'light';
 
-  let renderer;
-  try {
-    renderer = new THREE.WebGLRenderer({
-      canvas, alpha: true, antialias: heavy, powerPreference: 'high-performance',
-    });
-  } catch (e) { return; }
-  renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas, alpha: true, antialias: heavy, powerPreference: 'high-performance',
+      });
+    } catch (e) { return; }
+    renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2000);
-  camera.position.set(0, 0, 100);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2000);
+    camera.position.set(0, 0, 100);
 
-  const mesh = new THREE.InstancedMesh(
-    new THREE.TetrahedronGeometry(0.25),
-    new THREE.MeshBasicMaterial({ color: 0xffffff }),
-    COUNT,
-  );
-  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  mesh.frustumCulled = false;
-  scene.add(mesh);
-
-  const color = new THREE.Color();
-  const positions = new Array(COUNT);
-  for (let i = 0; i < COUNT; i++) {
-    positions[i] = new THREE.Vector3(
-      (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100,
+    const mesh = new THREE.InstancedMesh(
+      new THREE.TetrahedronGeometry(0.25),
+      new THREE.MeshBasicMaterial({ color: 0xffffff }),
+      COUNT,
     );
-    mesh.setColorAt(i, color.setHex(0x00ff88));
-  }
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    mesh.frustumCulled = false;
+    scene.add(mesh);
 
-  let composer = null, bloom = null;
-  if (heavy) {
-    composer = new Composer.EffectComposer(renderer);
-    composer.addPass(new Render.RenderPass(scene, camera));
-    bloom = new Bloom.UnrealBloomPass(new THREE.Vector2(1, 1), 1.5, 0.4, 0.85);
-    bloom.radius = 0.4;
-    bloom.threshold = 0;
-    composer.addPass(bloom);
-  }
-  /* Additive bloom on a near-white page blows out to white, so it is heavily
-     reduced in light mode rather than left at the template's strength. */
-  const syncBloom = () => { if (bloom) bloom.strength = dark() ? 1.8 : 0.4; };
-  syncBloom();
-
-  const dummy = new THREE.Object3D();
-  const target = new THREE.Vector3();
-  const cursor = new THREE.Vector3();
-  const ray = new THREE.Vector3();
-  const viewAxis = new THREE.Vector3();
-  const spinInv = new THREE.Quaternion();
-  const clock = new THREE.Clock();
-
-  let elapsed = 0, spin = 0;
-  let tiltX = 0, tiltY = 0, wantTiltX = 0, wantTiltY = 0;
-  let ndcX = 0, ndcY = 0, cursorOn = false;
-  let raf = 0, visible = false, snap = false;
-
-  function resize() {
-    const w = canvas.clientWidth, h = canvas.clientHeight;
-    if (!w || !h) return;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h, false);
-    if (composer) composer.setSize(w, h);
-    /* A resize clears the drawing buffer and still mode has no loop to
-       repaint it, so paint again here. */
-    if (reduced) paintStill();
-  }
-
-  function locateCursor() {
-    if (!cursorOn) return false;
-    mesh.updateMatrixWorld();
-    cursor.set(ndcX, ndcY, 0.5).unproject(camera);
-    ray.copy(cursor).sub(camera.position).normalize();
-    if (Math.abs(ray.z) < 1e-6) return false;
-    cursor.copy(camera.position).addScaledVector(ray, -camera.position.z / ray.z);
-    mesh.worldToLocal(cursor);
-    /* The camera looks down -Z in world space. Carrying that direction into
-       the mesh's own space lets the cavity stay a circle on screen however
-       far the swarm has spun. */
-    viewAxis.set(0, 0, -1).applyQuaternion(spinInv.copy(mesh.quaternion).invert());
-    return true;
-  }
-
-  function build(time, delta) {
-    const isDark = dark();
-    const repel = locateCursor();
-    /* Frame-rate independent chase: a fixed per-frame lerp would crawl on a
-       slow device and the swarm would never catch its target. */
-    const chase = delta ? 1 - Math.pow(0.9, delta * 60) : 1;
+    const color = new THREE.Color();
+    const positions = new Array(COUNT);
     for (let i = 0; i < COUNT; i++) {
-      const norm = i / COUNT;
-      const progress = (norm + time * SPEED * 0.2) % 1.0;
-      const eased = Math.pow(progress, 1.5);
-
-      const theta = (2 * Math.PI * i) / GOLDEN;
-      const phi = Math.acos(1 - 2 * norm);
-      const radius = CORE + SPAN * (1 - eased);
-
-      /* Noise is loudest at the rim and resolves to nothing at the core. */
-      const instability = Math.pow(1 - progress, 2);
-      const sinPhi = Math.sin(phi);
-      target.set(
-        radius * sinPhi * Math.cos(theta) + Math.sin(time * 2 + norm * 100) * CHAOS * instability,
-        radius * sinPhi * Math.sin(theta) + Math.cos(time * 1.5 + norm * 200) * CHAOS * instability,
-        radius * Math.cos(phi) + Math.sin(time * 3 - norm * 300) * CHAOS * instability,
+      positions[i] = new THREE.Vector3(
+        (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100,
       );
+      mesh.setColorAt(i, color.setHex(0x00ff88));
+    }
 
-      if (repel) {
-        /* Measure distance perpendicular to the view axis, so the cursor
-           carves a cylinder through the swarm — on screen that reads as a
-           clean circle of particles shoved aside, wherever the pointer is. */
-        const dx = target.x - cursor.x, dy = target.y - cursor.y, dz = target.z - cursor.z;
-        const along = dx * viewAxis.x + dy * viewAxis.y + dz * viewAxis.z;
-        const px = dx - along * viewAxis.x;
-        const py = dy - along * viewAxis.y;
-        const pz = dz - along * viewAxis.z;
-        const d2 = px * px + py * py + pz * pz;
-        if (d2 < REPEL_R2 && d2 > 1e-4) {
-          const d = Math.sqrt(d2);
-          const t = 1 - d / REPEL_R;
-          /* smoothstep for a soft rim; the settled core resists a little so
-             it is disturbed rather than blown apart */
-          const push = t * t * (3 - 2 * t) * REPEL_FORCE * (0.55 + 0.45 * (1 - progress));
-          target.x += (px / d) * push;
-          target.y += (py / d) * push;
-          target.z += (pz / d) * push;
+    let composer = null, bloom = null;
+    if (heavy) {
+      composer = new Composer.EffectComposer(renderer);
+      composer.addPass(new Render.RenderPass(scene, camera));
+      bloom = new Bloom.UnrealBloomPass(new THREE.Vector2(1, 1), 1.5, 0.4, 0.85);
+      bloom.radius = 0.4;
+      bloom.threshold = 0;
+      composer.addPass(bloom);
+    }
+    /* Additive bloom on a near-white page blows out to white, so it is heavily
+       reduced in light mode rather than left at the template's strength. */
+    const syncBloom = () => { if (bloom) bloom.strength = dark() ? 1.8 : 0.4; };
+    syncBloom();
+
+    const dummy = new THREE.Object3D();
+    const target = new THREE.Vector3();
+    const cursor = new THREE.Vector3();
+    const ray = new THREE.Vector3();
+    const viewAxis = new THREE.Vector3();
+    const spinInv = new THREE.Quaternion();
+    const clock = new THREE.Clock();
+
+    let elapsed = 0, spin = 0;
+    let tiltX = 0, tiltY = 0, wantTiltX = 0, wantTiltY = 0;
+    let ndcX = 0, ndcY = 0, cursorOn = false;
+    let raf = 0, visible = false, snap = false;
+
+    /* ---- text mode -------------------------------------------------
+       Sample the word to an offscreen canvas and keep every lit pixel as a
+       target, so the same points can reassemble into letterforms. */
+    let textPts = null, textW = 0, textH = 0, textTargets = null;
+
+    async function sampleText(word) {
+      /* Wait for the real face: sampling before fonts load traces the
+         fallback and the letterforms come out wrong. */
+      try { await document.fonts.ready; } catch (e) {}
+      const cv = document.createElement('canvas');
+      textW = 1000; textH = 260;
+      cv.width = textW; cv.height = textH;
+      const c = cv.getContext('2d', { willReadFrequently: true });
+      c.fillStyle = '#fff';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      let size = 210;
+      const face = (px) => '600 ' + px + "px 'Familjen Grotesk', system-ui, sans-serif";
+      c.font = face(size);
+      while (c.measureText(word).width > textW * 0.92 && size > 40) {
+        size -= 8;
+        c.font = face(size);
+      }
+      c.fillText(word, textW / 2, textH / 2);
+      const data = c.getImageData(0, 0, textW, textH).data;
+      const pts = [];
+      for (let y = 0; y < textH; y += 2) {
+        for (let x = 0; x < textW; x += 2) {
+          if (data[(y * textW + x) * 4 + 3] > 128) pts.push(x, y);
         }
       }
-
-      positions[i].lerp(target, snap ? 1 : chase);
-      dummy.position.copy(positions[i]);
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
-
-      /* Blue at the rim resolving to a hot green core. */
-      const pulse = progress > 0.95 ? Math.sin(time * 10) * 0.3 : 0;
-      /* Capped below 1 so the bloomed core stays a vivid green instead of
-         blowing out to white. */
-      /* On a light page the ramp inverts: the rim fades toward white and the
-         core deepens, otherwise 20k dark points pile into a black cloud. */
-      const lightness = isDark
-        ? 0.2 + 0.45 * progress + pulse * 0.25
-        : 0.74 - 0.2 * progress + pulse * 0.12;
-      color.setHSL(
-        0.6 - 0.36 * progress,
-        0.8 + 0.2 * progress,
-        Math.max(0, Math.min(1, lightness)),
-      );
-      mesh.setColorAt(i, color);
+      if (!pts.length) return;
+      textPts = pts;
+      fitText();
     }
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+
+    /* World positions depend on the camera, so rebuild them on resize. */
+    function fitText() {
+      if (!textPts) return;
+      const visH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * camera.position.z;
+      const scale = (visH * camera.aspect * 0.7) / textW;
+      const out = new Float32Array(COUNT * 3);
+      const n = textPts.length / 2;
+      for (let i = 0; i < COUNT; i++) {
+        const j = (i % n) * 2;
+        /* Repeats get a little jitter so they do not stack into brighter dots. */
+        const jx = i >= n ? (Math.random() - 0.5) * 2.2 : 0;
+        const jy = i >= n ? (Math.random() - 0.5) * 2.2 : 0;
+        out[i * 3] = (textPts[j] - textW / 2) * scale + jx;
+        out[i * 3 + 1] = -(textPts[j + 1] - textH / 2) * scale + jy;
+        out[i * 3 + 2] = (Math.random() - 0.5) * 6;
+      }
+      textTargets = out;
+    }
+
+    function resize() {
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      if (!w || !h) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+      if (composer) composer.setSize(w, h);
+      fitText();
+      /* A resize clears the drawing buffer and still mode has no loop to
+         repaint it, so paint again here. */
+      if (reduced) paintStill();
+    }
+
+    function locateCursor() {
+      if (!cursorOn) return false;
+      mesh.updateMatrixWorld();
+      cursor.set(ndcX, ndcY, 0.5).unproject(camera);
+      ray.copy(cursor).sub(camera.position).normalize();
+      if (Math.abs(ray.z) < 1e-6) return false;
+      cursor.copy(camera.position).addScaledVector(ray, -camera.position.z / ray.z);
+      mesh.worldToLocal(cursor);
+      /* The camera looks down -Z in world space. Carrying that direction into
+         the mesh's own space lets the cavity stay a circle on screen however
+         far the swarm has spun. */
+      viewAxis.set(0, 0, -1).applyQuaternion(spinInv.copy(mesh.quaternion).invert());
+      return true;
+    }
+
+    function build(time, delta) {
+      const isDark = dark();
+      const repel = locateCursor();
+      /* Frame-rate independent chase: a fixed per-frame lerp would crawl on a
+         slow device and the swarm would never catch its target. */
+      const chase = delta ? 1 - Math.pow(0.9, delta * 60) : 1;
+      for (let i = 0; i < COUNT; i++) {
+        const norm = i / COUNT;
+        const progress = (norm + time * P.speed * 0.2) % 1.0;
+        const eased = Math.pow(progress, 1.5);
+
+        const theta = (2 * Math.PI * i) / GOLDEN;
+        const phi = Math.acos(1 - 2 * norm);
+        const radius = P.core + P.span * (1 - eased);
+
+        /* Noise is loudest at the rim and resolves to nothing at the core. */
+        const instability = Math.pow(1 - progress, 2);
+        const sinPhi = Math.sin(phi);
+        target.set(
+          radius * sinPhi * Math.cos(theta) + Math.sin(time * 2 + norm * 100) * P.chaos * instability,
+          radius * sinPhi * Math.sin(theta) + Math.cos(time * 1.5 + norm * 200) * P.chaos * instability,
+          radius * Math.cos(phi) + Math.sin(time * 3 - norm * 300) * P.chaos * instability,
+        );
+
+        /* Blend from the procedural swarm toward the word. Applied to the
+           target, so the chase and the repel below still work — the pointer
+           parts the letters exactly as it parts the sphere. */
+        if (P.morph > 0 && textTargets) {
+          const k = i * 3;
+          target.x += (textTargets[k] - target.x) * P.morph;
+          target.y += (textTargets[k + 1] - target.y) * P.morph;
+          target.z += (textTargets[k + 2] - target.z) * P.morph;
+        }
+
+        if (repel) {
+          /* Measure distance perpendicular to the view axis, so the cursor
+             carves a cylinder through the swarm — on screen that reads as a
+             clean circle of particles shoved aside, wherever the pointer is. */
+          const dx = target.x - cursor.x, dy = target.y - cursor.y, dz = target.z - cursor.z;
+          const along = dx * viewAxis.x + dy * viewAxis.y + dz * viewAxis.z;
+          const px = dx - along * viewAxis.x;
+          const py = dy - along * viewAxis.y;
+          const pz = dz - along * viewAxis.z;
+          const d2 = px * px + py * py + pz * pz;
+          if (d2 < REPEL_R2 && d2 > 1e-4) {
+            const d = Math.sqrt(d2);
+            const t = 1 - d / REPEL_R;
+            /* smoothstep for a soft rim; the settled core resists a little so
+               it is disturbed rather than blown apart */
+            const push = t * t * (3 - 2 * t) * REPEL_FORCE * (0.55 + 0.45 * (1 - progress));
+            target.x += (px / d) * push;
+            target.y += (py / d) * push;
+            target.z += (pz / d) * push;
+          }
+        }
+
+        positions[i].lerp(target, snap ? 1 : chase);
+        dummy.position.copy(positions[i]);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+
+        /* Blue at the rim resolving to a hot green core. */
+        const pulse = progress > 0.95 ? Math.sin(time * 10) * 0.3 : 0;
+        /* Capped below 1 so the bloomed core stays a vivid green instead of
+           blowing out to white. */
+        /* On a light page the ramp inverts: the rim fades toward white and the
+           core deepens, otherwise 20k dark points pile into a black cloud. */
+        const lightness = isDark
+          ? 0.2 + 0.45 * progress + pulse * 0.25
+          : 0.74 - 0.2 * progress + pulse * 0.12;
+        color.setHSL(
+          0.6 - 0.36 * progress,
+          0.8 + 0.2 * progress,
+          Math.max(0, Math.min(1, lightness)),
+        );
+        mesh.setColorAt(i, color);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    }
+
+    function draw() {
+      if (composer) composer.render();
+      else renderer.render(scene, camera);
+      canvas.classList.add('is-ready');
+    }
+
+    function paintStill() {
+      snap = true;
+      mesh.rotation.set(-0.15, 0.6, 0);
+      build(6, 0);
+      snap = false;
+      draw();
+    }
+
+    function frame() {
+      raf = 0;
+      const delta = Math.min(0.1, clock.getDelta());
+      elapsed += delta;
+      spin += delta * 0.25;
+      tiltX += (wantTiltX - tiltX) * 0.05;
+      tiltY += (wantTiltY - tiltY) * 0.05;
+      /* Targets live in the mesh's own space, so a spinning mesh would show
+         the word edge-on. Level it out as the morph rises: the swarm spins
+         down and squares up to the camera, then resumes as it disperses. */
+      const flat = 1 - P.morph;
+      mesh.rotation.set(
+        (-0.15 + tiltX) * flat,
+        ((spin % (Math.PI * 2)) + tiltY) * flat,
+        0,
+      );
+      build(elapsed, delta);
+      draw();
+      if (!reduced && visible && !document.hidden) raf = requestAnimationFrame(frame);
+    }
+
+    const play = () => {
+      if (reduced || raf || !visible || document.hidden) return;
+      clock.getDelta();
+      raf = requestAnimationFrame(frame);
+    };
+
+    if (heavy) {
+      addEventListener('mousemove', (e) => {
+        const r = canvas.getBoundingClientRect();
+        ndcX = ((e.clientX - r.left) / r.width) * 2 - 1;
+        ndcY = -(((e.clientY - r.top) / r.height) * 2 - 1);
+        cursorOn = e.clientX > r.left - 160 && e.clientX < r.right + 160
+          && e.clientY > r.top - 160 && e.clientY < r.bottom + 160;
+        wantTiltY = (e.clientX / innerWidth - 0.5) * 0.5;
+        wantTiltX = (e.clientY / innerHeight - 0.5) * 0.35;
+      }, { passive: true });
+      document.addEventListener('mouseleave', () => { cursorOn = false; });
+    }
+
+    new IntersectionObserver((entries) => {
+      visible = entries[0].isIntersecting;
+      play();
+    }, { rootMargin: '120px' }).observe(canvas.parentElement || canvas);
+    document.addEventListener('visibilitychange', play);
+    new MutationObserver(syncBloom)
+      .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    let sizeTimer;
+    addEventListener('resize', () => { clearTimeout(sizeTimer); sizeTimer = setTimeout(resize, 150); });
+
+    resize();
+    if (MODE === 'text') sampleText((opts && opts.text) || 'WERNER');
+    if (reduced) paintStill();
+
+    return {
+      /* Scroll drives these; the render loop reads them every frame. */
+      set(k, v) { P[k] = v; },
+      params: P,
+      ready: () => MODE !== 'text' || textTargets !== null,
+    };
   }
 
-  function draw() {
-    if (composer) composer.render();
-    else renderer.render(scene, camera);
-    canvas.classList.add('is-ready');
-  }
-
-  function paintStill() {
-    snap = true;
-    mesh.rotation.set(-0.15, 0.6, 0);
-    build(6, 0);
-    snap = false;
-    draw();
-  }
-
-  function frame() {
-    raf = 0;
-    const delta = Math.min(0.1, clock.getDelta());
-    elapsed += delta;
-    spin += delta * 0.25;
-    tiltX += (wantTiltX - tiltX) * 0.05;
-    tiltY += (wantTiltY - tiltY) * 0.05;
-    mesh.rotation.set(-0.15 + tiltX, spin + tiltY, 0);
-    build(elapsed, delta);
-    draw();
-    if (!reduced && visible && !document.hidden) raf = requestAnimationFrame(frame);
-  }
-
-  const play = () => {
-    if (reduced || raf || !visible || document.hidden) return;
-    clock.getDelta();
-    raf = requestAnimationFrame(frame);
-  };
-
-  if (heavy) {
-    addEventListener('mousemove', (e) => {
-      const r = canvas.getBoundingClientRect();
-      ndcX = ((e.clientX - r.left) / r.width) * 2 - 1;
-      ndcY = -(((e.clientY - r.top) / r.height) * 2 - 1);
-      cursorOn = e.clientX > r.left - 160 && e.clientX < r.right + 160
-        && e.clientY > r.top - 160 && e.clientY < r.bottom + 160;
-      wantTiltY = (e.clientX / innerWidth - 0.5) * 0.5;
-      wantTiltX = (e.clientY / innerHeight - 0.5) * 0.35;
-    }, { passive: true });
-    document.addEventListener('mouseleave', () => { cursorOn = false; });
-  }
-
-  new IntersectionObserver((entries) => {
-    visible = entries[0].isIntersecting;
-    play();
-  }, { rootMargin: '120px' }).observe(canvas.parentElement || canvas);
-  document.addEventListener('visibilitychange', play);
-  new MutationObserver(syncBloom)
-    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-
-  let sizeTimer;
-  addEventListener('resize', () => { clearTimeout(sizeTimer); sizeTimer = setTimeout(resize, 150); });
-
-  resize();
-  if (reduced) paintStill();
+  if (heroCanvas) window.__swarmHero = createSwarm(heroCanvas, { mode: 'converge' });
+  if (sigCanvas) window.__swarmSignature = createSwarm(sigCanvas, { mode: 'text', text: 'WERNER' });
 })();
 </script>
 <script type="module">
