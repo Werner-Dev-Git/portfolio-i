@@ -365,40 +365,56 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 .odo .suffix{color:var(--acc)}
 
 /* ============================================================
-   WORK — pinned 3D stack
+   WORK — editorial index with a cursor preview
    ============================================================ */
-.work-stack{position:relative;perspective:1400px;perspective-origin:50% 42%}
-.work-card{
-  position:absolute;inset:0;margin:auto;width:min(980px,100%);height:min(78vh,780px);
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
-  padding:clamp(14px,1.4vw,20px);display:grid;grid-template-rows:auto 1fr auto;gap:14px;
-  transform-style:preserve-3d;will-change:transform,opacity;
-  box-shadow:0 40px 90px -50px rgba(0,0,0,.9);
-}
-.work-bar{display:flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid var(--line);
-  border-radius:999px;background:rgba(255,255,255,.03)}
-.work-bar i{width:8px;height:8px;border-radius:50%;background:var(--line-2);flex:none}
-.work-card:hover .work-bar i:nth-child(1){background:#ff5f57}
-.work-card:hover .work-bar i:nth-child(2){background:#febc2e}
-.work-card:hover .work-bar i:nth-child(3){background:#28c840}
-.work-bar span{flex:1;margin-left:8px;font-size:.72rem;letter-spacing:.04em;color:var(--mute);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.work-bar b{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-disp);font-size:.62rem;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--acc);font-weight:600}
-.work-bar b::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--acc);
-  box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 2.6s infinite}
-.work-thumb{position:relative;border-radius:var(--r);overflow:hidden;display:block;background:var(--bg-2)}
-.work-thumb img{position:absolute;top:0;left:0;width:100%;height:auto;will-change:transform}
+.work-head{display:flex;justify-content:space-between;align-items:end;gap:24px;
+  flex-wrap:wrap;margin-bottom:clamp(34px,4vw,60px)}
+.work-index{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.work-row{
+  display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;
+  gap:clamp(14px,2vw,32px);padding:clamp(18px,2.1vw,30px) 4px;
+  border-bottom:1px solid var(--line);position:relative;
+  transition:padding-left .45s var(--ease),opacity .4s}
+.work-row::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:var(--acc);transform:scaleX(0);transform-origin:0 50%;
+  transition:transform .5s var(--ease)}
+.work-row:hover::after,.work-row:focus-visible::after{transform:scaleX(1)}
+.work-row:hover,.work-row:focus-visible{padding-left:18px}
+/* hovering the list dims the rest so the pointer picks one out */
+.work-index:hover .work-row{opacity:.38}
+.work-index:hover .work-row:hover{opacity:1}
+.wr-n{font-family:var(--f-disp);font-size:.76rem;letter-spacing:.14em;color:var(--acc);min-width:2.2em}
+.wr-name{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;
+  letter-spacing:-.02em;font-size:clamp(1.3rem,3.1vw,2.6rem);line-height:1;transition:color .4s}
+.work-row:hover .wr-name{color:var(--acc)}
+.wr-tags{font-size:.8rem;color:var(--mute);white-space:nowrap}
+.wr-host{font-family:var(--f-disp);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mute);white-space:nowrap;opacity:.7}
+.wr-thumb{display:none}
+.wr-go{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--ink-dim);flex:none;transition:.45s var(--ease)}
+.wr-go svg{width:17px;height:17px}
+.work-row:hover .wr-go{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);transform:rotate(45deg)}
 
-.work-meta{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 8px 6px}
-.work-meta .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.tag{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);
-  border:1px solid var(--line);border-radius:999px;padding:5px 12px}
-.work-arrow{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.07);
-  display:grid;place-items:center;flex:none;transition:.45s var(--ease);border:1px solid var(--line)}
-.work-card:hover .work-arrow{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);transform:rotate(45deg)}
-.work-arrow svg{width:20px;height:20px}
-@media(max-width:760px){.work-card{height:70vh}.work-meta .h3{font-size:1.25rem}}
+/* the preview that rides the cursor */
+.work-peek{position:fixed;top:0;left:0;z-index:120;pointer-events:none;
+  width:clamp(240px,22vw,340px);aspect-ratio:16/11;border-radius:var(--r);
+  overflow:hidden;border:1px solid var(--line-2);background:var(--bg-2);
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.95);opacity:0;
+  transform:translate(-50%,-50%) scale(.92);
+  transition:opacity .35s var(--ease),transform .45s var(--ease);will-change:transform}
+.work-peek.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.work-peek img{width:100%;height:auto;display:block}
+@media(hover:none),(pointer:coarse){
+  .work-peek{display:none}
+  /* no hover on touch, so each row carries its own thumbnail */
+  .work-row{grid-template-columns:auto 1fr auto;gap:14px;padding-block:16px}
+  .wr-tags,.wr-host,.wr-go{display:none}
+  .wr-thumb{display:block;width:74px;height:52px;border-radius:8px;overflow:hidden;
+    border:1px solid var(--line);background:var(--bg-2)}
+  .wr-thumb img{width:100%;height:auto;display:block}
+  .work-index:hover .work-row{opacity:1}
+}
 
 /* ============================================================
    SERVICES — sticky stacked panels
@@ -756,99 +772,102 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
   </div>
 </section>
 
-<!-- ══════════════ WORK — pinned 3D stack ══════════════ -->
-<section id="work" style="padding-bottom:0">
-  <div class="container" style="display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap">
-    <div style="display:grid;gap:20px">
-      <span class="eyebrow" data-fade>Works</span>
-      <h2 class="display h2" data-split="chars">Live work</h2>
+<!-- ══════════════ WORK — index with hover preview ══════════════ -->
+<section id="work">
+  <div class="container">
+    <div class="work-head">
+      <div style="display:grid;gap:20px">
+        <span class="eyebrow" data-fade>Works</span>
+        <h2 class="display h2" data-split="chars">Live work</h2>
+      </div>
+      <p class="lead" data-fade style="max-width:34ch">Ten sites, all live and all built by hand.
+        Hover a line to preview it — click to open the real thing.</p>
     </div>
-    <p class="lead" data-split="lines" style="max-width:32ch">Ten sites, all live. Scroll to move through the stack — click any card to open it.</p>
+
+    <ol class="work-index" id="workIndex">
+      <li><a class="work-row" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener" data-shot="assets/screens/satreach.jpg">
+        <span class="wr-n">01</span>
+        <span class="wr-name">SatReach</span>
+        <span class="wr-tags">Design + Build · Connectivity</span>
+        <span class="wr-host">werner-dev-git.github.io/satreach</span>
+        <span class="wr-thumb"><img src="assets/screens/satreach.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+      <li><a class="work-row" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener" data-shot="assets/screens/aluplast.jpg">
+        <span class="wr-n">02</span>
+        <span class="wr-name">EuroFenster</span>
+        <span class="wr-tags">Design + Build · Corporate</span>
+        <span class="wr-host">werner-dev-git.github.io/aluplast-website</span>
+        <span class="wr-thumb"><img src="assets/screens/aluplast.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+      <li><a class="work-row" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener" data-shot="assets/screens/frogg.jpg">
+        <span class="wr-n">03</span>
+        <span class="wr-name">FROGG Recruitment</span>
+        <span class="wr-tags">Dev · Recruitment</span>
+        <span class="wr-host">froggrecruit-sa.co.za</span>
+        <span class="wr-thumb"><img src="assets/screens/frogg.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+      <li><a class="work-row" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener" data-shot="assets/screens/inbody.jpg">
+        <span class="wr-n">04</span>
+        <span class="wr-name">InBody SA</span>
+        <span class="wr-tags">Design + Build · Health</span>
+        <span class="wr-host">werner-dev-git.github.io/inbody</span>
+        <span class="wr-thumb"><img src="assets/screens/inbody.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+      <li><a class="work-row" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener" data-shot="assets/screens/karua.jpg">
+        <span class="wr-n">05</span>
+        <span class="wr-name">Karua Drilling</span>
+        <span class="wr-tags">Design + Build · Industrial</span>
+        <span class="wr-host">werner-dev-git.github.io/karua-drilling</span>
+        <span class="wr-thumb"><img src="assets/screens/karua.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+      <li><a class="work-row" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener" data-shot="assets/screens/dna.jpg">
+        <span class="wr-n">06</span>
+        <span class="wr-name">DNA Outsourcing</span>
+        <span class="wr-tags">Design + Build · B2B</span>
+        <span class="wr-host">werner-dev-git.github.io/EORSite</span>
+        <span class="wr-thumb"><img src="assets/screens/dna.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+      <li><a class="work-row" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener" data-shot="assets/screens/crest.jpg">
+        <span class="wr-n">07</span>
+        <span class="wr-name">Crest Advisory</span>
+        <span class="wr-tags">Corporate · Consulting</span>
+        <span class="wr-host">crestadvisoryafrica.com</span>
+        <span class="wr-thumb"><img src="assets/screens/crest.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+      <li><a class="work-row" href="https://cobaltcreed.com/" target="_blank" rel="noopener" data-shot="assets/screens/cobaltcreed.jpg">
+        <span class="wr-n">08</span>
+        <span class="wr-name">Cobalt Creed</span>
+        <span class="wr-tags">Corporate · Manufacturing</span>
+        <span class="wr-host">cobaltcreed.com</span>
+        <span class="wr-thumb"><img src="assets/screens/cobaltcreed.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+      <li><a class="work-row" href="https://www.evetech.co.za/" target="_blank" rel="noopener" data-shot="assets/screens/evetech.jpg">
+        <span class="wr-n">09</span>
+        <span class="wr-name">Evetech</span>
+        <span class="wr-tags">E-commerce · Gaming</span>
+        <span class="wr-host">evetech.co.za</span>
+        <span class="wr-thumb"><img src="assets/screens/evetech.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+      <li><a class="work-row" href="https://werner-dev-git.github.io/fifty-shades-of-green/" target="_blank" rel="noopener" data-shot="assets/screens/fifty-shades.jpg">
+        <span class="wr-n">10</span>
+        <span class="wr-name">Fifty Shades of Green</span>
+        <span class="wr-tags">Design + Build · Entertainment</span>
+        <span class="wr-host">werner-dev-git.github.io/fifty-shades-of-green</span>
+        <span class="wr-thumb"><img src="assets/screens/fifty-shades.jpg" alt="" loading="lazy" decoding="async"></span>
+        <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+      </a></li>
+    </ol>
   </div>
-</section>
-<section id="workPin" style="padding-block:0">
-  <div class="container work-stack" id="workStack" style="height:100svh">
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b>Live</b></div>
-      <a class="work-thumb" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener" aria-label="Visit SatReach">
-        <img src="assets/screens/satreach.jpg" alt="SatReach, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">SatReach</h3><div class="tags"><span class="tag">Design + Build</span><span class="tag">Connectivity</span></div></div>
-        <a class="work-arrow" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener" aria-label="Open SatReach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/aluplast-website</span><b>Live</b></div>
-      <a class="work-thumb" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener" aria-label="Visit EuroFenster">
-        <img src="assets/screens/aluplast.jpg" alt="EuroFenster, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">EuroFenster</h3><div class="tags"><span class="tag">Design + Build</span><span class="tag">Corporate</span></div></div>
-        <a class="work-arrow" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener" aria-label="Open EuroFenster"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>froggrecruit-sa.co.za</span><b>Live</b></div>
-      <a class="work-thumb" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener" aria-label="Visit FROGG Recruitment">
-        <img src="assets/screens/frogg.jpg" alt="FROGG Recruitment, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">FROGG Recruitment</h3><div class="tags"><span class="tag">Dev</span><span class="tag">Recruitment</span></div></div>
-        <a class="work-arrow" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener" aria-label="Open FROGG Recruitment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b>Live</b></div>
-      <a class="work-thumb" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener" aria-label="Visit InBody SA">
-        <img src="assets/screens/inbody.jpg" alt="InBody SA, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">InBody SA</h3><div class="tags"><span class="tag">Design + Build</span><span class="tag">Health / Product</span></div></div>
-        <a class="work-arrow" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener" aria-label="Open InBody SA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/karua-drilling</span><b>Live</b></div>
-      <a class="work-thumb" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener" aria-label="Visit Karua Drilling">
-        <img src="assets/screens/karua.jpg" alt="Karua Drilling, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">Karua Drilling</h3><div class="tags"><span class="tag">Design + Build</span><span class="tag">Industrial</span></div></div>
-        <a class="work-arrow" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener" aria-label="Open Karua Drilling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/EORSite</span><b>Live</b></div>
-      <a class="work-thumb" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener" aria-label="Visit DNA Outsourcing">
-        <img src="assets/screens/dna.jpg" alt="DNA Outsourcing, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">DNA Outsourcing</h3><div class="tags"><span class="tag">Design + Build</span><span class="tag">B2B / Payroll</span></div></div>
-        <a class="work-arrow" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener" aria-label="Open DNA Outsourcing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>crestadvisoryafrica.com</span><b>Live</b></div>
-      <a class="work-thumb" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener" aria-label="Visit Crest Advisory Africa">
-        <img src="assets/screens/crest.jpg" alt="Crest Advisory Africa, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">Crest Advisory Africa</h3><div class="tags"><span class="tag">Corporate</span><span class="tag">Consulting</span></div></div>
-        <a class="work-arrow" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener" aria-label="Open Crest Advisory Africa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>cobaltcreed.com</span><b>Live</b></div>
-      <a class="work-thumb" href="https://cobaltcreed.com/" target="_blank" rel="noopener" aria-label="Visit Cobalt Creed">
-        <img src="assets/screens/cobaltcreed.jpg" alt="Cobalt Creed, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">Cobalt Creed</h3><div class="tags"><span class="tag">Corporate</span><span class="tag">Manufacturing</span></div></div>
-        <a class="work-arrow" href="https://cobaltcreed.com/" target="_blank" rel="noopener" aria-label="Open Cobalt Creed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>evetech.co.za</span><b>Live</b></div>
-      <a class="work-thumb" href="https://www.evetech.co.za/" target="_blank" rel="noopener" aria-label="Visit Evetech">
-        <img src="assets/screens/evetech.jpg" alt="Evetech, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">Evetech</h3><div class="tags"><span class="tag">E-commerce</span><span class="tag">Gaming</span></div></div>
-        <a class="work-arrow" href="https://www.evetech.co.za/" target="_blank" rel="noopener" aria-label="Open Evetech"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-    <article class="work-card">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/fifty-shades-of-green</span><b>Live</b></div>
-      <a class="work-thumb" href="https://werner-dev-git.github.io/fifty-shades-of-green/" target="_blank" rel="noopener" aria-label="Visit Fifty Shades of Green">
-        <img src="assets/screens/fifty-shades.jpg" alt="Fifty Shades of Green, full page" loading="lazy" decoding="async">
-      </a>
-      <div class="work-meta"><div><h3 class="display h3">Fifty Shades of Green</h3><div class="tags"><span class="tag">Design + Build</span><span class="tag">Entertainment</span></div></div>
-        <a class="work-arrow" href="https://werner-dev-git.github.io/fifty-shades-of-green/" target="_blank" rel="noopener" aria-label="Open Fifty Shades of Green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
-    </article>
-  </div>
+  <div class="work-peek" id="workPeek" aria-hidden="true"><img alt=""></div>
 </section>
 
 <!-- ══════════════ SERVICES — sticky stack ══════════════ -->
@@ -1277,46 +1296,45 @@ function counters() {
   });
 }
 
-/* ───────────────────────────────────────────────
-   8. WORK — pinned 3D card stack
-   ─────────────────────────────────────────────── */
-function workStack() {
-  const stack = document.getElementById("workStack");
-  if (!stack) return;
-  const cards = gsap.utils.toArray(".work-card", stack);
-  gsap.set(cards, { transformOrigin: "50% 100%" });
-  cards.forEach((c, i) => {
-    gsap.set(c, i === 0 ? { yPercent: 0, rotateX: 0, scale: 1 } : { yPercent: 112, rotateX: -18, scale: 1 });
-    c.style.zIndex = i + 1;
-  });
+/* ═══════════════════════════════════════════════
+   8. WORK — index rows + a preview that rides the cursor
+   ═══════════════════════════════════════════════ */
+function workIndex() {
+  const list = document.getElementById("workIndex");
+  const peek = document.getElementById("workPeek");
+  if (!list) return;
+  const rows = gsap.utils.toArray(".work-row", list);
 
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: "#workPin", start: "top top",
-      end: () => "+=" + window.innerHeight * (cards.length - 1) * 0.62,
-      pin: true, scrub: .55, anticipatePin: 1, invalidateOnRefresh: true
-    }
-  });
+  /* fromTo with immediateRender:false — a plain .from() here gets re-applied by
+     the ScrollTrigger.refresh() on load and leaves the rows stuck at opacity 0 */
+  gsap.fromTo(rows,
+    { y: 40, opacity: 0 },
+    {
+      y: 0, opacity: 1, duration: .9, ease: "expo.out", stagger: .06,
+      immediateRender: false,
+      scrollTrigger: { trigger: list, start: "top 85%", once: true },
+    });
 
-  cards.forEach((card, i) => {
-    if (!i) return;
-    const prev = cards[i - 1];
-    tl.to(prev, { scale: .9, yPercent: -8, rotateX: 12, opacity: .35, duration: 1, ease: "none" }, i - 1)
-      .to(card, { yPercent: 0, rotateX: 0, duration: 1, ease: "none" }, i - 1);
-  });
+  if (!peek || REDUCED || window.matchMedia("(hover: none)").matches) return;
+  const img = peek.querySelector("img");
+  /* quickTo lets the preview lag a little behind the pointer */
+  const px = gsap.quickTo(peek, "x", { duration: .5, ease: "power3" });
+  const py = gsap.quickTo(peek, "y", { duration: .5, ease: "power3" });
+  let shown = false;
 
-  /* each full-page capture pans inside its card as the stack advances, so you
-     see more of the real site than just its masthead */
-  cards.forEach((card) => {
-    const img = card.querySelector("img");
-    const thumb = card.querySelector(".work-thumb");
-    if (!img) return;
-    const travel = () => Math.max(0, img.clientHeight - thumb.clientHeight);
-    gsap.fromTo(img, { y: 0 }, {
-      y: () => -travel(), ease: "none", invalidateOnRefresh: true,
-      scrollTrigger: { trigger: "#workPin", start: "top top", end: "bottom bottom", scrub: 1 }
+  rows.forEach((row) => {
+    row.addEventListener("mouseenter", () => {
+      const src = row.dataset.shot;
+      if (img.getAttribute("src") !== src) img.setAttribute("src", src);
+      peek.classList.add("on");
+      shown = true;
     });
   });
+  list.addEventListener("mouseleave", () => { peek.classList.remove("on"); shown = false; });
+  addEventListener("mousemove", (e) => {
+    if (!shown) return;
+    px(e.clientX); py(e.clientY);
+  }, { passive: true });
 }
 
 /* ───────────────────────────────────────────────
@@ -1508,7 +1526,7 @@ function chrome() {
     dx(e.clientX - 5); dy(e.clientY - 5);
     rx(e.clientX - 21); ry(e.clientY - 21);
   });
-  document.querySelectorAll("a,button,.work-card,.price,.quote").forEach((el) => {
+  document.querySelectorAll("a,button,.work-row,.price,.shot").forEach((el) => {
     el.addEventListener("mouseenter", () => gsap.to(ring, { scale: 1.9, borderColor: "rgba(34,197,94,.8)", duration: .35 }));
     el.addEventListener("mouseleave", () => gsap.to(ring, { scale: 1, borderColor: "rgba(255,255,255,.35)", duration: .35 }));
   });
@@ -1660,7 +1678,7 @@ function trustStrip() {
 function boot() {
   if (REDUCED) document.documentElement.classList.add("no-motion");
   buildReveals(); scrubWords(); buildMarquees(); trustStrip(); trustNeon(); heroMotion(); counters();
-  workStack(); serviceStack(); processScroll(); designWall(); accordions(); chrome();
+  workIndex(); serviceStack(); processScroll(); designWall(); accordions(); chrome();
   ScrollTrigger.refresh();
 }
 
