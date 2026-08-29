@@ -11,7 +11,8 @@
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+    "cobe": "https://cdn.jsdelivr.net/npm/cobe@latest/+esm"
   }
 }
 </script>
@@ -514,6 +515,29 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
 .acc-a p{margin:0 0 clamp(20px,2vw,28px);color:var(--ink-dim);max-width:60ch}
 
 /* ============================================================
+   REACH — cobe globe
+   ============================================================ */
+.reach-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,4vw,70px);align-items:center}
+.reach-copy{display:grid;gap:clamp(16px,1.8vw,24px);justify-items:start}
+.reach-list{list-style:none;margin:0;padding:0;display:grid;width:100%}
+.reach-list li{display:grid;gap:3px;padding:15px 0;border-top:1px solid var(--line);
+  transition:border-color .4s,padding-left .4s var(--ease)}
+.reach-list li:last-child{border-bottom:1px solid var(--line)}
+.reach-list li:hover{border-top-color:var(--acc);padding-left:10px}
+.reach-list b{font-family:var(--f-disp);font-size:.98rem;letter-spacing:.01em}
+.reach-list span{font-size:.85rem;color:var(--mute)}
+.reach-globe{position:relative;width:100%;max-width:min(560px,100%);
+  margin-inline:auto;aspect-ratio:1/1}
+#cobeGlobe{width:100%;height:100%;display:block;cursor:grab;
+  contain:layout paint size;opacity:0;transition:opacity 1s ease}
+#cobeGlobe.is-ready{opacity:1}
+#cobeGlobe:active{cursor:grabbing}
+@media(max-width:900px){
+  .reach-grid{grid-template-columns:1fr}
+  .reach-globe{order:-1;max-width:min(400px,86vw)}
+}
+
+/* ============================================================
    FOOTER
    ============================================================ */
 .foot{background-color:var(--bg-2);background-image:var(--pattern);background-size:var(--pattern-size);
@@ -931,6 +955,27 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <div class="ind"><span class="n">02</span><h3 class="h4">Health and product</h3><p class="muted">Medical-grade hardware and product catalogues, where specs, trust signals and a clean enquiry path have to coexist.</p></div>
       <div class="ind"><span class="n">03</span><h3 class="h4">Services and B2B</h3><p class="muted">Recruitment, payroll, audit and compliance — two audiences on one page, each needing a different door.</p></div>
       <div class="ind"><span class="n">04</span><h3 class="h4">Founders and small teams</h3><p class="muted">People who need the whole distance covered by one person: the design, the build, and the thing actually going live.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ REACH — cobe globe ══════════════ -->
+<section id="reach">
+  <div class="container reach-grid">
+    <div class="reach-copy">
+      <span class="eyebrow" data-fade>Reach</span>
+      <h2 class="display h2" data-split="chars">Built here,<br>shipped wide</h2>
+      <p class="lead" data-fade>South Africa is home. The work on this page reaches further —
+        drag the globe.</p>
+      <ul class="reach-list" data-stagger>
+        <li><b>South Africa</b><span>Home base — SatReach, Karua, FROGG, InBody, EuroFenster</span></li>
+        <li><b>United States</b><span>Cobalt Creed — St. Louis, Missouri</span></li>
+        <li><b>Gulf &amp; Europe</b><span>DNA Outsourcing — UAE and European payroll</span></li>
+        <li><b>Germany</b><span>EuroFenster — aluplast&reg; window systems</span></li>
+      </ul>
+    </div>
+    <div class="reach-globe">
+      <canvas id="cobeGlobe" aria-label="Globe showing where the projects reach"></canvas>
     </div>
   </div>
 </section>
@@ -2111,6 +2156,81 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
 
     }
   }
+})();
+</script>
+<script type="module">
+/* ============ Cobe globe — where the work reaches ============
+   Created and destroyed on visibility: cobe runs its own render loop, so
+   leaving one spinning off-screen burns GPU for nothing. */
+(async () => {
+  const canvas = document.getElementById("cobeGlobe");
+  if (!canvas) return;
+  let createGlobe;
+  try { ({ default: createGlobe } = await import("cobe")); } catch (e) { return; }
+
+  const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* real places the projects on this page actually point at */
+  const MARKERS = [
+    { location: [-33.9249,  18.4241], size: 0.09 },  /* Cape Town — base      */
+    { location: [-26.2041,  28.0473], size: 0.06 },  /* Johannesburg          */
+    { location: [ -3.0674,  37.3556], size: 0.045 }, /* Kilimanjaro           */
+    { location: [ 38.6270, -90.1994], size: 0.06 },  /* St. Louis             */
+    { location: [ 25.2048,  55.2708], size: 0.055 }, /* Dubai                 */
+    { location: [ 52.5200,  13.4050], size: 0.05 },  /* Berlin                */
+    { location: [ 51.5074,  -0.1278], size: 0.045 }, /* London                */
+  ];
+
+  let globe = null, width = 0;
+  let phi = 0, drag = 0, dragTarget = 0, grabbing = null;
+
+  const size = () => { width = canvas.offsetWidth; };
+
+  function build() {
+    if (globe) return;
+    size();
+    if (!width) return;
+    globe = createGlobe(canvas, {
+      devicePixelRatio: Math.min(2, devicePixelRatio || 1),
+      width: width * 2,
+      height: width * 2,
+      phi: 0,
+      theta: 0.22,
+      dark: 1,
+      /* kept close to cobe's documented defaults: the land dots cannot be
+         verified under software WebGL, so this is not tuned by eye */
+      diffuse: 1.25,
+      mapSamples: 16000,
+      mapBrightness: 6,
+      baseColor: [0.29, 0.33, 0.31],
+      markerColor: [0.13, 0.77, 0.37],   /* the site accent */
+      glowColor: [0.16, 0.4, 0.26],
+      markers: MARKERS,
+      onRender: (state) => {
+        if (!grabbing && !REDUCED) phi += 0.0038;
+        drag += (dragTarget - drag) * 0.08;
+        state.phi = phi + drag;
+        state.width = width * 2;
+        state.height = width * 2;
+      },
+    });
+    requestAnimationFrame(() => canvas.classList.add("is-ready"));
+  }
+
+  const teardown = () => { globe?.destroy(); globe = null; canvas.classList.remove("is-ready"); };
+
+  new IntersectionObserver((entries) => {
+    entries[0].isIntersecting ? build() : teardown();
+  }, { rootMargin: "400px" }).observe(canvas);
+
+  /* drag to spin */
+  const onDown = (x) => { grabbing = x - dragTarget * 220; };
+  const onUp = () => { grabbing = null; };
+  const onMove = (x) => { if (grabbing !== null) dragTarget = (x - grabbing) / 220; };
+  canvas.addEventListener("pointerdown", (e) => { onDown(e.clientX); canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener("pointerup", onUp);
+  canvas.addEventListener("pointercancel", onUp);
+  canvas.addEventListener("pointermove", (e) => onMove(e.clientX));
+  addEventListener("resize", size);
 })();
 </script>
 </body>
