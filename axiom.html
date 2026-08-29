@@ -310,8 +310,7 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 .about-head{max-width:22ch}
 .scrub-word{color:rgba(255,255,255,.16);transition:none}
 .about-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(28px,5vw,80px);margin-top:clamp(40px,6vw,90px)}
-.about-split{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(28px,4vw,64px);
-  align-items:center;margin-top:clamp(40px,6vw,84px)}
+.about-split{display:grid;gap:clamp(34px,4.5vw,66px);margin-top:clamp(40px,6vw,84px)}
 .about-copy{display:grid;gap:clamp(16px,1.6vw,22px);align-content:start}
 .about-copy .chips{margin-top:6px}
 /* the skeleton had no chip styling — these came across with the copy */
@@ -320,32 +319,73 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
   padding:7px 14px;transition:border-color .3s,color .3s,background .3s}
 .chip:hover{border-color:var(--acc);color:var(--acc);background:rgba(34,197,94,.07)}
 
-/* a panel of the page's own source — the most direct proof a dev-first
-   portfolio can offer */
-.code-panel{margin:0;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;
+/* ── SKILL TREE ─────────────────────────────────────────────
+   A dev-first portfolio should show the stack, not assert it.
+   Geometry is computed in JS and the viewBox is fitted with
+   getBBox, so label lengths never have to be guessed at. */
+.tree{margin:0;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;
   background:#0a0d11;box-shadow:0 40px 90px -55px rgba(0,0,0,.95)}
 .code-bar{display:flex;align-items:center;gap:7px;padding:12px 16px;
   border-bottom:1px solid var(--line);background:rgba(255,255,255,.022)}
 .code-bar i{width:8px;height:8px;border-radius:50%;background:var(--line-2);flex:none}
-.code-panel:hover .code-bar i:nth-child(1){background:#ff5f57}
-.code-panel:hover .code-bar i:nth-child(2){background:#febc2e}
-.code-panel:hover .code-bar i:nth-child(3){background:#28c840}
+.tree:hover .code-bar i:nth-child(1){background:#ff5f57}
+.tree:hover .code-bar i:nth-child(2){background:#febc2e}
+.tree:hover .code-bar i:nth-child(3){background:#28c840}
 .code-bar span{margin-left:10px;font-family:var(--f-disp);font-size:.66rem;letter-spacing:.14em;
   text-transform:uppercase;color:var(--mute)}
-.code-panel pre{margin:0;padding:clamp(16px,1.7vw,26px);overflow-x:auto;
-  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  font-size:clamp(.66rem,.8vw,.79rem);line-height:1.8}
-.code-panel .ln{display:block;white-space:pre;min-height:1.8em}
-.code-panel figcaption{padding:14px 18px;border-top:1px solid var(--line);
+.tree figcaption{padding:14px 18px;border-top:1px solid var(--line);
   font-size:.78rem;color:var(--mute);background:rgba(255,255,255,.015)}
-.tok-c{color:#55606b;font-style:italic}
-.tok-k{color:var(--acc)}
-.tok-f{color:#7dd3fc}
-.tok-n{color:#fbbf24}
-.tok-p{color:var(--ink-dim)}
+.tree-stage{padding:clamp(10px,1.4vw,22px);
+  background:radial-gradient(circle at 12% 40%,rgba(34,197,94,.05) 0%,transparent 62%)}
+#treeSvg{display:block;width:100%;height:auto}
+.tree-list{display:none}
+
+.tr-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:2.5}
+/* pathLength=1 means one dash rule covers every curve length */
+.tr-energy{fill:none;stroke:var(--acc);stroke-width:2;stroke-dasharray:1;stroke-dashoffset:1;
+  filter:drop-shadow(0 0 4px rgba(34,197,94,.75));
+  animation:trDraw 1.6s var(--ease) forwards;animation-play-state:paused}
+.tr-node{opacity:0;transform-box:fill-box;transform-origin:center;
+  animation:trPop .55s cubic-bezier(.34,1.56,.64,1) forwards;animation-play-state:paused}
+.tree.live .tr-energy,.tree.live .tr-node{animation-play-state:running}
+.tr-hit{transform-box:fill-box;transform-origin:center;cursor:default;
+  transition:transform .25s cubic-bezier(.175,.885,.32,1.275)}
+.tr-hit:hover{transform:scale(1.14)}
+.tr-core{fill:rgba(34,197,94,.07);stroke:var(--acc);transition:fill .3s,stroke-width .3s,filter .3s}
+.tr-hit:hover .tr-core{fill:rgba(34,197,94,.2);stroke-width:3;
+  filter:drop-shadow(0 0 11px rgba(34,197,94,.9))}
+.tr-ring{fill:none;stroke:var(--acc);opacity:.35;transform-box:fill-box;transform-origin:center;
+  animation:trSpin 15s linear infinite}
+.tr-hit:hover .tr-ring{opacity:1;stroke-width:2.4;animation-duration:4s}
+.tr-l-root{fill:var(--ink);font-family:var(--f-disp);font-weight:700;font-size:30px;
+  text-anchor:middle;letter-spacing:1px;pointer-events:none}
+.tr-plate{fill:#0a0d11;stroke:rgba(255,255,255,.07);pointer-events:none}
+.tr-l-cat{fill:var(--ink);font-family:var(--f-disp);font-weight:600;font-size:23px;
+  text-anchor:end;pointer-events:none}
+.tr-l-skill{fill:var(--ink-dim);font-size:18px;text-anchor:start;pointer-events:none;
+  transition:fill .3s}
+.tr-hit:hover .tr-l-skill{fill:var(--ink)}
+
+@keyframes trDraw{to{stroke-dashoffset:0}}
+@keyframes trPop{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1)}}
+@keyframes trSpin{to{transform:rotate(360deg)}}
+
+/* Narrow screens get the list, not a 4px-tall SVG. */
 @media(max-width:900px){
-  .about-split{grid-template-columns:1fr;gap:30px}
-  .code-panel pre{font-size:.66rem}
+  #treeSvg{display:none}
+  .tree-list{display:grid;gap:26px;margin:0;padding:4px 2px;list-style:none}
+  .tl-cat>h4{margin:0 0 12px;font-family:var(--f-disp);font-size:.82rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:10px}
+  .tl-cat>h4::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--acc);
+    box-shadow:0 0 10px rgba(34,197,94,.9);flex:none}
+  .tl-cat ul{list-style:none;margin:0;padding:0 0 0 17px;display:grid;gap:7px;
+    border-left:1px solid var(--line)}
+  .tl-cat li{font-size:.84rem;color:var(--ink-dim);position:relative;padding-left:14px}
+  .tl-cat li::before{content:"";position:absolute;left:0;top:.58em;width:7px;height:1px;
+    background:var(--line-2)}
+}
+@media(prefers-reduced-motion:reduce){
+  .tr-ring{animation:none}
 }
 @media(max-width:900px){.about-grid{grid-template-columns:1fr}}
 .rating{display:flex;gap:18px;align-items:flex-start}
@@ -414,6 +454,92 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
     border:1px solid var(--line);background:var(--bg-2)}
   .wr-thumb img{width:100%;height:auto;display:block}
   .work-index:hover .work-row{opacity:1}
+}
+
+/* The browser chrome above every capture — used by the hero cards and the
+   gallery. It was in the markup from the start but never actually styled. */
+.work-bar{display:flex;align-items:center;gap:7px;padding:3px 5px 2px}
+.work-bar i{width:8px;height:8px;border-radius:50%;background:var(--line-2);flex:none;
+  transition:background .35s var(--ease)}
+.hero-card:hover .work-bar i:nth-child(1),.gal-card:hover .work-bar i:nth-child(1){background:#ff5f57}
+.hero-card:hover .work-bar i:nth-child(2),.gal-card:hover .work-bar i:nth-child(2){background:#febc2e}
+.hero-card:hover .work-bar i:nth-child(3),.gal-card:hover .work-bar i:nth-child(3){background:#28c840}
+.work-bar span{margin-left:8px;min-width:0;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:.68rem;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-bar b{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--f-disp);font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--acc);background:rgba(34,197,94,.1);padding:3px 9px;border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--acc) 34%,transparent)}
+.work-bar b::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--acc);
+  box-shadow:0 0 8px rgba(34,197,94,.9)}
+
+/* ============================================================
+   GALLERY — native scroll-snap carousel
+   Built on overflow-x + scroll-snap rather than a pinned GSAP
+   track, so touch, trackpad, keyboard and a screen reader all get
+   the real thing. The JS only adds drag and the readouts.
+   ============================================================ */
+#gallery{padding-block:clamp(80px,10vw,150px);position:relative}
+.gal-head{display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap;
+  margin-bottom:clamp(28px,3.4vw,52px)}
+.gal-controls{display:flex;align-items:center;gap:12px}
+.gal-count{font-family:var(--f-disp);font-size:.78rem;letter-spacing:.16em;color:var(--mute);
+  font-variant-numeric:tabular-nums;min-width:7ch}
+.gal-btn{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:transparent;
+  color:var(--ink-dim);display:grid;place-items:center;cursor:pointer;
+  transition:background .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease),
+             transform .35s var(--ease),opacity .35s var(--ease)}
+.gal-btn svg{width:20px;height:20px}
+.gal-btn:hover{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);transform:scale(1.06);
+  box-shadow:0 0 24px rgba(34,197,94,.35)}
+.gal-btn:disabled{opacity:.25;pointer-events:none}
+
+/* The rail. Edge fades only appear on the side that has more to show. */
+.gal{--fl:0px;--fr:0px;
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:var(--pad);
+  overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;cursor:grab;
+  scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%)}
+.gal::-webkit-scrollbar{display:none}
+.gal.can-l{--fl:70px}
+.gal.can-r{--fr:70px}
+.gal:focus-visible{outline:2px solid var(--acc);outline-offset:6px;border-radius:var(--r)}
+/* While dragging, snapping has to be off or the browser fights the pointer. */
+.gal.dragging{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}
+.gal.dragging .gal-card{transition:none}
+.gal-track{display:flex;gap:clamp(16px,1.8vw,26px);padding-inline:var(--pad);width:max-content}
+.gal-item{flex:none;width:clamp(268px,38vw,540px);scroll-snap-align:start}
+
+.gal-card{display:block;padding:clamp(9px,.8vw,13px);border:1px solid var(--line);border-radius:var(--r-lg);
+  background:var(--card);text-decoration:none;color:inherit;
+  transition:border-color .45s var(--ease),transform .5s var(--ease),box-shadow .5s var(--ease)}
+.gal-card:hover{border-color:color-mix(in srgb,var(--acc) 45%,var(--line));transform:translateY(-8px);
+  box-shadow:0 24px 60px -28px rgba(0,0,0,.85),0 0 40px -18px rgba(34,197,94,.5)}
+.gal-shot{position:relative;margin-top:10px;border-radius:var(--r);overflow:hidden;aspect-ratio:16/10;
+  background:var(--bg-2)}
+/* object-position pans the whole capture regardless of how tall it is —
+   no need to know the image height the way a translate would. */
+.gal-shot img{width:100%;height:100%;object-fit:cover;object-position:50% 0;
+  transition:object-position 6s var(--ease)}
+.gal-card:hover .gal-shot img{object-position:50% 100%}
+.gal-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 6px 6px}
+.gal-meta>div{display:flex;align-items:baseline;gap:10px;min-width:0}
+.gal-n{font-family:var(--f-disp);font-size:.72rem;letter-spacing:.14em;color:var(--acc);flex:none}
+.gal-meta h3{margin:0;font-family:var(--f-disp);font-weight:600;font-size:1rem;letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gal-tag{font-size:.74rem;color:var(--mute);text-align:right;flex:none}
+.gal-bar{height:2px;background:var(--line);border-radius:2px;margin-top:clamp(24px,2.6vw,38px);position:relative}
+.gal-bar span{position:absolute;inset:0 auto 0 0;width:0;background:var(--acc);border-radius:2px;
+  box-shadow:0 0 14px rgba(34,197,94,.65);transition:width .12s linear}
+
+@media(max-width:860px){
+  .gal-item{width:min(80vw,420px)}
+  .gal-tag{display:none}
+  .gal-head{align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  .gal-shot img,.gal-card:hover .gal-shot img{transition:none;object-position:50% 0}
 }
 
 /* ============================================================
@@ -789,21 +915,27 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <p class="lead" data-fade>So the order is inverted on paper, and it means the design has
           never once arrived as something that could not be built. Everything on this page is
           hand-written, WebGL included.</p>
-        <div class="chips" data-stagger>
-          <span class="chip">TypeScript</span><span class="chip">JavaScript</span>
-          <span class="chip">React</span><span class="chip">HTML / CSS</span>
-          <span class="chip">GSAP</span><span class="chip">Three.js</span>
-          <span class="chip">GLSL</span><span class="chip">Vite</span>
-          <span class="chip">Git</span><span class="chip">Figma</span>
-          <span class="chip">Design systems</span><span class="chip">Accessibility</span>
-        </div>
       </div>
 
-      <!-- real source from the swarm running in the hero of this page -->
-      <figure class="code-panel" data-fade>
-        <div class="code-bar"><i></i><i></i><i></i><span>hero-swarm.js — running above</span></div>
-        <pre data-stagger><code><span class="ln"><span class="tok-c">// every particle rides a Fibonacci sphere inward to the core</span></span><span class="ln"><span class="tok-k">const</span> <span class="tok-p">norm</span>  <span class="tok-k">=</span> <span class="tok-p">i</span> <span class="tok-k">/</span> <span class="tok-p">count</span><span class="tok-p">;</span></span><span class="ln"><span class="tok-k">const</span> <span class="tok-p">theta</span> <span class="tok-k">=</span> <span class="tok-p">(</span><span class="tok-n">2</span> <span class="tok-k">*</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">PI</span> <span class="tok-k">*</span> <span class="tok-p">i)</span> <span class="tok-k">/</span> <span class="tok-p">GOLDEN</span><span class="tok-p">;</span></span><span class="ln"><span class="tok-k">const</span> <span class="tok-p">phi</span>   <span class="tok-k">=</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">acos</span><span class="tok-p">(</span><span class="tok-n">1</span> <span class="tok-k">-</span> <span class="tok-n">2</span> <span class="tok-k">*</span> <span class="tok-p">norm)</span><span class="tok-p">;</span></span><span class="ln"></span><span class="ln"><span class="tok-c">// radius falls from the rim to the core as it converges</span></span><span class="ln"><span class="tok-k">const</span> <span class="tok-p">radius</span> <span class="tok-k">=</span> <span class="tok-p">P</span><span class="tok-p">.</span><span class="tok-f">core</span> <span class="tok-k">+</span> <span class="tok-p">P</span><span class="tok-p">.</span><span class="tok-f">span</span> <span class="tok-k">*</span> <span class="tok-p">(</span><span class="tok-n">1</span> <span class="tok-k">-</span> <span class="tok-p">eased)</span><span class="tok-p">;</span></span><span class="ln"></span><span class="ln"><span class="tok-p">target</span><span class="tok-p">.</span><span class="tok-f">set</span><span class="tok-p">(</span></span><span class="ln">  <span class="tok-p">radius</span> <span class="tok-k">*</span> <span class="tok-p">sinPhi</span> <span class="tok-k">*</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">cos</span><span class="tok-p">(theta)</span> <span class="tok-k">+</span> <span class="tok-p">wobbleX</span><span class="tok-p">,</span></span><span class="ln">  <span class="tok-p">radius</span> <span class="tok-k">*</span> <span class="tok-p">sinPhi</span> <span class="tok-k">*</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">sin</span><span class="tok-p">(theta)</span> <span class="tok-k">+</span> <span class="tok-p">wobbleY</span><span class="tok-p">,</span></span><span class="ln">  <span class="tok-p">radius</span> <span class="tok-k">*</span> <span class="tok-f">Math</span><span class="tok-p">.</span><span class="tok-f">cos</span><span class="tok-p">(phi)</span>    <span class="tok-k">+</span> <span class="tok-p">wobbleZ</span><span class="tok-p">,</span></span><span class="ln"><span class="tok-p">);</span></span></code></pre>
-        <figcaption>The swarm in the hero is this, twenty thousand times a frame.</figcaption>
+      <figure class="tree" data-fade>
+        <div class="code-bar"><i></i><i></i><i></i><span id="treeBar">stack.tree</span></div>
+        <div class="tree-stage">
+          <svg id="treeSvg" role="img" aria-labelledby="treeTitle" preserveAspectRatio="xMidYMin meet">
+            <title id="treeTitle">Tech stack, drawn as a skill tree</title>
+            <defs>
+              <pattern id="treeGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+                <rect width="60" height="60" fill="none" stroke="rgba(255,255,255,.035)" stroke-width=".5"/>
+                <circle cx="60" cy="60" r="1" fill="rgba(255,255,255,.06)"/>
+              </pattern>
+            </defs>
+            <rect class="tree-grid" width="100%" height="100%" fill="url(#treeGrid)"/>
+            <g id="treeTracks"></g><g id="treeEnergy"></g><g id="treeNodes"></g>
+          </svg>
+          <!-- Below 900px the SVG's 14px labels would render at about 4px,
+               so narrow screens get the same data as a real list instead. -->
+          <ul class="tree-list" id="treeList"></ul>
+        </div>
+        <figcaption>Everything I actually reach for. The green branches draw themselves as you arrive.</figcaption>
       </figure>
     </div>
 
@@ -911,6 +1043,128 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
     </ol>
   </div>
   <div class="work-peek" id="workPeek" aria-hidden="true"><img alt=""></div>
+</section>
+
+<!-- ══════════════ GALLERY — drag / snap carousel ══════════════ -->
+<section id="gallery">
+  <div class="container gal-head">
+    <div style="display:grid;gap:20px">
+      <span class="eyebrow" data-fade>Closer look</span>
+      <h2 class="display h2" data-split="chars">Drag to browse</h2>
+    </div>
+    <div class="gal-controls" data-fade>
+      <span class="gal-count" id="galCount">01 / 10</span>
+      <button class="gal-btn" id="galPrev" type="button" aria-label="Previous project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19 8 12l7-7"/></svg></button>
+      <button class="gal-btn" id="galNext" type="button" aria-label="Next project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>
+    </div>
+  </div>
+
+  <div class="gal" id="gal" tabindex="0" role="region" aria-label="Work gallery — scroll or drag sideways">
+    <div class="gal-track">
+      <article class="gal-item">
+        <a class="gal-card" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/satreach.jpg" alt="SatReach" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">01</span><h3>SatReach</h3></div>
+            <span class="gal-tag">Design + Build · Connectivity</span>
+          </div>
+        </a>
+      </article>
+      <article class="gal-item">
+        <a class="gal-card" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/aluplast-website</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/aluplast.jpg" alt="EuroFenster" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">02</span><h3>EuroFenster</h3></div>
+            <span class="gal-tag">Design + Build · Corporate</span>
+          </div>
+        </a>
+      </article>
+      <article class="gal-item">
+        <a class="gal-card" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>froggrecruit-sa.co.za</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/frogg.jpg" alt="FROGG Recruitment" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">03</span><h3>FROGG Recruitment</h3></div>
+            <span class="gal-tag">Dev · Recruitment</span>
+          </div>
+        </a>
+      </article>
+      <article class="gal-item">
+        <a class="gal-card" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/inbody.jpg" alt="InBody SA" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">04</span><h3>InBody SA</h3></div>
+            <span class="gal-tag">Design + Build · Health</span>
+          </div>
+        </a>
+      </article>
+      <article class="gal-item">
+        <a class="gal-card" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/karua-drilling</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/karua.jpg" alt="Karua Drilling" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">05</span><h3>Karua Drilling</h3></div>
+            <span class="gal-tag">Design + Build · Industrial</span>
+          </div>
+        </a>
+      </article>
+      <article class="gal-item">
+        <a class="gal-card" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/EORSite</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/dna.jpg" alt="DNA Outsourcing" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">06</span><h3>DNA Outsourcing</h3></div>
+            <span class="gal-tag">Design + Build · B2B</span>
+          </div>
+        </a>
+      </article>
+      <article class="gal-item">
+        <a class="gal-card" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>crestadvisoryafrica.com</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/crest.jpg" alt="Crest Advisory" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">07</span><h3>Crest Advisory</h3></div>
+            <span class="gal-tag">Corporate · Consulting</span>
+          </div>
+        </a>
+      </article>
+      <article class="gal-item">
+        <a class="gal-card" href="https://cobaltcreed.com/" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>cobaltcreed.com</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/cobaltcreed.jpg" alt="Cobalt Creed" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">08</span><h3>Cobalt Creed</h3></div>
+            <span class="gal-tag">Corporate · Manufacturing</span>
+          </div>
+        </a>
+      </article>
+      <article class="gal-item">
+        <a class="gal-card" href="https://www.evetech.co.za/" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>evetech.co.za</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/evetech.jpg" alt="Evetech" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">09</span><h3>Evetech</h3></div>
+            <span class="gal-tag">E-commerce · Gaming</span>
+          </div>
+        </a>
+      </article>
+      <article class="gal-item">
+        <a class="gal-card" href="https://werner-dev-git.github.io/fifty-shades-of-green/" target="_blank" rel="noopener">
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/fifty-shades-of-green</span><b>Live</b></div>
+          <div class="gal-shot"><img src="assets/screens/fifty-shades.jpg" alt="Fifty Shades of Green" loading="lazy" decoding="async"></div>
+          <div class="gal-meta">
+            <div><span class="gal-n">10</span><h3>Fifty Shades of Green</h3></div>
+            <span class="gal-tag">Design + Build · Entertainment</span>
+          </div>
+        </a>
+      </article>
+    </div>
+  </div>
+
+  <div class="container"><div class="gal-bar"><span id="galFill"></span></div></div>
 </section>
 
 <!-- ══════════════ SERVICES — sticky stack ══════════════ -->
@@ -1438,6 +1692,228 @@ function serviceStack() {
 }
 
 /* ───────────────────────────────────────────────
+   9a. SKILL TREE — the stack, drawn
+   Root → 12 branches → 53 leaves. Coordinates are computed here
+   rather than authored, and the viewBox is fitted to the real
+   rendered bounds with getBBox so long labels can't overflow.
+   ─────────────────────────────────────────────── */
+const STACK = [
+  { label: "Languages", skills: ["TypeScript","JavaScript","PHP","SQL","HTML","CSS"] },
+  { label: "Frameworks & runtimes", skills: ["Next.js (14 App Router; 15/16 explored)","React","Astro","Vite","Nx monorepo"] },
+  { label: "Styling & UI", skills: ["Tailwind CSS","shadcn/ui","CSS Grid / Flexbox","Fluid type with clamp()","Glassmorphism","Mobile-first breakpoints (sm 640 → 2xl 1536)"] },
+  { label: "Motion & 3D", skills: ["GSAP","Three.js — samurai hero, AC particles, Starlink","Local Connections geodesic dome hero"] },
+  { label: "No-code / visual builders", skills: ["Webflow","Framer","Elementor (legacy section/col & container v4 JSON)"] },
+  { label: "Backend, data & auth", skills: ["Supabase","Neon","Prisma","PostgreSQL","Stack Auth","Clerk","Zod","Trigger.dev","Liveblocks + ReactFlow","Firebase"] },
+  { label: "WordPress stack", skills: ["WooCommerce","Custom PHP plugins — login security, IP blocking","Client feedback tools","WP Scout detection tool"] },
+  { label: "CMS", skills: ["Sanity","Strapi"] },
+  { label: "Payments", skills: ["Yoco"] },
+  { label: "Hosting & infra", skills: ["AWS","Vercel","Cloudflare Pages","Linux / Fedora","Linux sysadmin"] },
+  { label: "Testing", skills: ["Vitest","React Testing Library","Playwright"] },
+  { label: "Tooling & workflow", skills: ["VS Code","Claude Code (CLAUDE.md / .claude/)","n8n","Figma","Git / GitHub"] },
+];
+
+function skillTree() {
+  const host = document.querySelector(".tree");
+  const svg = document.getElementById("treeSvg");
+  if (!host || !svg) return;
+
+  const ROOT_X = 120, CAT_X = 600, SKILL_X = 960;
+  const ROW = 30, GAP = 46;
+  const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const curve = (x1, y1, x2, y2) => {
+    const m = (x1 + x2) / 2;
+    return `M ${x1} ${y1} C ${m} ${y1}, ${m} ${y2}, ${x2} ${y2}`;
+  };
+
+  const cats = [], leaves = [];
+  let y = 70;
+  STACK.forEach((cat, ci) => {
+    const top = y;
+    cat.skills.forEach((name) => { leaves.push({ name, x: SKILL_X, y, ci }); y += ROW; });
+    cats.push({ label: cat.label, x: CAT_X, y: (top + y - ROW) / 2, ci });
+    y += GAP;
+  });
+  const root = { x: ROOT_X, y: (cats[0].y + cats[cats.length - 1].y) / 2 };
+
+  let tracks = "", energy = "", nodes = "";
+  const link = (a, b, delay) => {
+    const d = curve(a.x, a.y, b.x, b.y);
+    tracks += `<path class="tr-track" d="${d}"/>`;
+    energy += `<path class="tr-energy" d="${d}" pathLength="1" style="animation-delay:${delay}s"/>`;
+  };
+  cats.forEach((c, i) => link(root, c, 0.15 + i * 0.07));
+  leaves.forEach((l, i) => link(cats[l.ci], l, 0.5 + l.ci * 0.07 + (i % 6) * 0.04));
+
+  nodes += `<g class="tr-node" style="animation-delay:.05s"><g class="tr-hit">
+      <circle class="tr-ring" cx="${root.x}" cy="${root.y}" r="80" stroke-dasharray="10 15 30 10"/>
+      <circle class="tr-ring" cx="${root.x}" cy="${root.y}" r="71" stroke-dasharray="4 8"
+              style="animation-direction:reverse;animation-duration:20s"/>
+      <circle class="tr-core" cx="${root.x}" cy="${root.y}" r="62" stroke-width="3.5"/>
+      <text class="tr-l-root" x="${root.x}" y="${root.y - 4}">FULL</text>
+      <text class="tr-l-root" x="${root.x}" y="${root.y + 27}">STACK</text></g></g>`;
+
+  cats.forEach((c, i) => {
+    nodes += `<g class="tr-node" style="animation-delay:${(0.4 + i * 0.07).toFixed(2)}s"><g class="tr-hit">
+        <circle class="tr-ring" cx="${c.x}" cy="${c.y}" r="34" stroke-dasharray="5 10 15 5"/>
+        <circle class="tr-core" cx="${c.x}" cy="${c.y}" r="24" stroke-width="2"/>
+        <circle cx="${c.x}" cy="${c.y}" r="4" fill="var(--acc)" style="pointer-events:none"/>
+        <text class="tr-l-cat" x="${c.x - 58}" y="${c.y + 7}">${esc(c.label)}</text></g></g>`;
+  });
+
+  leaves.forEach((l, i) => {
+    nodes += `<g class="tr-node" style="animation-delay:${(0.85 + l.ci * 0.07 + (i % 6) * 0.04).toFixed(2)}s"><g class="tr-hit">
+        <circle class="tr-ring" cx="${l.x}" cy="${l.y}" r="14" stroke-dasharray="2 4"/>
+        <circle class="tr-core" cx="${l.x}" cy="${l.y}" r="8" stroke-width="1.5"/>
+        <text class="tr-l-skill" x="${l.x + 26}" y="${l.y + 6}">${esc(l.name)}</text></g></g>`;
+  });
+
+  document.getElementById("treeTracks").innerHTML = tracks;
+  document.getElementById("treeEnergy").innerHTML = energy;
+  document.getElementById("treeNodes").innerHTML = nodes;
+
+  // The root's fan sweeps straight through where the category labels sit, so
+  // each label gets a plate behind it and the branches pass behind that.
+  const NS = "http://www.w3.org/2000/svg";
+  svg.querySelectorAll(".tr-l-cat").forEach((t) => {
+    let b; try { b = t.getBBox(); } catch (e) { return; }
+    if (!b.width) return;
+    const r = document.createElementNS(NS, "rect");
+    r.setAttribute("class", "tr-plate");
+    r.setAttribute("x", b.x - 14); r.setAttribute("y", b.y - 7);
+    r.setAttribute("width", b.width + 28); r.setAttribute("height", b.height + 14);
+    r.setAttribute("rx", 10);
+    t.parentNode.insertBefore(r, t);
+  });
+
+  // Fit the viewBox to what actually rendered. getBBox returns zeroes while
+  // the SVG is display:none (narrow screens), so fall back to the geometry.
+  const fit = () => {
+    let w = SKILL_X + 620, h = y + 20, x0 = 0, y0 = 0;
+    try {
+      const b = svg.getBBox();
+      if (b.width > 0) { x0 = b.x - 30; y0 = b.y - 30; w = b.width + 60; h = b.height + 60; }
+    } catch (e) { /* not rendered yet */ }
+    svg.setAttribute("viewBox", `${x0} ${y0} ${w} ${h}`);
+  };
+  fit();
+  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(fit, 200); });
+
+  const bar = document.getElementById("treeBar");
+  if (bar) bar.textContent = `stack.tree — ${cats.length} branches, ${leaves.length} nodes`;
+
+  // The list is the narrow-screen rendering of the same data.
+  const list = document.getElementById("treeList");
+  if (list) {
+    list.innerHTML = STACK.map((c) =>
+      `<li class="tl-cat"><h4>${esc(c.label)}</h4><ul>` +
+      c.skills.map((sk) => `<li>${esc(sk)}</li>`).join("") + `</ul></li>`).join("");
+  }
+
+  // Branches draw on arrival rather than on load, or they finish unseen.
+  const wake = () => host.classList.add("live");
+  if (!("IntersectionObserver" in window)) return wake();
+  const io = new IntersectionObserver((es) => {
+    es.forEach((e) => { if (e.isIntersecting) { wake(); io.disconnect(); } });
+  }, { rootMargin: "0px 0px -12% 0px" });
+  io.observe(host);
+}
+
+/* ───────────────────────────────────────────────
+   9b. GALLERY — drag / snap carousel
+   The scrolling itself is the browser's: overflow-x + scroll-snap.
+   This only layers on pointer dragging, the arrows, the keyboard
+   and the readouts, so nothing here is load-bearing.
+   ─────────────────────────────────────────────── */
+function gallery() {
+  const gal = document.getElementById("gal");
+  if (!gal) return;
+  const items = Array.from(gal.querySelectorAll(".gal-item"));
+  if (!items.length) return;
+  const fill  = document.getElementById("galFill");
+  const count = document.getElementById("galCount");
+  const prev  = document.getElementById("galPrev");
+  const next  = document.getElementById("galNext");
+  const total = String(items.length).padStart(2, "0");
+
+  // One item plus the gap, measured live so it survives a resize.
+  const step = () => {
+    const gap = parseFloat(getComputedStyle(gal.querySelector(".gal-track")).columnGap) || 0;
+    return items[0].getBoundingClientRect().width + gap;
+  };
+
+  let ticking = false;
+  const read = () => {
+    ticking = false;
+    const max = gal.scrollWidth - gal.clientWidth;
+    const p = max > 1 ? gal.scrollLeft / max : 0;
+    if (fill) fill.style.width = (p * 100).toFixed(2) + "%";
+
+    // Nearest item to the left edge — matches scroll-snap-align:start.
+    const edge = gal.scrollLeft + parseFloat(getComputedStyle(gal).scrollPaddingLeft || 0);
+    let idx = 0, best = Infinity;
+    items.forEach((it, i) => {
+      const d = Math.abs(it.offsetLeft - edge);
+      if (d < best) { best = d; idx = i; }
+    });
+    const atStart = gal.scrollLeft < 4, atEnd = gal.scrollLeft > max - 4;
+    // At full scroll the last card still can't reach the left edge, so the
+    // nearest-to-edge answer would stall one short of the end.
+    if (atEnd) idx = items.length - 1;
+    if (count) count.textContent = String(idx + 1).padStart(2, "0") + " / " + total;
+
+    if (prev) prev.disabled = atStart;
+    if (next) next.disabled = atEnd;
+    gal.classList.toggle("can-l", !atStart);
+    gal.classList.toggle("can-r", !atEnd && max > 1);
+  };
+  const sync = () => { if (!ticking) { ticking = true; requestAnimationFrame(read); } };
+
+  gal.addEventListener("scroll", sync, { passive: true });
+  addEventListener("resize", sync);
+  read();
+
+  const go = (dir) =>
+    gal.scrollBy({ left: dir * step(), behavior: REDUCED ? "auto" : "smooth" });
+  prev && prev.addEventListener("click", () => go(-1));
+  next && next.addEventListener("click", () => go(1));
+  gal.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+    else if (e.key === "Home") { e.preventDefault(); gal.scrollTo({ left: 0, behavior: "smooth" }); }
+    else if (e.key === "End") { e.preventDefault(); gal.scrollTo({ left: gal.scrollWidth, behavior: "smooth" }); }
+  });
+
+  // Drag to scroll. Touch already does this natively and better, so
+  // pointer dragging is only wired up for mouse and pen.
+  let down = false, startX = 0, startLeft = 0, moved = 0;
+  gal.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch" || e.button !== 0) return;
+    down = true; moved = 0; startX = e.clientX; startLeft = gal.scrollLeft;
+    gal.classList.add("dragging");
+  });
+  addEventListener("pointermove", (e) => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > moved) moved = Math.abs(dx);
+    gal.scrollLeft = startLeft - dx;
+  });
+  const release = () => {
+    if (!down) return;
+    down = false;
+    // Dropping the class restores scroll-snap, which settles to the nearest card.
+    gal.classList.remove("dragging");
+  };
+  addEventListener("pointerup", release);
+  addEventListener("pointercancel", release);
+  // A drag that ends over a card must not count as a click on its link.
+  gal.addEventListener("click", (e) => {
+    if (moved > 6) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  // Dragging over the images would otherwise start a native image drag.
+  gal.addEventListener("dragstart", (e) => e.preventDefault());
+}
+
+/* ───────────────────────────────────────────────
    10. PROCESS — horizontal pinned scroll
    ─────────────────────────────────────────────── */
 function processScroll() {
@@ -1804,7 +2280,7 @@ function trustStrip() {
 function boot() {
   if (REDUCED) document.documentElement.classList.add("no-motion");
   buildReveals(); scrubWords(); buildMarquees(); trustStrip(); trustNeon(); heroMotion(); counters();
-  workIndex(); serviceStack(); processScroll(); designWall(); accordions(); chrome();
+  skillTree(); workIndex(); gallery(); serviceStack(); processScroll(); designWall(); accordions(); chrome();
   ScrollTrigger.refresh();
 }
 
