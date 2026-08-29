@@ -1806,15 +1806,20 @@ function skillTree() {
   const root = { x: ROOT_X, y: (cats[0].y + cats[cats.length - 1].y) / 2 };
 
   let tracks = "", energy = "", nodes = "";
-  const link = (a, b, delay) => {
+  const link = (a, b, delay, ci) => {
     const d = curve(a.x, a.y, b.x, b.y);
     tracks += `<path class="tr-track" d="${d}"/>`;
-    energy += `<path class="tr-energy" d="${d}" pathLength="1" style="animation-delay:${delay}s"/>`;
+    energy += `<path class="tr-energy" data-ci="${ci}" d="${d}" pathLength="1"` +
+              ` style="animation-delay:${delay}s"/>`;
   };
-  cats.forEach((c, i) => link(root, c, 0.15 + i * 0.07));
-  leaves.forEach((l, i) => link(cats[l.ci], l, 0.5 + l.ci * 0.07 + (i % 6) * 0.04));
+  // Delays are per branch, not global: a branch's own stagger starts from zero
+  // whenever that branch is the one arriving.
+  cats.forEach((c, i) => link(root, c, 0, i));
+  let seen = -1, nth = 0;
+  leaves.forEach((l) => { nth = l.ci === seen ? nth + 1 : 0; seen = l.ci;
+    link(cats[l.ci], l, 0.12 + nth * 0.05, l.ci); });
 
-  nodes += `<g class="tr-node" style="animation-delay:.05s"><g class="tr-hit">
+  nodes += `<g class="tr-node" data-ci="-1" style="animation-delay:0s"><g class="tr-hit">
       <circle class="tr-ring" cx="${root.x}" cy="${root.y}" r="62" stroke-dasharray="10 15 30 10"/>
       <circle class="tr-ring" cx="${root.x}" cy="${root.y}" r="55" stroke-dasharray="4 8"
               style="animation-direction:reverse;animation-duration:20s"/>
@@ -1823,15 +1828,17 @@ function skillTree() {
       <text class="tr-l-root" x="${root.x}" y="${root.y + 19}">STACK</text></g></g>`;
 
   cats.forEach((c, i) => {
-    nodes += `<g class="tr-node" style="animation-delay:${(0.4 + i * 0.07).toFixed(2)}s"><g class="tr-hit">
+    nodes += `<g class="tr-node" data-ci="${i}" style="animation-delay:.05s"><g class="tr-hit">
         <circle class="tr-ring" cx="${c.x}" cy="${c.y}" r="28" stroke-dasharray="5 10 15 5"/>
         <circle class="tr-core" cx="${c.x}" cy="${c.y}" r="20" stroke-width="2"/>
         <circle cx="${c.x}" cy="${c.y}" r="4" fill="var(--acc)" style="pointer-events:none"/>
         <text class="tr-l-cat" x="${c.x - 44}" y="${c.y + 7}">${esc(c.label)}</text></g></g>`;
   });
 
-  leaves.forEach((l, i) => {
-    nodes += `<g class="tr-node" style="animation-delay:${(0.85 + l.ci * 0.07 + (i % 6) * 0.04).toFixed(2)}s"><g class="tr-hit">
+  seen = -1; nth = 0;
+  leaves.forEach((l) => {
+    nth = l.ci === seen ? nth + 1 : 0; seen = l.ci;
+    nodes += `<g class="tr-node" data-ci="${l.ci}" style="animation-delay:${(0.3 + nth * 0.05).toFixed(2)}s"><g class="tr-hit">
         <circle class="tr-ring" cx="${l.x}" cy="${l.y}" r="13" stroke-dasharray="2 4"/>
         <circle class="tr-core" cx="${l.x}" cy="${l.y}" r="7.5" stroke-width="1.5"/>
         <text class="tr-l-skill" x="${l.x + 24}" y="${l.y + (l.note ? 1 : 6)}">${esc(l.name)}</text>
@@ -1884,13 +1891,24 @@ function skillTree() {
       }).join("") + `</ul></li>`).join("");
   }
 
-  // Branches draw on arrival rather than on load, or they finish unseen.
-  const wake = () => host.classList.add("live");
-  if (!("IntersectionObserver" in window)) return wake();
-  const io = new IntersectionObserver((es) => {
-    es.forEach((e) => { if (e.isIntersecting) { wake(); io.disconnect(); } });
-  }, { rootMargin: "0px 0px -12% 0px" });
-  io.observe(host);
+  // The tree is far taller than the viewport, so waking the whole thing at
+  // once meant the lower branches drew while still below the fold and were
+  // already finished by the time you scrolled to them. Each branch now starts
+  // when it is the one arriving.
+  const run = (ci) => svg.querySelectorAll(`[data-ci="${ci}"]`)
+    .forEach((el) => { el.style.animationPlayState = "running"; });
+
+  if (!("IntersectionObserver" in window)) { host.classList.add("live"); return; }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      run(e.target.dataset.ci);
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: "-12% 0px -20% 0px" });
+  // Every node is a trigger for its own branch, so a branch lights from
+  // whichever of its parts reaches the viewport first.
+  svg.querySelectorAll(".tr-node[data-ci]").forEach((n) => io.observe(n));
 }
 
 /* ───────────────────────────────────────────────
