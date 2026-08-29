@@ -5,23 +5,26 @@ import {
 import { useTheme } from './theme';
 
 export interface SmokeSettings {
-  ppf: number; spd: number; spdV: number; drift: number;
-  rMin: number; rVar: number; grow: number; alpha: number;
-  decay: number; decayV: number; pad: number;
+  /** Overall opacity of the smoke field. */
+  density: number;
+  /** How fast the noise field drifts and curls. */
+  speed: number;
+  /** Noise feature size in px — larger means broader wisps. */
+  scale: number;
+  /** How far smoke reaches out from each panel edge, in px. */
+  reach: number;
   gi: number; gb: number; gs: number; gp: number;
   /** null follows the active theme palette. */
   colors: string[] | null;
 }
 
 export const SMOKE_DEFAULTS: SmokeSettings = {
-  ppf: 3, spd: 0.45, spdV: 0.5, drift: 0.4,
-  rMin: 9, rVar: 16, grow: 0.34, alpha: 0.12,
-  decay: 0.009, decayV: 0.013, pad: 80,
+  density: 1.5, speed: 0.5, scale: 190, reach: 130,
   gi: 0.8, gb: 28, gs: 4, gp: 2.2,
   colors: null,
 };
 
-const STORAGE_KEY = 'smokeLab.v2';
+const STORAGE_KEY = 'smokeLab.v3';
 
 interface SmokeContextValue {
   settings: SmokeSettings;

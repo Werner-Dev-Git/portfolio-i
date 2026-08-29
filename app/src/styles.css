@@ -503,7 +503,20 @@ section.block { position: relative; z-index: 2; padding-block: 112px 60px; }
   color: var(--muted); transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
 }
 .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-.services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 64px; }
+.services {
+  position: relative; display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 18px; margin-top: 64px;
+}
+/* One smoke layer behind the whole row. Absolutely positioned so it takes no
+   grid cell, and the bleed exceeds the shader's reach so the field fades out
+   instead of ending on a visible straight edge. */
+.smoke-field {
+  position: absolute; top: -190px; left: -190px;
+  width: calc(100% + 380px); height: calc(100% + 380px);
+  z-index: 0; pointer-events: none;
+  opacity: 0; transition: opacity 1s ease;
+}
+.smoke-field.is-ready { opacity: 1; }
 /* Reveal wrappers must stretch so the cards keep equal heights. */
 .services > div { display: flex; }
 .services > div > .service { flex: 1; }
@@ -538,11 +551,7 @@ section.block { position: relative; z-index: 2; padding-block: 112px 60px; }
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
 }
-.smoke-canvas {
-  position: absolute; z-index: 0;
-  pointer-events: none; opacity: 0.9; transition: opacity 0.4s ease;
-}
-.service:hover .smoke-canvas, .service.is-live .smoke-canvas { opacity: 1; }
+
 .light-layer {
   position: absolute; inset: 0; z-index: 2;
   border-radius: inherit; pointer-events: none; opacity: 0;

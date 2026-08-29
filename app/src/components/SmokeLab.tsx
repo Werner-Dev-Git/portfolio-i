@@ -11,17 +11,10 @@ interface SliderSpec {
 }
 
 const SLIDERS: SliderSpec[] = [
-  { key: 'ppf', label: 'Particles/frame', min: 1, max: 14, step: 1 },
-  { key: 'spd', label: 'Speed', min: 0.1, max: 2, step: 0.05 },
-  { key: 'spdV', label: 'Speed variance', min: 0, max: 1.5, step: 0.05 },
-  { key: 'drift', label: 'Drift', min: 0, max: 1.5, step: 0.05 },
-  { key: 'rMin', label: 'Start radius', min: 2, max: 40, step: 1 },
-  { key: 'rVar', label: 'Radius variance', min: 0, max: 40, step: 1 },
-  { key: 'grow', label: 'Growth rate', min: 0.02, max: 1.2, step: 0.02 },
-  { key: 'alpha', label: 'Opacity', min: 0.02, max: 0.55, step: 0.01 },
-  { key: 'decay', label: 'Decay', min: 0.002, max: 0.04, step: 0.001 },
-  { key: 'decayV', label: 'Decay variance', min: 0, max: 0.04, step: 0.001 },
-  { key: 'pad', label: 'Overflow pad', min: 20, max: 160, step: 5 },
+  { key: 'density', label: 'Density', min: 0.1, max: 2.5, step: 0.05 },
+  { key: 'speed', label: 'Flow speed', min: 0.05, max: 2, step: 0.05 },
+  { key: 'scale', label: 'Wisp scale', min: 60, max: 420, step: 10 },
+  { key: 'reach', label: 'Reach', min: 30, max: 170, step: 5 },
   { key: 'gi', label: 'Glow intensity', min: 0, max: 1, step: 0.01 },
   { key: 'gb', label: 'Glow blur', min: 4, max: 80, step: 1 },
   { key: 'gs', label: 'Glow spread', min: 0, max: 20, step: 1 },

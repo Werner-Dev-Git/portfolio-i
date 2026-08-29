@@ -1,9 +1,13 @@
+import { useRef } from 'react';
 import { services, skills } from '@/data/projects';
 import { ServiceCard } from './ServiceCard';
+import { SmokeField } from './SmokeField';
 import { SmokeLab } from './SmokeLab';
 import { Reveal } from './Reveal';
 
 export function AboutSection() {
+  const servicesRef = useRef<HTMLDivElement>(null);
+
   return (
     <section id="about" className="block container">
       <SmokeLab />
@@ -34,7 +38,8 @@ export function AboutSection() {
         </Reveal>
       </div>
 
-      <div className="services">
+      <div className="services" ref={servicesRef}>
+        <SmokeField hostRef={servicesRef} />
         {services.map((service, i) => (
           <Reveal key={service.num} delay={i * 0.08}>
             <ServiceCard service={service} index={i} />

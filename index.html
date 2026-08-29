@@ -550,7 +550,21 @@
     color: var(--muted); transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
   }
   .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-  .services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 64px; }
+  .services {
+    position: relative; display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 18px; margin-top: 64px;
+  }
+  /* One smoke layer behind the whole row, bleeding past it so wisps can drift
+     off the edges. Absolutely positioned, so it takes no grid cell. */
+  #smokeField {
+    /* bleed has to exceed the shader's reach, else the field ends on a
+       visible straight edge instead of fading out */
+    position: absolute; top: -190px; left: -190px;
+    width: calc(100% + 380px); height: calc(100% + 380px);
+    z-index: 0; pointer-events: none;
+    opacity: 0; transition: opacity 1s ease;
+  }
+  #smokeField.is-ready { opacity: 1; }
   .service {
     position: relative; display: flex; padding: 0; border: 1px solid var(--border);
     border-radius: var(--radius); background: linear-gradient(145deg, var(--surface), var(--bg-soft));
@@ -580,11 +594,6 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.55; }
   }
-  .smoke-canvas {
-    position: absolute; top: -80px; left: -80px; z-index: 0;
-    pointer-events: none; opacity: 0.9; transition: opacity 0.4s ease;
-  }
-  .service:hover .smoke-canvas, .service.is-live .smoke-canvas { opacity: 1; }
 
   /* Smoke Lab — sticky control panel */
   .smoke-ctrl {
@@ -1030,9 +1039,9 @@
       </div>
     </div>
     <div class="services">
+      <canvas id="smokeField" aria-hidden="true"></canvas>
       <div class="service" data-reveal>
         <div class="glow-ring" aria-hidden="true"></div>
-        <canvas class="smoke-canvas" aria-hidden="true"></canvas>
         <canvas class="light-canvas" aria-hidden="true"></canvas>
         <div class="service-inner">
           <div class="num">/ 01</div>
@@ -1043,7 +1052,6 @@
       </div>
       <div class="service" data-reveal style="--d:.08s">
         <div class="glow-ring" aria-hidden="true"></div>
-        <canvas class="smoke-canvas" aria-hidden="true"></canvas>
         <canvas class="light-canvas" aria-hidden="true"></canvas>
         <div class="service-inner">
           <div class="num">/ 02</div>
@@ -1054,7 +1062,6 @@
       </div>
       <div class="service" data-reveal style="--d:.16s">
         <div class="glow-ring" aria-hidden="true"></div>
-        <canvas class="smoke-canvas" aria-hidden="true"></canvas>
         <canvas class="light-canvas" aria-hidden="true"></canvas>
         <div class="service-inner">
           <div class="num">/ 03</div>
@@ -1542,20 +1549,22 @@
   }
   tickClock();
   setInterval(tickClock, 30000);
-
-  /* ============ Smoke + neon glow on service cards (always on) ============
-     Under reduced motion this still paints, just as one static frame. */
+  /* ============ Smoke field + neon glow on the service cards ============
+     One WebGL layer behind the whole row rather than a canvas of soft blobs
+     per card: fbm noise with domain warping gives smoke actual internal
+     structure, it drifts and curls, and the cursor stirs it. Falls back to
+     the neon ring alone if WebGL is unavailable. */
   {
     const SMOKE_DEFAULTS = {
-      ppf: 3, spd: 0.45, spdV: 0.5, drift: 0.4, rMin: 9, rVar: 16,
-      grow: 0.34, alpha: 0.12, decay: 0.009, decayV: 0.013, pad: 80,
+      density: 1.5, speed: 0.5, scale: 190, reach: 130,
       gi: 0.8, gb: 28, gs: 4, gp: 2.2, colors: null,
     };
     let smokeStored = {};
-    try { smokeStored = JSON.parse(localStorage.getItem('smokeLab.v2') || '{}'); } catch (e) {}
+    try { smokeStored = JSON.parse(localStorage.getItem('smokeLab.v3') || '{}'); } catch (e) {}
     const SMOKE = Object.assign({}, SMOKE_DEFAULTS, smokeStored);
-    const smokeSave = () => localStorage.setItem('smokeLab.v2', JSON.stringify(SMOKE));
-    const coarseSmoke = matchMedia('(pointer: coarse)').matches;
+    const smokeSave = () => localStorage.setItem('smokeLab.v3', JSON.stringify(SMOKE));
+
+    const coarsePointer = matchMedia('(pointer: coarse)').matches;
     const serviceCards = Array.from(document.querySelectorAll('.service'));
     const themePalette = () => (root.dataset.theme !== 'light'
       ? ['#22c55e', '#4ade80', '#a3e635']
@@ -1563,200 +1572,257 @@
     const palette = () => SMOKE.colors || themePalette();
     const hexRgb = (h) => {
       const n = parseInt(h.slice(1), 16);
-      return ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255);
+      return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
     };
+
     function applyGlow() {
       const pal = palette();
       serviceCards.forEach((card, i) => {
         const ring = card.querySelector('.glow-ring');
         if (!ring) return;
-        const rgb = hexRgb(pal[i % pal.length]);
-        const a = SMOKE.gi, b = SMOKE.gb, s = SMOKE.gs;
+        const [r, g, b] = hexRgb(pal[i % pal.length]).map((v) => Math.round(v * 255));
+        const rgb = r + ',' + g + ',' + b;
+        const a = SMOKE.gi, bl = SMOKE.gb, sp = SMOKE.gs;
         ring.style.boxShadow =
-          '0 0 ' + b * 0.25 + 'px ' + s * 0.5 + 'px rgba(' + rgb + ',' + a + '),' +
-          '0 0 ' + b * 0.55 + 'px ' + s + 'px rgba(' + rgb + ',' + a * 0.65 + '),' +
-          '0 0 ' + b + 'px ' + s * 1.5 + 'px rgba(' + rgb + ',' + a * 0.35 + '),' +
-          '0 0 ' + b * 1.8 + 'px ' + s * 2 + 'px rgba(' + rgb + ',' + a * 0.15 + ')';
+          '0 0 ' + bl * 0.25 + 'px ' + sp * 0.5 + 'px rgba(' + rgb + ',' + a + '),' +
+          '0 0 ' + bl * 0.55 + 'px ' + sp + 'px rgba(' + rgb + ',' + a * 0.65 + '),' +
+          '0 0 ' + bl + 'px ' + sp * 1.5 + 'px rgba(' + rgb + ',' + a * 0.35 + '),' +
+          '0 0 ' + bl * 1.8 + 'px ' + sp * 2 + 'px rgba(' + rgb + ',' + a * 0.15 + ')';
         ring.style.setProperty('--pulse-dur', SMOKE.gp + 's');
       });
     }
-    class Smoke {
-      constructor(card, i) {
-        this.card = card; this.i = i;
-        this.cvs = card.querySelector('.smoke-canvas');
-        this.ctx = this.cvs.getContext('2d');
-        this.pts = []; this.on = false; this.raf = 0;
-        this.fit();
-      }
-      fit() {
-        const w = this.card.offsetWidth, h = this.card.offsetHeight;
-        const pad = SMOKE.pad;
-        const dpr = Math.min(2, devicePixelRatio || 1);
-        this.W = w + pad * 2; this.H = h + pad * 2;
-        this.cvs.width = this.W * dpr; this.cvs.height = this.H * dpr;
-        this.cvs.style.width = this.W + 'px'; this.cvs.style.height = this.H + 'px';
-        this.cvs.style.top = this.cvs.style.left = -pad + 'px';
-        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        this.b = { x0: pad, y0: pad, x1: pad + w, y1: pad + h };
-      }
-      spawn() {
-        const { x0, y0, x1, y1 } = this.b;
-        const e = (Math.random() * 4) | 0;
-        const v = SMOKE.spd + Math.random() * SMOKE.spdV;
-        const d = (Math.random() - 0.5) * SMOKE.drift;
-        let x, y, vx, vy;
-        if (e === 0) { x = x0 + Math.random() * (x1 - x0); y = y0; vx = d; vy = -v; }
-        else if (e === 1) { x = x1; y = y0 + Math.random() * (y1 - y0); vx = v; vy = d; }
-        else if (e === 2) { x = x0 + Math.random() * (x1 - x0); y = y1; vx = d; vy = v; }
-        else { x = x0; y = y0 + Math.random() * (y1 - y0); vx = -v; vy = d; }
-        this.pts.push({
-          x, y, vx, vy, r: SMOKE.rMin + Math.random() * SMOKE.rVar, life: 1,
-          decay: SMOKE.decay + Math.random() * SMOKE.decayV, spin: (Math.random() - 0.5) * 0.009,
-        });
-      }
-      draw(advance) {
-        const ctx = this.ctx;
-        const rgb = hexRgb(palette()[this.i % 3]);
-        ctx.clearRect(0, 0, this.W, this.H);
-        this.pts = this.pts.filter((p) => p.life > 0);
-        for (const p of this.pts) {
-          if (advance) {
-            p.x += p.vx; p.y += p.vy; p.vx += p.spin;
-            p.r += SMOKE.grow; p.life -= p.decay;
-          }
-          /* keep it a hint on phones, where the cards are close to full width */
-          const a = p.life * SMOKE.alpha * (coarseSmoke ? 0.5 : 1);
-          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-          g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')');
-          g.addColorStop(0.45, 'rgba(' + rgb + ',' + a * 0.35 + ')');
-          g.addColorStop(1, 'rgba(' + rgb + ',0)');
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = g;
-          ctx.fill();
-        }
-      }
-      run() {
-        if (this.raf) return;
-        const step = () => {
-          this.raf = 0;
-          const n = coarseSmoke ? Math.ceil(SMOKE.ppf / 2) : SMOKE.ppf;
-          if (this.on) for (let k = 0; k < n; k++) this.spawn();
-          this.draw(true);
-          if (this.on || this.pts.length) this.raf = requestAnimationFrame(step);
-        };
-        this.raf = requestAnimationFrame(step);
-      }
-      /* One still frame: a batch of puffs, each aged a different amount. */
-      renderStatic() {
-        this.pts = [];
-        for (let k = 0; k < 90; k++) {
-          this.spawn();
-          const p = this.pts[this.pts.length - 1];
-          const age = 10 + Math.random() * 55;
-          p.x += p.vx * age; p.y += p.vy * age;
-          p.r += SMOKE.grow * age; p.life -= p.decay * age;
-        }
-        this.draw(false);
-      }
-    }
-    const smokeEngines = serviceCards
-      .filter((c) => c.querySelector('.smoke-canvas'))
-      .map((c, i) => new Smoke(c, i));
     applyGlow();
 
-    /* run only while the cards are near the viewport and the tab is visible */
-    const servicesEl = document.querySelector('.services');
-    let servicesVisible = false;
-    const syncSmoke = () => {
-      if (reducedMotion) { smokeEngines.forEach((e) => e.renderStatic()); return; }
-      const on = servicesVisible && !document.hidden;
-      smokeEngines.forEach((e) => { e.on = on; if (on) e.run(); });
-    };
-    if (servicesEl) {
-      new IntersectionObserver((entries) => {
-        servicesVisible = entries[0].isIntersecting;
-        syncSmoke();
-      }, { rootMargin: '140px' }).observe(servicesEl);
-    }
-    document.addEventListener('visibilitychange', syncSmoke);
-    new MutationObserver(applyGlow).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-    let smokeTimer;
-    addEventListener('resize', () => {
-      clearTimeout(smokeTimer);
-      smokeTimer = setTimeout(() => smokeEngines.forEach((e) => e.fit()), 180);
-    });
+    const VERT = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}';
+    const FRAG = [
+      'precision highp float;',
+      'uniform vec2 uRes; uniform float uTime; uniform float uDark;',
+      'uniform vec2 uMouse; uniform float uMouseOn;',
+      'uniform float uDensity, uSpeed, uScale, uReach;',
+      'uniform vec4 uCards[3]; uniform vec3 uTints[3];',
+      'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+      'float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);',
+      ' return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),u.x),',
+      '            mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),u.x),u.y);}',
+      'float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<5;i++){v+=a*noise(p);p*=2.02;a*=0.5;}return v;}',
+      /* rounded-rect distance so the smoke hugs the panel silhouette */
+      'float sdRound(vec2 p,vec2 c,vec2 h,float r){vec2 d=abs(p-c)-h+r;',
+      ' return length(max(d,0.0))+min(max(d.x,d.y),0.0)-r;}',
+      'void main(){',
+      ' vec2 frag=gl_FragCoord.xy;',
+      ' float t=uTime*uSpeed;',
+      ' vec2 q0=frag/uScale;',
+      /* the pointer stirs the field, rotating flow around itself */
+      ' if(uMouseOn>0.5){vec2 d=(frag-uMouse)/uScale;float f=exp(-dot(d,d)*0.08);',
+      '  q0+=vec2(-d.y,d.x)*f*2.4;}',
+      /* domain warp: noise displaced by noise, which is what gives smoke its curl */
+      ' vec2 w=vec2(fbm(q0*0.9+vec2(0.0,-t*0.55)),fbm(q0*0.9+vec2(5.2,1.3)-vec2(0.0,t*0.35)));',
+      ' float n=fbm(q0+w*1.9+vec2(0.0,-t*0.85));',
+      ' n=smoothstep(0.34,0.92,n);',
+      ' vec3 col=vec3(0.0); float al=0.0;',
+      ' for(int i=0;i<3;i++){',
+      '  vec4 c=uCards[i];',
+      '  float d=sdRound(frag,c.xy,c.zw,22.0);',
+      '  float m=smoothstep(uReach,0.0,d)*step(0.0,d);',
+      '  float dens=n*m*uDensity;',
+      '  col+=uTints[i]*dens; al=max(al,dens);',
+      ' }',
+      /* colour at full brightness with density carried in alpha: the blend
+         applies it once. Scaling both was squaring it into near-invisibility. */
+      ' vec3 base = al>0.001 ? col/al : vec3(0.0);',
+      ' gl_FragColor=vec4(base, al*(uDark>0.5?1.0:0.72));',
+      '}',
+    ].join('\n');
 
-    /* ---- Smoke Lab: sticky control panel ---- */
-    const scBody = document.getElementById('scBody');
-    const scToggle = document.getElementById('scToggle');
-    if (scBody && scToggle) {
-      const SLIDERS = [
-        ['ppf', 'Particles/frame', 1, 14, 1],
-        ['spd', 'Speed', 0.1, 2, 0.05],
-        ['spdV', 'Speed variance', 0, 1.5, 0.05],
-        ['drift', 'Drift', 0, 1.5, 0.05],
-        ['rMin', 'Start radius', 2, 40, 1],
-        ['rVar', 'Radius variance', 0, 40, 1],
-        ['grow', 'Growth rate', 0.02, 1.2, 0.02],
-        ['alpha', 'Opacity', 0.02, 0.55, 0.01],
-        ['decay', 'Decay', 0.002, 0.04, 0.001],
-        ['decayV', 'Decay variance', 0, 0.04, 0.001],
-        ['pad', 'Overflow pad', 20, 160, 5, 'refit'],
-        ['gi', 'Glow intensity', 0, 1, 0.01, 'glow'],
-        ['gb', 'Glow blur', 4, 80, 1, 'glow'],
-        ['gs', 'Glow spread', 0, 20, 1, 'glow'],
-        ['gp', 'Pulse duration', 0.3, 6, 0.1, 'glow'],
-      ];
-      SLIDERS.forEach(([key, label, min, max, step, fx]) => {
-        const row = document.createElement('label');
-        row.className = 'sc-row';
-        row.innerHTML = '<span>' + label + '</span>' +
-          '<input type="range" min="' + min + '" max="' + max + '" step="' + step +
-          '" value="' + SMOKE[key] + '"><b>' + SMOKE[key] + '</b>';
-        const input = row.querySelector('input');
-        input.addEventListener('input', () => {
-          SMOKE[key] = parseFloat(input.value);
-          row.querySelector('b').textContent = input.value;
-          if (fx === 'glow') applyGlow();
-          if (fx === 'refit') smokeEngines.forEach((e) => e.fit());
-          smokeSave();
+    const services = document.querySelector('.services');
+    const cvs = document.getElementById('smokeField');
+    let gl = null, prog = null, loc = {}, raf = 0, visible = false;
+    let mouseX = -1e4, mouseY = -1e4, mouseOn = 0;
+    const rects = new Float32Array(12);
+    const tints = new Float32Array(9);
+
+    if (cvs && services) {
+      try {
+        gl = cvs.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: false });
+      } catch (e) { gl = null; }
+    }
+
+    if (gl) {
+      const sh = (type, src) => {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src); gl.compileShader(s);
+        return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
+      };
+      const vs = sh(gl.VERTEX_SHADER, VERT), fs = sh(gl.FRAGMENT_SHADER, FRAG);
+      if (vs && fs) {
+        prog = gl.createProgram();
+        gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) prog = null;
+      }
+    }
+
+    if (prog) {
+      gl.useProgram(prog);
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      const pl = gl.getAttribLocation(prog, 'p');
+      gl.enableVertexAttribArray(pl);
+      gl.vertexAttribPointer(pl, 2, gl.FLOAT, false, 0, 0);
+      ['uRes', 'uTime', 'uDark', 'uMouse', 'uMouseOn', 'uDensity', 'uSpeed', 'uScale', 'uReach', 'uCards', 'uTints']
+        .forEach((k) => { loc[k] = gl.getUniformLocation(prog, k); });
+      gl.enable(gl.BLEND);
+
+      const DPR = () => Math.min(1.5, devicePixelRatio || 1);
+
+      function measure() {
+        const box = cvs.getBoundingClientRect();
+        const pal = palette();
+        serviceCards.slice(0, 3).forEach((card, i) => {
+          const r = card.getBoundingClientRect();
+          const d = DPR();
+          /* GL origin is bottom-left, the DOM's is top-left */
+          rects[i * 4] = (r.left - box.left + r.width / 2) * d;
+          rects[i * 4 + 1] = (box.bottom - r.bottom + r.height / 2) * d;
+          rects[i * 4 + 2] = (r.width / 2) * d;
+          rects[i * 4 + 3] = (r.height / 2) * d;
+          const [cr, cg, cb] = hexRgb(pal[i % pal.length]);
+          tints[i * 3] = cr; tints[i * 3 + 1] = cg; tints[i * 3 + 2] = cb;
         });
-        scBody.appendChild(row);
+      }
+
+      function resize() {
+        const w = cvs.clientWidth, h = cvs.clientHeight;
+        if (!w || !h) return;
+        const d = DPR();
+        cvs.width = Math.round(w * d);
+        cvs.height = Math.round(h * d);
+        gl.viewport(0, 0, cvs.width, cvs.height);
+        measure();
+      }
+
+      function draw(time) {
+        const dark = root.dataset.theme !== 'light';
+        /* additive reads as glow on the dark page; on white it would just
+           blow out, so blend normally there */
+        if (dark) gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
+        else gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniform2f(loc.uRes, cvs.width, cvs.height);
+        gl.uniform1f(loc.uTime, time);
+        gl.uniform1f(loc.uDark, dark ? 1 : 0);
+        gl.uniform2f(loc.uMouse, mouseX, mouseY);
+        gl.uniform1f(loc.uMouseOn, mouseOn);
+        /* eased back on phones, where the panels fill the screen */
+        gl.uniform1f(loc.uDensity, SMOKE.density * (coarsePointer ? 0.6 : 1));
+        gl.uniform1f(loc.uSpeed, SMOKE.speed);
+        gl.uniform1f(loc.uScale, SMOKE.scale * DPR());
+        gl.uniform1f(loc.uReach, SMOKE.reach * DPR());
+        gl.uniform4fv(loc.uCards, rects);
+        gl.uniform3fv(loc.uTints, tints);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        cvs.classList.add('is-ready');
+      }
+
+      let t0 = performance.now();
+      function frame() {
+        raf = 0;
+        draw((performance.now() - t0) / 1000);
+        if (!reducedMotion && visible && !document.hidden) raf = requestAnimationFrame(frame);
+      }
+      const play = () => {
+        if (raf || !visible || document.hidden) return;
+        if (reducedMotion) { draw(6); return; }
+        raf = requestAnimationFrame(frame);
+      };
+
+      resize();
+      new IntersectionObserver((entries) => {
+        visible = entries[0].isIntersecting;
+        play();
+      }, { rootMargin: '160px' }).observe(services);
+      document.addEventListener('visibilitychange', play);
+      new MutationObserver(() => { measure(); applyGlow(); play(); })
+        .observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+
+      let smokeTimer;
+      addEventListener('resize', () => {
+        clearTimeout(smokeTimer);
+        smokeTimer = setTimeout(() => { resize(); play(); }, 160);
       });
-      const colRow = document.createElement('div');
-      colRow.className = 'sc-row sc-colors';
-      colRow.innerHTML = '<span>Card colors</span>' +
-        [0, 1, 2].map((i) =>
-          '<input type="color" data-i="' + i + '" value="' + palette()[i] + '">'
-        ).join('') +
-        '<button type="button" id="scReset">Reset</button>';
-      scBody.appendChild(colRow);
-      colRow.querySelectorAll('input[type=color]').forEach((inp) => {
-        inp.addEventListener('input', () => {
-          SMOKE.colors = (SMOKE.colors || themePalette().slice());
-          SMOKE.colors[Number(inp.dataset.i)] = inp.value;
-          applyGlow();
-          smokeSave();
+      addEventListener('scroll', () => { measure(); }, { passive: true });
+
+      if (finePointer) {
+        addEventListener('mousemove', (e) => {
+          const box = cvs.getBoundingClientRect();
+          const d = DPR();
+          mouseX = (e.clientX - box.left) * d;
+          mouseY = (box.bottom - e.clientY) * d;
+          mouseOn = (e.clientX > box.left - 120 && e.clientX < box.right + 120
+            && e.clientY > box.top - 120 && e.clientY < box.bottom + 120) ? 1 : 0;
+        }, { passive: true });
+        document.addEventListener('mouseleave', () => { mouseOn = 0; });
+      }
+
+      /* ---- Smoke Lab: sticky control panel ---- */
+      const scBody = document.getElementById('scBody');
+      const scToggle = document.getElementById('scToggle');
+      if (scBody && scToggle) {
+        const SLIDERS = [
+          ['density', 'Density', 0.1, 2.5, 0.05],
+          ['speed', 'Flow speed', 0.05, 2, 0.05],
+          ['scale', 'Wisp scale', 60, 420, 10],
+          ['reach', 'Reach', 30, 170, 5],
+          ['gi', 'Glow intensity', 0, 1, 0.01, 'glow'],
+          ['gb', 'Glow blur', 4, 80, 1, 'glow'],
+          ['gs', 'Glow spread', 0, 20, 1, 'glow'],
+          ['gp', 'Pulse duration', 0.3, 6, 0.1, 'glow'],
+        ];
+        SLIDERS.forEach(([key, label, min, max, step, fx]) => {
+          const row = document.createElement('label');
+          row.className = 'sc-row';
+          row.innerHTML = '<span>' + label + '</span>' +
+            '<input type="range" min="' + min + '" max="' + max + '" step="' + step +
+            '" value="' + SMOKE[key] + '"><b>' + SMOKE[key] + '</b>';
+          const input = row.querySelector('input');
+          input.addEventListener('input', () => {
+            SMOKE[key] = parseFloat(input.value);
+            row.querySelector('b').textContent = input.value;
+            if (fx === 'glow') applyGlow();
+            play();
+            smokeSave();
+          });
+          scBody.appendChild(row);
         });
-      });
-      document.getElementById('scReset').addEventListener('click', () => {
-        localStorage.removeItem('smokeLab.v2');
-        Object.assign(SMOKE, SMOKE_DEFAULTS, { colors: null });
-        scBody.querySelectorAll('.sc-row input[type=range]').forEach((inp, i) => {
-          inp.value = SMOKE[SLIDERS[i][0]];
-          inp.parentElement.querySelector('b').textContent = inp.value;
+        const colRow = document.createElement('div');
+        colRow.className = 'sc-row sc-colors';
+        colRow.innerHTML = '<span>Card colors</span>' +
+          [0, 1, 2].map((i) => '<input type="color" data-i="' + i + '" value="' + palette()[i] + '">').join('') +
+          '<button type="button" id="scReset">Reset</button>';
+        scBody.appendChild(colRow);
+        colRow.querySelectorAll('input[type=color]').forEach((inp) => {
+          inp.addEventListener('input', () => {
+            SMOKE.colors = (SMOKE.colors || themePalette().slice());
+            SMOKE.colors[Number(inp.dataset.i)] = inp.value;
+            applyGlow(); measure(); play(); smokeSave();
+          });
         });
-        colRow.querySelectorAll('input[type=color]').forEach((inp, i) => {
-          inp.value = themePalette()[i];
+        document.getElementById('scReset').addEventListener('click', () => {
+          localStorage.removeItem('smokeLab.v3');
+          Object.assign(SMOKE, SMOKE_DEFAULTS, { colors: null });
+          scBody.querySelectorAll('.sc-row input[type=range]').forEach((inp, i) => {
+            inp.value = SMOKE[SLIDERS[i][0]];
+            inp.parentElement.querySelector('b').textContent = inp.value;
+          });
+          colRow.querySelectorAll('input[type=color]').forEach((inp, i) => { inp.value = themePalette()[i]; });
+          applyGlow(); measure(); play();
         });
-        applyGlow();
-        smokeEngines.forEach((e) => e.fit());
-      });
-      scToggle.addEventListener('click', () => {
-        const open = document.getElementById('smokeCtrl').classList.toggle('open');
-        scToggle.setAttribute('aria-expanded', open);
-      });
+        scToggle.addEventListener('click', () => {
+          const open = document.getElementById('smokeCtrl').classList.toggle('open');
+          scToggle.setAttribute('aria-expanded', open);
+        });
+      }
     }
   }
 
