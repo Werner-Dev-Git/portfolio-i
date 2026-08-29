@@ -1172,24 +1172,29 @@ function buildReveals() {
     });
   });
 
+  /* fromTo with immediateRender:false throughout. A plain gsap.from gets
+     re-applied by the ScrollTrigger.refresh() on load and can strand elements
+     in their "from" state — that is what left the industries cards translated
+     70px down and clipped by their grid. */
   document.querySelectorAll("[data-fade]").forEach((el) => {
-    gsap.from(el, {
-      y: 34, opacity: 0, duration: 1, ease: "expo.out",
-      scrollTrigger: { trigger: el, start: "top 90%" }
+    gsap.fromTo(el, { y: 34, opacity: 0 }, {
+      y: 0, opacity: 1, duration: 1, ease: "expo.out", immediateRender: false,
+      scrollTrigger: { trigger: el, start: "top 90%", once: true }
     });
   });
 
   document.querySelectorAll("[data-stagger]").forEach((el) => {
-    gsap.from(el.children, {
-      y: 26, opacity: 0, duration: .9, ease: "expo.out", stagger: .07,
-      scrollTrigger: { trigger: el, start: "top 88%" }
+    gsap.fromTo(el.children, { y: 26, opacity: 0 }, {
+      y: 0, opacity: 1, duration: .9, ease: "expo.out", stagger: .07, immediateRender: false,
+      scrollTrigger: { trigger: el, start: "top 88%", once: true }
     });
   });
 
   document.querySelectorAll("[data-stagger-cards]").forEach((el) => {
-    gsap.from(el.children, {
-      y: 70, opacity: 0, scale: .97, duration: 1.1, ease: "expo.out", stagger: .11,
-      scrollTrigger: { trigger: el, start: "top 82%" }
+    gsap.fromTo(el.children, { y: 70, opacity: 0, scale: .97 }, {
+      y: 0, opacity: 1, scale: 1, duration: 1.1, ease: "expo.out", stagger: .11,
+      immediateRender: false,
+      scrollTrigger: { trigger: el, start: "top 82%", once: true }
     });
   });
 }
@@ -1394,15 +1399,32 @@ function designWall() {
     col.innerHTML = html + html;   /* doubled for a seamless loop */
 
     if (REDUCED) return;
-    const half = (col.scrollHeight + 22) / 2;
-    const dir = +col.dataset.dir;
-    const speed = 150 + ci * 26;
-    gsap.set(col, { y: dir < 0 ? 0 : -half });
-    gsap.to(col, {
-      y: dir < 0 ? `-=${half}` : `+=${half}`,
-      duration: speed, ease: "none", repeat: -1,
-      modifiers: { y: gsap.utils.unitize((y) => gsap.utils.wrap(-half, 0, parseFloat(y))) }
-    });
+    /* Measured once the column has its real height. The shots are lazy, so at
+       init the column is a fraction of its final size and the loop crawled. */
+    const spin = () => {
+      gsap.killTweensOf(col);
+      const half = (col.scrollHeight + 22) / 2;
+      if (half < 200) return;
+      const dir = +col.dataset.dir;
+      /* seconds per loop derived from distance, so every column moves at a
+         comparable speed regardless of how many shots it holds */
+      const duration = half / (26 + ci * 4);
+      gsap.set(col, { y: dir < 0 ? 0 : -half });
+      gsap.to(col, {
+        y: dir < 0 ? `-=${half}` : `+=${half}`,
+        duration, ease: "none", repeat: -1,
+        modifiers: { y: gsap.utils.unitize((y) => gsap.utils.wrap(-half, 0, parseFloat(y))) }
+      });
+    };
+    spin();
+    /* re-measure once the images actually arrive */
+    const imgs = [...col.querySelectorAll("img")];
+    let pending = imgs.filter((i) => !i.complete).length;
+    if (pending) {
+      imgs.forEach((i) => i.complete || i.addEventListener("load", () => {
+        if (--pending <= 0) spin();
+      }, { once: true }));
+    }
   });
 
   gsap.fromTo("#figmaCols", { yPercent: 4 }, {
