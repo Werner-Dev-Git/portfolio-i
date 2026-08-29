@@ -257,7 +257,7 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 .counter:hover{background:#14181d}
 .odo{display:flex;align-items:flex-end;font-family:var(--f-disp);font-weight:700;
   font-size:clamp(3rem,7vw,5.6rem);line-height:1;letter-spacing:-.04em}
-.reel{height:1em;overflow:hidden;display:block}
+.reel{height:1em;overflow:hidden;display:block;width:.62em;text-align:center}
 .reel ul{margin:0;padding:0;list-style:none;display:block;will-change:transform}
 .reel li{height:1em;line-height:1;display:block}
 .odo .suffix{color:var(--acc)}
@@ -269,10 +269,22 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 .work-card{
   position:absolute;inset:0;margin:auto;width:min(980px,100%);height:min(78vh,780px);
   background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
-  padding:clamp(14px,1.4vw,20px);display:grid;grid-template-rows:1fr auto;gap:18px;
+  padding:clamp(14px,1.4vw,20px);display:grid;grid-template-rows:auto 1fr auto;gap:14px;
   transform-style:preserve-3d;will-change:transform,opacity;
   box-shadow:0 40px 90px -50px rgba(0,0,0,.9);
 }
+.work-bar{display:flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid var(--line);
+  border-radius:999px;background:rgba(255,255,255,.03)}
+.work-bar i{width:8px;height:8px;border-radius:50%;background:var(--line-2);flex:none}
+.work-card:hover .work-bar i:nth-child(1){background:#ff5f57}
+.work-card:hover .work-bar i:nth-child(2){background:#febc2e}
+.work-card:hover .work-bar i:nth-child(3){background:#28c840}
+.work-bar span{flex:1;margin-left:8px;font-size:.72rem;letter-spacing:.04em;color:var(--mute);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-bar b{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-disp);font-size:.62rem;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--acc);font-weight:600}
+.work-bar b::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--acc);
+  box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 2.6s infinite}
 .work-thumb{position:relative;border-radius:var(--r);overflow:hidden;display:block;background:var(--bg-2)}
 .work-thumb img{position:absolute;top:0;left:0;width:100%;height:auto;will-change:transform}
 
@@ -297,7 +309,11 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
   border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg-2);
   overflow:hidden;display:grid;grid-template-columns:.85fr 1.15fr;
   will-change:transform;margin-bottom:26px;z-index:1}
-.svc-art{position:relative;overflow:hidden}
+.svc-art{position:relative;overflow:hidden;background:var(--bg)}
+.svc-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:saturate(1.05) contrast(1.02);transform:scale(1.04);will-change:transform}
+.svc-art::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(100deg,transparent 42%,rgba(8,9,11,.55) 88%)}
 .svc-body{padding:clamp(24px,3vw,52px);display:grid;align-content:center;gap:20px}
 .svc-idx{font-family:var(--f-disp);color:var(--acc);letter-spacing:.14em;font-size:.8rem}
 .svc-list{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
@@ -310,7 +326,7 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
    ============================================================ */
 .proc-viewport{overflow:hidden}
 .proc-track{display:flex;gap:clamp(18px,2.4vw,34px);will-change:transform}
-.proc-card{flex:none;width:min(390px,78vw);aspect-ratio:1/1.05;border:1px solid var(--line);
+.proc-card{flex:none;width:min(390px,78vw);min-height:min(470px,74vh);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:clamp(24px,2.6vw,40px);display:grid;align-content:space-between;
   background:var(--bg-2);position:relative;overflow:hidden}
 .proc-card::before{content:"";position:absolute;inset:auto -34% -78% -34%;aspect-ratio:1;
@@ -331,7 +347,8 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
   transition:transform .6s var(--ease),border-color .6s,background .6s;will-change:transform}
 .price:hover{transform:translateY(-10px);border-color:var(--line-2);background:#14181d}
 .price.feature{background:linear-gradient(180deg,rgba(34,197,94,.1),transparent 46%),var(--bg-2);border-color:rgba(34,197,94,.32)}
-.price .amt{font-family:var(--f-disp);font-weight:700;font-size:clamp(2.2rem,3.4vw,3rem);letter-spacing:-.03em}
+.price .amt{font-family:var(--f-disp);font-weight:700;font-size:clamp(1.5rem,2.2vw,2rem);
+  letter-spacing:-.02em;color:var(--acc)}
 .price ul{list-style:none;margin:0;padding:0;display:grid;gap:10px;color:var(--ink-dim);font-size:.94rem}
 .price li{display:flex;gap:10px;align-items:flex-start}
 .price li::before{content:"";width:16px;height:16px;border-radius:50%;flex:none;margin-top:3px;
@@ -365,10 +382,16 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
   border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:clamp(36px,5vw,64px)}
 @media(max-width:1000px){.ind-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.ind-grid{grid-template-columns:1fr}}
-.ind{background:var(--bg-2);padding:clamp(24px,2.6vw,38px);display:grid;gap:12px;align-content:start;
-  min-height:260px;position:relative;overflow:hidden;transition:background .5s}
+.ind{background:var(--bg-2);padding:clamp(24px,2.6vw,38px);display:grid;gap:12px;
+  align-content:start;min-height:300px;position:relative;
+  transition:background .5s,transform .5s var(--ease)}
+.ind::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--acc);
+  transform:scaleX(0);transform-origin:0 50%;transition:transform .55s var(--ease)}
+.ind:hover{transform:translateY(-4px)}
+.ind:hover::after{transform:scaleX(1)}
+.ind .n{align-self:start}
 .ind:hover{background:#14181d}
-.ind .n{font-family:var(--f-disp);color:var(--mute);font-size:.8rem;letter-spacing:.14em}
+.ind .n{font-family:var(--f-disp);color:var(--acc);font-size:.8rem;letter-spacing:.14em}
 .faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(28px,5vw,70px);align-items:start}
 @media(max-width:900px){.faq-grid{grid-template-columns:1fr}}
 .faq-card{border:1px solid var(--line);border-radius:var(--r-lg);padding:clamp(24px,2.6vw,36px);
@@ -404,6 +427,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
 .foot-bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;
   border-top:1px solid var(--line);margin-top:clamp(50px,7vw,80px);padding-block:26px;
   color:var(--mute);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase}
+.foot-top em{font-style:normal;color:var(--acc)}
 .foot-huge{font-size:clamp(3.4rem,18vw,17rem);line-height:.82;text-align:center;
   color:transparent;-webkit-text-stroke:1px var(--line-2);padding-top:clamp(30px,5vw,60px)}
 
@@ -593,6 +617,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
 <section id="workPin" style="padding-block:0">
   <div class="container work-stack" id="workStack" style="height:100svh">
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b>Live</b></div>
       <a class="work-thumb" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener" aria-label="Visit SatReach">
         <img src="assets/screens/satreach.jpg" alt="SatReach, full page" loading="lazy" decoding="async">
       </a>
@@ -600,6 +625,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <a class="work-arrow" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener" aria-label="Open SatReach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
     </article>
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/aluplast-website</span><b>Live</b></div>
       <a class="work-thumb" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener" aria-label="Visit EuroFenster">
         <img src="assets/screens/aluplast.jpg" alt="EuroFenster, full page" loading="lazy" decoding="async">
       </a>
@@ -607,6 +633,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <a class="work-arrow" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener" aria-label="Open EuroFenster"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
     </article>
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>froggrecruit-sa.co.za</span><b>Live</b></div>
       <a class="work-thumb" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener" aria-label="Visit FROGG Recruitment">
         <img src="assets/screens/frogg.jpg" alt="FROGG Recruitment, full page" loading="lazy" decoding="async">
       </a>
@@ -614,6 +641,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <a class="work-arrow" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener" aria-label="Open FROGG Recruitment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
     </article>
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b>Live</b></div>
       <a class="work-thumb" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener" aria-label="Visit InBody SA">
         <img src="assets/screens/inbody.jpg" alt="InBody SA, full page" loading="lazy" decoding="async">
       </a>
@@ -621,6 +649,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <a class="work-arrow" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener" aria-label="Open InBody SA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
     </article>
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/karua-drilling</span><b>Live</b></div>
       <a class="work-thumb" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener" aria-label="Visit Karua Drilling">
         <img src="assets/screens/karua.jpg" alt="Karua Drilling, full page" loading="lazy" decoding="async">
       </a>
@@ -628,6 +657,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <a class="work-arrow" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener" aria-label="Open Karua Drilling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
     </article>
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/EORSite</span><b>Live</b></div>
       <a class="work-thumb" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener" aria-label="Visit DNA Outsourcing">
         <img src="assets/screens/dna.jpg" alt="DNA Outsourcing, full page" loading="lazy" decoding="async">
       </a>
@@ -635,6 +665,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <a class="work-arrow" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener" aria-label="Open DNA Outsourcing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
     </article>
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>crestadvisoryafrica.com</span><b>Live</b></div>
       <a class="work-thumb" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener" aria-label="Visit Crest Advisory Africa">
         <img src="assets/screens/crest.jpg" alt="Crest Advisory Africa, full page" loading="lazy" decoding="async">
       </a>
@@ -642,6 +673,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <a class="work-arrow" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener" aria-label="Open Crest Advisory Africa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
     </article>
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>cobaltcreed.com</span><b>Live</b></div>
       <a class="work-thumb" href="https://cobaltcreed.com/" target="_blank" rel="noopener" aria-label="Visit Cobalt Creed">
         <img src="assets/screens/cobaltcreed.jpg" alt="Cobalt Creed, full page" loading="lazy" decoding="async">
       </a>
@@ -649,6 +681,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <a class="work-arrow" href="https://cobaltcreed.com/" target="_blank" rel="noopener" aria-label="Open Cobalt Creed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
     </article>
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>evetech.co.za</span><b>Live</b></div>
       <a class="work-thumb" href="https://www.evetech.co.za/" target="_blank" rel="noopener" aria-label="Visit Evetech">
         <img src="assets/screens/evetech.jpg" alt="Evetech, full page" loading="lazy" decoding="async">
       </a>
@@ -656,6 +689,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <a class="work-arrow" href="https://www.evetech.co.za/" target="_blank" rel="noopener" aria-label="Open Evetech"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
     </article>
     <article class="work-card">
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/fifty-shades-of-green</span><b>Live</b></div>
       <a class="work-thumb" href="https://werner-dev-git.github.io/fifty-shades-of-green/" target="_blank" rel="noopener" aria-label="Visit Fifty Shades of Green">
         <img src="assets/screens/fifty-shades.jpg" alt="Fifty Shades of Green, full page" loading="lazy" decoding="async">
       </a>
@@ -681,19 +715,19 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
 
     <div id="svcStack">
       <canvas id="smokeField" aria-hidden="true"></canvas>
-      <article class="svc"><div class="svc-art"><div class="art"></div></div>
+      <article class="svc"><div class="svc-art"><img src="assets/figma/figma-24.jpg" alt="Brand and web design work"></div>
         <div class="svc-body"><span class="svc-idx">01 — Product &amp; web design</span>
           <h3 class="display h3">Designed in Figma, properly</h3>
           <p class="lead">Landing pages, brand sites and app UI — with grids, type scales and component libraries behind them, not just pretty pictures.</p>
           <ul class="svc-list"><li>UI / UX</li><li>Design systems</li><li>Prototyping</li><li>Art direction</li><li>Handoff</li></ul>
         </div></article>
-      <article class="svc"><div class="svc-art"><div class="art v2"></div></div>
+      <article class="svc"><div class="svc-art"><img src="assets/figma/figma-36.jpg" alt="Interface design work"></div>
         <div class="svc-body"><span class="svc-idx">02 — Front-end development</span>
           <h3 class="display h3">Hand-built and shipped</h3>
           <p class="lead">Semantic HTML, modern CSS and just enough JavaScript. Deployed and live, like every site in the section above.</p>
           <ul class="svc-list"><li>HTML / CSS / JS</li><li>TypeScript</li><li>React</li><li>Responsive</li><li>Performance</li></ul>
         </div></article>
-      <article class="svc"><div class="svc-art"><div class="art v3"></div></div>
+      <article class="svc"><div class="svc-art"><img src="assets/figma/figma-44.jpg" alt="Motion and interaction work"></div>
         <div class="svc-body"><span class="svc-idx">03 — Motion &amp; interaction</span>
           <h3 class="display h3">Motion that explains</h3>
           <p class="lead">Scroll choreography, hover states and WebGL where it earns its place — and it always respects reduced-motion.</p>
@@ -712,10 +746,10 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
   </div>
   <div class="proc-viewport" id="procViewport">
     <div class="proc-track" id="procTrack" style="padding-inline:var(--pad)">
-      <article class="proc-card"><span class="proc-num">01</span><div class="proc-body"><h3 class="h4">Discover</h3><p class="muted">Who is arriving, what they need in the first ten seconds, and what the business needs them to do — written down before a single frame exists.</p></div></article>
-      <article class="proc-card"><span class="proc-num">02</span><div class="proc-body"><h3 class="h4">Design</h3><p class="muted">Figma, properly: a type scale, a grid, real colour tokens and components, so the build has something to follow instead of a picture to copy.</p></div></article>
-      <article class="proc-card"><span class="proc-num">03</span><div class="proc-body"><h3 class="h4">Build</h3><p class="muted">Hand-written and responsive from the first breakpoint. Motion is added where it explains something, never bolted on afterwards.</p></div></article>
-      <article class="proc-card"><span class="proc-num">04</span><div class="proc-body"><h3 class="h4">Ship</h3><p class="muted">Deployed, checked on a real phone, and handed over — with the source in your hands, not locked inside a builder.</p></div></article>
+      <article class="proc-card"><span class="proc-num">01</span><div class="proc-body"><h3 class="h4">Discover</h3><p class="muted">Who is arriving, what they need in the first ten seconds, and what the business needs them to do.</p></div></article>
+      <article class="proc-card"><span class="proc-num">02</span><div class="proc-body"><h3 class="h4">Design</h3><p class="muted">Figma, properly — a type scale, a grid and real components, so the build has something to follow.</p></div></article>
+      <article class="proc-card"><span class="proc-num">03</span><div class="proc-body"><h3 class="h4">Build</h3><p class="muted">Hand-written and responsive from the first breakpoint, with motion baked in rather than bolted on.</p></div></article>
+      <article class="proc-card"><span class="proc-num">04</span><div class="proc-body"><h3 class="h4">Ship</h3><p class="muted">Deployed, checked on a real phone, handed over — source and all.</p></div></article>
     </div>
   </div>
 </section>
@@ -730,17 +764,17 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
     <!-- TODO Werner: your real figures go in the .amt spans below. -->
     <div class="price-grid" data-stagger-cards>
       <div class="price"><div style="display:grid;gap:10px"><h3 class="h4">Landing page</h3><p class="muted" style="margin:0">One page that has to earn its keep — launch, campaign or product.</p></div>
-        <span class="amt">Let&rsquo;s scope it</span><hr class="rule">
+        <span class="amt">One page</span><hr class="rule">
         <ul><li>Designed in Figma first</li><li>Hand-built front-end</li><li>Responsive from the first breakpoint</li><li>Deployed and live</li><li>Source handed over</li></ul>
         <span class="mag"><a href="#contact" class="btn ghost"><span class="btn-swap"><span>Start here</span><span>Start here</span></span><span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></span>
       </div>
       <div class="price feature"><div style="display:grid;gap:10px"><h3 class="h4">Full site</h3><p class="muted" style="margin:0">The common one — a complete site like every build in the stack above.</p></div>
-        <span class="amt">Let&rsquo;s scope it</span><hr class="rule">
+        <span class="amt">Five to twelve pages</span><hr class="rule">
         <ul><li>Full design system in Figma</li><li>Every page hand-built</li><li>Motion and scroll choreography</li><li>SEO and accessibility pass</li><li>Deployed, with the source yours</li></ul>
         <span class="mag"><a href="#contact" class="btn solid"><span class="btn-swap"><span>Start here</span><span>Start here</span></span><span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></span>
       </div>
       <div class="price"><div style="display:grid;gap:10px"><h3 class="h4">Product work</h3><p class="muted" style="margin:0">Ongoing design and front-end for a team building something real.</p></div>
-        <span class="amt">Let&rsquo;s scope it</span><hr class="rule">
+        <span class="amt">Ongoing</span><hr class="rule">
         <ul><li>Design system and components</li><li>React / TypeScript front-end</li><li>Interface and interaction design</li><li>Iterating alongside your team</li><li>Documentation and handover</li></ul>
         <span class="mag"><a href="#contact" class="btn ghost"><span class="btn-swap"><span>Start here</span><span>Start here</span></span><span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></span>
       </div>
@@ -811,7 +845,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
     <div class="foot-top">
       <div style="display:grid;gap:24px">
         <span class="eyebrow" data-fade>Get in touch</span>
-        <h2 class="display h2" data-split="chars" style="font-size:clamp(2.4rem,6.2vw,5.6rem)">Let's build<br>something<br>green</h2>
+        <h2 class="display h2" data-split="chars" style="font-size:clamp(2.4rem,6.2vw,5.6rem)">Let's build<br>something<br><em>green</em></h2>
       </div>
       <div style="display:grid;gap:24px;justify-items:start">
         <p class="lead" data-split="lines">Have a project, a product or just an idea? Tell me what you are making and I will tell you how I can help.</p>
