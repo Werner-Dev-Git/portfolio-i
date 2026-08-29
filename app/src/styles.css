@@ -655,27 +655,6 @@ section.block { position: relative; z-index: 2; padding-block: 112px 60px; }
   box-shadow: 0 0 12px var(--glow); border-radius: 2px;
 }
 
-/* ============ Signature swarm ============ */
-.signature {
-  position: relative; z-index: 2; min-height: 100svh;
-  /* copy sits below the word, not on top of it */
-  display: grid; align-content: end; justify-items: center;
-  padding-bottom: 11vh; text-align: center; overflow: hidden;
-}
-.signature-particles {
-  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; height: 100%; z-index: 0; pointer-events: none;
-  opacity: 0; transition: opacity 1.2s ease;
-}
-.signature-particles.is-ready { opacity: 1; }
-:root[data-theme='light'] .signature-particles.is-ready { opacity: 0.6; }
-.signature-copy { position: relative; z-index: 1; }
-.signature-copy p {
-  margin: 14px auto 0; max-width: 40ch; font-size: 16px;
-  line-height: 1.6; color: var(--muted);
-  text-shadow: 0 0 30px var(--bg), 0 0 12px var(--bg);
-}
-
 /* ============ Contact / footer ============ */
 .contact { padding-block: 130px 40px; text-align: center; }
 .contact h2 {
@@ -721,7 +700,6 @@ footer a:hover { color: var(--accent); }
   .case-dots { display: none; }
   .process-track { flex-direction: column; width: auto; }
   .process-card { width: auto; }
-  .signature { min-height: 74svh; }
   .smoke-ctrl { display: none; }
 }
 @media (max-width: 620px) {

@@ -7,7 +7,7 @@ import { useInView } from '@/hooks/useInView';
 import { useReducedMotion } from '@/hooks/useMediaQuery';
 import { projects } from '@/data/projects';
 import { FIGMA_COUNT } from '@/data/figma';
-import { HeroSwarm } from './HeroSwarm';
+import { HeroSwarm, type SwarmParams } from './HeroSwarm';
 import { Magnetic } from './Magnetic';
 import { Reveal } from './Reveal';
 import { CountUp } from './CountUp';
@@ -18,6 +18,7 @@ export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
   const inView = useInView(ref, { rootMargin: '120px' });
+  const swarm = useRef<SwarmParams | null>(null);
   useGSAP(
     () => {
       if (reduced) return;
@@ -25,6 +26,20 @@ export function Hero() {
       gsap.from(split.chars, {
         yPercent: 112, duration: 1.05, ease: 'power4.out', stagger: 0.03, delay: 0.15,
       });
+      // The swarm answers to scroll: calm and wide at the top, tightening
+      // toward the core through the middle, chaos spiking as the hero leaves.
+      ScrollTrigger.create({
+        trigger: ref.current, start: 'top top', end: 'bottom top', scrub: true,
+        onUpdate: (self) => {
+          const P = swarm.current;
+          if (!P) return;
+          const p = self.progress;
+          P.speed = 0.4 + p * 0.45;
+          P.core = 10 + p * 24;
+          P.chaos = 20 + p * p * 42;
+        },
+      });
+
       gsap.to('.hero .badge, .hero h1', {
         yPercent: -16, autoAlpha: 0.72, ease: 'none',
         scrollTrigger: { trigger: ref.current, start: 'top top', end: 'bottom 30%', scrub: true },
@@ -36,7 +51,7 @@ export function Hero() {
 
   return (
     <section className="hero container" ref={ref} id="top">
-      <HeroSwarm active={inView} still={reduced} />
+      <HeroSwarm active={inView} still={reduced} paramsRef={swarm} />
 
       <div className="badge">
         <span className="pulse" /> Available for select work — South Africa

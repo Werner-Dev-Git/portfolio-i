@@ -9,7 +9,6 @@ import { Marquee } from '@/components/Marquee';
 import { DevSection } from '@/components/DevSection';
 import { CaseStudy } from '@/components/CaseStudy';
 import { ProcessTimeline } from '@/components/ProcessTimeline';
-import { Signature } from '@/components/Signature';
 import { DesignSection } from '@/components/DesignSection';
 import { AboutSection } from '@/components/AboutSection';
 import { ContactSection } from '@/components/ContactSection';
@@ -48,7 +47,6 @@ export default function App() {
           <DesignSection />
           <AboutSection />
           <ProcessTimeline />
-          <Signature />
 
           <Marquee duration={44} big>
             <span>Let&rsquo;s work together</span><span className="fill">✳</span>
