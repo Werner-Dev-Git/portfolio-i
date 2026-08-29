@@ -174,6 +174,57 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
   background-color:var(--bg-2);background-image:var(--pattern);background-size:var(--pattern-size)}
 
 /* ============================================================
+   TRUST STRIP — a quiet band that wakes on hover
+   ============================================================ */
+.trusted-section{
+  padding:var(--space-md,20px) var(--pad);
+  background:rgba(10,14,11,.6);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  transition:box-shadow .5s var(--ease),border-color .5s var(--ease),background .5s var(--ease);
+}
+/* Stage 1 — entering the band lights the whole row. Light appears to bleed in
+   from the two hairlines (inset shadows), and a faint halo spills onto the
+   sections above and below, which detaches the band from the page. */
+.trusted-section:hover,.trusted-section.awake{
+  background:rgba(34,197,94,.04);
+  border-top-color:rgba(34,197,94,.25);
+  border-bottom-color:rgba(34,197,94,.25);
+  box-shadow:
+    inset 0  2px 60px rgba(34,197,94,.08),
+    inset 0 -2px 60px rgba(34,197,94,.08),
+          0  0   80px rgba(34,197,94,.06);
+}
+.trusted-label{
+  font-family:var(--f-disp);font-size:.72rem;color:var(--mute);
+  letter-spacing:3px;text-transform:uppercase;text-align:center;
+  margin:0 0 clamp(16px,1.4vw,22px);
+}
+.trusted-logos{
+  display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
+  gap:clamp(18px,2.5vw,46px);
+}
+/* Idle at 40%: social proof should not compete with the work above it. */
+.trusted-logo{
+  font-family:var(--f-disp);font-size:clamp(.82rem,1.05vw,1.02rem);font-weight:700;
+  text-transform:uppercase;color:var(--mute);opacity:.4;letter-spacing:-.5px;
+  transition:300ms var(--ease);
+}
+.trusted-section:hover .trusted-logo,.trusted-section.awake .trusted-logo{
+  opacity:.75;color:#7ef0ab;
+  text-shadow:0 0 18px rgba(34,197,94,.55),0 0 4px rgba(34,197,94,.4);
+}
+/* Stage 2 — the one under the pointer goes hot. The 2px white core is what
+   separates "green text" from "glowing text". */
+.trusted-logo:hover,.trusted-logo:focus-visible{
+  opacity:1;color:var(--acc);
+  text-shadow:0 0 24px rgba(34,197,94,.9),0 0 8px rgba(34,197,94,.7),0 0 2px #fff;
+}
+@media(max-width:768px){ .trusted-logos{gap:clamp(14px,4vw,26px)}
+  .trusted-logo{font-size:.8rem} }
+@media(prefers-reduced-motion:reduce){ .trusted-section,.trusted-logo{transition:none} }
+
+/* ============================================================
    HERO
    ============================================================ */
 .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;
@@ -565,25 +616,20 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
   </div>
 </section>
 
-<!-- ══════════════ VELOCITY MARQUEE ══════════════ -->
-<div class="band">
-  <div class="marquee" data-marquee data-speed="1.1">
-    <div class="marquee-track">
-      <div class="marquee-item">Figma <i></i> React <i></i> TypeScript <i></i> GSAP <i></i> Three.js <i></i> Motion <i></i> Tailwind <i></i></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ CLIENTS ══════════════ -->
-<section style="padding-block:clamp(46px,6vw,80px)">
-  <div class="container" style="display:grid;gap:34px">
-    <span class="eyebrow" data-fade>Built for</span>
-    <div class="marquee" data-marquee data-speed="-.5" style="--gap:clamp(40px,6vw,90px)">
-      <div class="marquee-track">
-        <div class="marquee-item clients" style="font-size:clamp(1.1rem,2vw,1.9rem)">
-          <span>SatReach</span><span>EuroFenster</span><span>Karua Drilling</span><span>InBody SA</span><span>DNA Outsourcing</span><span>FROGG</span><span>Crest Advisory</span><span>Cobalt Creed</span><span>Evetech</span>
-        </div>
-      </div>
+<!-- ══════════════ TRUST STRIP ══════════════ -->
+<section class="trusted-section" id="clients">
+  <div class="container">
+    <p class="trusted-label">Built for</p>
+    <div class="trusted-logos">
+      <a class="trusted-logo" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener">SatReach</a>
+      <a class="trusted-logo" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener">EuroFenster</a>
+      <a class="trusted-logo" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener">Karua Drilling</a>
+      <a class="trusted-logo" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener">InBody SA</a>
+      <a class="trusted-logo" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener">DNA Outsourcing</a>
+      <a class="trusted-logo" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener">FROGG</a>
+      <a class="trusted-logo" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener">Crest Advisory</a>
+      <a class="trusted-logo" href="https://cobaltcreed.com/" target="_blank" rel="noopener">Cobalt Creed</a>
+      <a class="trusted-logo" href="https://www.evetech.co.za/" target="_blank" rel="noopener">Evetech</a>
     </div>
   </div>
 </section>
@@ -1391,9 +1437,19 @@ function heroIntro() {
   return tl;
 }
 
+/* Touch devices never hover, so the strip would sit dim forever. Wake it as it
+   scrolls into view instead. */
+function trustStrip() {
+  const band = document.querySelector(".trusted-section");
+  if (!band || !window.matchMedia("(hover: none)").matches) return;
+  new IntersectionObserver((entries) => {
+    band.classList.toggle("awake", entries[0].isIntersecting);
+  }, { rootMargin: "-15% 0px -15% 0px" }).observe(band);
+}
+
 function boot() {
   if (REDUCED) document.documentElement.classList.add("no-motion");
-  buildReveals(); scrubWords(); buildMarquees(); heroMotion(); counters();
+  buildReveals(); scrubWords(); buildMarquees(); trustStrip(); heroMotion(); counters();
   workStack(); serviceStack(); processScroll(); designWall(); accordions(); chrome();
   ScrollTrigger.refresh();
 }
