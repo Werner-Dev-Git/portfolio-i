@@ -327,7 +327,10 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 .about-head{max-width:22ch}
 .scrub-word{color:rgba(255,255,255,.16);transition:none}
 .about-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(28px,5vw,80px);margin-top:clamp(40px,6vw,90px)}
-.about-split{display:grid;gap:clamp(34px,4.5vw,66px);margin-top:clamp(40px,6vw,84px)}
+.about-split{display:grid;grid-template-columns:.82fr 1.18fr;align-items:start;
+  gap:clamp(28px,3.6vw,54px);margin-top:clamp(40px,6vw,84px)}
+@media(min-width:901px){.about-copy{position:sticky;top:110px}}
+@media(max-width:900px){.about-split{grid-template-columns:1fr;gap:32px}}
 .about-copy{display:grid;gap:clamp(16px,1.6vw,22px);align-content:start}
 .about-copy .chips{margin-top:6px}
 /* the skeleton had no chip styling — these came across with the copy */
@@ -374,14 +377,18 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 .tr-ring{fill:none;stroke:var(--acc);opacity:.35;transform-box:fill-box;transform-origin:center;
   animation:trSpin 15s linear infinite}
 .tr-hit:hover .tr-ring{opacity:1;stroke-width:2.4;animation-duration:4s}
-.tr-l-root{fill:var(--ink);font-family:var(--f-disp);font-weight:700;font-size:30px;
+.tr-l-root{fill:var(--ink);font-family:var(--f-disp);font-weight:700;font-size:22px;
   text-anchor:middle;letter-spacing:1px;pointer-events:none}
 .tr-plate{fill:#0a0d11;stroke:rgba(255,255,255,.07);pointer-events:none}
-.tr-l-cat{fill:var(--ink);font-family:var(--f-disp);font-weight:600;font-size:23px;
+.tree-stage{overflow:hidden}
+.tr-l-cat{fill:var(--ink);font-family:var(--f-disp);font-weight:600;font-size:20px;
   text-anchor:end;pointer-events:none}
 .tr-l-skill{fill:var(--ink-dim);font-size:18px;text-anchor:start;pointer-events:none;
   transition:fill .3s}
+/* the qualifier that used to sit in brackets on the same line */
+.tr-l-note{fill:var(--mute);font-size:13px;text-anchor:start;pointer-events:none}
 .tr-hit:hover .tr-l-skill{fill:var(--ink)}
+.tr-hit:hover .tr-l-note{fill:var(--ink-dim)}
 
 @keyframes trDraw{to{stroke-dashoffset:0}}
 @keyframes trPop{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1)}}
@@ -398,6 +405,7 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
   .tl-cat ul{list-style:none;margin:0;padding:0 0 0 17px;display:grid;gap:7px;
     border-left:1px solid var(--line)}
   .tl-cat li{font-size:.84rem;color:var(--ink-dim);position:relative;padding-left:14px}
+  .tl-cat li i{display:block;font-style:normal;font-size:.74rem;color:var(--mute);margin-top:2px}
   .tl-cat li::before{content:"";position:absolute;left:0;top:.58em;width:7px;height:1px;
     background:var(--line-2)}
 }
@@ -951,94 +959,6 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <img src="https://cdn.simpleicons.org/vercel/aeb6b2" alt="Vercel" loading="lazy" decoding="async" width="28" height="28">
         <span>Vercel</span>
       </a>
-    </div>
-    </div>
-  </figure>
-</div>
-
-<!-- NAV -->
-<nav class="nav" id="nav">
-  <button class="menu-btn" id="menuOpen">
-    <span class="burger"><i></i><i></i></span> Menu
-  </button>
-  <a href="#top" class="nav-logo">WER<b>N</b>ER</a>
-  <span class="mag"><a href="#contact" class="btn">
-    <span class="btn-swap"><span>Contact us</span><span>Say hello</span></span>
-    <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
-  </a></span>
-</nav>
-
-<!-- MENU OVERLAY -->
-<div class="overlay" id="overlay">
-  <div class="ov-top">
-    <span class="nav-logo">WER<b>N</b>ER</span>
-    <button class="ov-close" id="menuClose">Close ✕</button>
-  </div>
-  <div class="ov-list">
-    <a href="#work"><span>Work</span></a>
-    <a href="#design"><span>Design</span></a>
-    <a href="#services"><span>Services</span></a>
-    <a href="#process"><span>Process</span></a>
-    <a href="#contact"><span>Contact</span></a>
-  </div>
-  <div class="ov-foot"><span>South Africa</span><span>wbotha.work@gmail.com</span><span>© 2026</span></div>
-</div>
-
-<main class="wrap">
-
-<!-- ══════════════ HERO ══════════════ -->
-<section class="hero" id="top">
-  <div class="container hero-split">
-    <div class="hero-copy">
-      <span class="eyebrow">Werner · South Africa · Available for select work</span>
-      <h1 class="display h1 hero-title" data-split="chars">Developer<br>&amp; Designer</h1>
-      <p class="hero-sub">I build the sites, and design them because the build keeps asking.
-        Ten live projects, taken the whole distance by one person.</p>
-      <div class="hero-actions">
-        <span class="mag"><a href="#work" class="btn ghost">
-          <span class="btn-swap"><span>See the work</span><span>Ten live sites</span></span>
-          <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
-        </a></span>
-        <span class="mag"><a href="#contact" class="btn solid">
-          <span class="btn-swap"><span>Get in touch</span><span>Say hello</span></span>
-          <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
-        </a></span>
-      </div>
-    </div>
-    <div class="hero-visual"><canvas id="heroParticles" aria-hidden="true"></canvas></div>
-  </div>
-
-  <div class="container hero-cards" id="heroCards">
-    <a class="hero-card" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b>Live</b></div>
-      <div class="hero-shot"><img src="assets/screens/satreach.jpg" alt="SatReach" loading="eager" decoding="async"></div>
-    </a>
-    <a class="hero-card" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener">
-      <div class="work-bar"><i></i><i></i><i></i><span>froggrecruit-sa.co.za</span><b>Live</b></div>
-      <div class="hero-shot"><img src="assets/screens/frogg.jpg" alt="FROGG Recruitment" loading="eager" decoding="async"></div>
-    </a>
-    <a class="hero-card" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b>Live</b></div>
-      <div class="hero-shot"><img src="assets/screens/inbody.jpg" alt="InBody SA" loading="eager" decoding="async"></div>
-    </a>
-  </div>
-</section>
-
-<!-- ══════════════ TRUST STRIP ══════════════ -->
-<section class="trusted-section" id="clients">
-  <canvas id="trustSpark" aria-hidden="true"></canvas>
-  <div class="container">
-    <p class="trusted-label">Built for</p>
-    <div class="trusted-logos">
-      <a class="trusted-logo" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener">SatReach</a>
-      <a class="trusted-logo" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener">EuroFenster</a>
-      <a class="trusted-logo" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener">Karua Drilling</a>
-      <a class="trusted-logo" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener">InBody SA</a>
-      <a class="trusted-logo" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener">DNA Outsourcing</a>
-      <a class="trusted-logo" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener">FROGG</a>
-      <a class="trusted-logo" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener">Crest Advisory</a>
-      <a class="trusted-logo" href="https://cobaltcreed.com/" target="_blank" rel="noopener">Cobalt Creed</a>
-      <a class="trusted-logo" href="https://www.evetech.co.za/" target="_blank" rel="noopener">Evetech</a>
     </div>
   </div>
 </section>
@@ -1843,26 +1763,27 @@ function serviceStack() {
    ─────────────────────────────────────────────── */
 const STACK = [
   { label: "Languages", skills: ["TypeScript","JavaScript","PHP","SQL","HTML","CSS"] },
-  { label: "Frameworks & runtimes", skills: ["Next.js (14 App Router; 15/16 explored)","React","Astro","Vite","Nx monorepo"] },
-  { label: "Styling & UI", skills: ["Tailwind CSS","shadcn/ui","CSS Grid / Flexbox","Fluid type with clamp()","Glassmorphism","Mobile-first breakpoints (sm 640 → 2xl 1536)"] },
-  { label: "Motion & 3D", skills: ["GSAP","Three.js — samurai hero, AC particles, Starlink","Local Connections geodesic dome hero"] },
-  { label: "No-code / visual builders", skills: ["Webflow","Framer","Elementor (legacy section/col & container v4 JSON)"] },
+  { label: "Frameworks & runtimes", skills: [["Next.js","14 App Router; 15/16 explored"],"React","Astro","Vite","Nx monorepo"] },
+  { label: "Styling & UI", skills: ["Tailwind CSS","shadcn/ui","CSS Grid / Flexbox","Fluid type with clamp()","Glassmorphism",["Mobile-first breakpoints","sm 640 → 2xl 1536"]] },
+  { label: "Motion & 3D", skills: ["GSAP",["Three.js","samurai hero, AC particles, Starlink"],["Geodesic dome hero","Local Connections"]] },
+  { label: "No-code / visual builders", skills: ["Webflow","Framer",["Elementor","legacy section/col & container v4 JSON"]] },
   { label: "Backend, data & auth", skills: ["Supabase","Neon","Prisma","PostgreSQL","Stack Auth","Clerk","Zod","Trigger.dev","Liveblocks + ReactFlow","Firebase"] },
-  { label: "WordPress stack", skills: ["WooCommerce","Custom PHP plugins — login security, IP blocking","Client feedback tools","WP Scout detection tool"] },
+  { label: "WordPress stack", skills: ["WooCommerce",["Custom PHP plugins","login security, IP blocking"],"Client feedback tools","WP Scout detection tool"] },
   { label: "CMS", skills: ["Sanity","Strapi"] },
   { label: "Payments", skills: ["Yoco"] },
   { label: "Hosting & infra", skills: ["AWS","Vercel","Cloudflare Pages","Linux / Fedora","Linux sysadmin"] },
   { label: "Testing", skills: ["Vitest","React Testing Library","Playwright"] },
-  { label: "Tooling & workflow", skills: ["VS Code","Claude Code (CLAUDE.md / .claude/)","n8n","Figma","Git / GitHub"] },
+  { label: "Tooling & workflow", skills: ["VS Code",["Claude Code","CLAUDE.md / .claude/"],"n8n","Figma","Git / GitHub"] },
 ];
+
 
 function skillTree() {
   const host = document.querySelector(".tree");
   const svg = document.getElementById("treeSvg");
   if (!host || !svg) return;
 
-  const ROOT_X = 120, CAT_X = 600, SKILL_X = 960;
-  const ROW = 30, GAP = 46;
+  const ROOT_X = 60, CAT_X = 430, SKILL_X = 580;
+  const ROW = 26, ROW_NOTE = 40, GAP = 36;
   const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
   const curve = (x1, y1, x2, y2) => {
     const m = (x1 + x2) / 2;
@@ -1870,11 +1791,16 @@ function skillTree() {
   };
 
   const cats = [], leaves = [];
-  let y = 70;
+  let y = 50, lastRow = ROW;
   STACK.forEach((cat, ci) => {
     const top = y;
-    cat.skills.forEach((name) => { leaves.push({ name, x: SKILL_X, y, ci }); y += ROW; });
-    cats.push({ label: cat.label, x: CAT_X, y: (top + y - ROW) / 2, ci });
+    cat.skills.forEach((sk) => {
+      const [name, note] = Array.isArray(sk) ? sk : [sk, ""];
+      leaves.push({ name, note, x: SKILL_X, y, ci });
+      lastRow = note ? ROW_NOTE : ROW;
+      y += lastRow;
+    });
+    cats.push({ label: cat.label, x: CAT_X, y: (top + y - lastRow) / 2, ci });
     y += GAP;
   });
   const root = { x: ROOT_X, y: (cats[0].y + cats[cats.length - 1].y) / 2 };
@@ -1889,26 +1815,28 @@ function skillTree() {
   leaves.forEach((l, i) => link(cats[l.ci], l, 0.5 + l.ci * 0.07 + (i % 6) * 0.04));
 
   nodes += `<g class="tr-node" style="animation-delay:.05s"><g class="tr-hit">
-      <circle class="tr-ring" cx="${root.x}" cy="${root.y}" r="80" stroke-dasharray="10 15 30 10"/>
-      <circle class="tr-ring" cx="${root.x}" cy="${root.y}" r="71" stroke-dasharray="4 8"
+      <circle class="tr-ring" cx="${root.x}" cy="${root.y}" r="62" stroke-dasharray="10 15 30 10"/>
+      <circle class="tr-ring" cx="${root.x}" cy="${root.y}" r="55" stroke-dasharray="4 8"
               style="animation-direction:reverse;animation-duration:20s"/>
-      <circle class="tr-core" cx="${root.x}" cy="${root.y}" r="62" stroke-width="3.5"/>
-      <text class="tr-l-root" x="${root.x}" y="${root.y - 4}">FULL</text>
-      <text class="tr-l-root" x="${root.x}" y="${root.y + 27}">STACK</text></g></g>`;
+      <circle class="tr-core" cx="${root.x}" cy="${root.y}" r="47" stroke-width="3"/>
+      <text class="tr-l-root" x="${root.x}" y="${root.y - 3}">FULL</text>
+      <text class="tr-l-root" x="${root.x}" y="${root.y + 19}">STACK</text></g></g>`;
 
   cats.forEach((c, i) => {
     nodes += `<g class="tr-node" style="animation-delay:${(0.4 + i * 0.07).toFixed(2)}s"><g class="tr-hit">
-        <circle class="tr-ring" cx="${c.x}" cy="${c.y}" r="34" stroke-dasharray="5 10 15 5"/>
-        <circle class="tr-core" cx="${c.x}" cy="${c.y}" r="24" stroke-width="2"/>
+        <circle class="tr-ring" cx="${c.x}" cy="${c.y}" r="28" stroke-dasharray="5 10 15 5"/>
+        <circle class="tr-core" cx="${c.x}" cy="${c.y}" r="20" stroke-width="2"/>
         <circle cx="${c.x}" cy="${c.y}" r="4" fill="var(--acc)" style="pointer-events:none"/>
-        <text class="tr-l-cat" x="${c.x - 58}" y="${c.y + 7}">${esc(c.label)}</text></g></g>`;
+        <text class="tr-l-cat" x="${c.x - 44}" y="${c.y + 7}">${esc(c.label)}</text></g></g>`;
   });
 
   leaves.forEach((l, i) => {
     nodes += `<g class="tr-node" style="animation-delay:${(0.85 + l.ci * 0.07 + (i % 6) * 0.04).toFixed(2)}s"><g class="tr-hit">
-        <circle class="tr-ring" cx="${l.x}" cy="${l.y}" r="14" stroke-dasharray="2 4"/>
-        <circle class="tr-core" cx="${l.x}" cy="${l.y}" r="8" stroke-width="1.5"/>
-        <text class="tr-l-skill" x="${l.x + 26}" y="${l.y + 6}">${esc(l.name)}</text></g></g>`;
+        <circle class="tr-ring" cx="${l.x}" cy="${l.y}" r="13" stroke-dasharray="2 4"/>
+        <circle class="tr-core" cx="${l.x}" cy="${l.y}" r="7.5" stroke-width="1.5"/>
+        <text class="tr-l-skill" x="${l.x + 24}" y="${l.y + (l.note ? 1 : 6)}">${esc(l.name)}</text>
+        ${l.note ? `<text class="tr-l-note" x="${l.x + 24}" y="${l.y + 17}">${esc(l.note)}</text>` : ""}
+        </g></g>`;
   });
 
   document.getElementById("treeTracks").innerHTML = tracks;
@@ -1932,7 +1860,7 @@ function skillTree() {
   // Fit the viewBox to what actually rendered. getBBox returns zeroes while
   // the SVG is display:none (narrow screens), so fall back to the geometry.
   const fit = () => {
-    let w = SKILL_X + 620, h = y + 20, x0 = 0, y0 = 0;
+    let w = SKILL_X + 330, h = y + 20, x0 = 0, y0 = 0;
     try {
       const b = svg.getBBox();
       if (b.width > 0) { x0 = b.x - 30; y0 = b.y - 30; w = b.width + 60; h = b.height + 60; }
@@ -1950,7 +1878,10 @@ function skillTree() {
   if (list) {
     list.innerHTML = STACK.map((c) =>
       `<li class="tl-cat"><h4>${esc(c.label)}</h4><ul>` +
-      c.skills.map((sk) => `<li>${esc(sk)}</li>`).join("") + `</ul></li>`).join("");
+      c.skills.map((sk) => {
+        const [n, note] = Array.isArray(sk) ? sk : [sk, ""];
+        return `<li>${esc(n)}${note ? `<i>${esc(note)}</i>` : ""}</li>`;
+      }).join("") + `</ul></li>`).join("");
   }
 
   // Branches draw on arrival rather than on load, or they finish unseen.
