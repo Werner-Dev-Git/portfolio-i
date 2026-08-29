@@ -31,6 +31,12 @@
   --dur:.6s; --ease:cubic-bezier(.22,1,.36,1);
   --f-disp:"Space Grotesk",system-ui,sans-serif;
   --f-body:"Inter",system-ui,sans-serif;
+  /* site-wide substrate: a fine grid with a dot grid over it */
+  --pattern:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),
+    radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);
+  --pattern-size:70px 70px,70px 70px,22px 22px;
 }
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;overflow-x:clip}
@@ -42,8 +48,8 @@ body{
 /* dotted texture, same trick the reference uses */
 body::before{
   content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
-  background-image:radial-gradient(rgba(255,255,255,.055) 1px,transparent 1px);
-  background-size:22px 22px; mask-image:radial-gradient(120% 90% at 50% 20%,#000 40%,transparent 100%);
+  background-image:var(--pattern);
+  background-size:var(--pattern-size);
 }
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
@@ -164,45 +170,41 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 }
 .marquee-item i{width:.36em;height:.36em;border-radius:50%;background:var(--acc);display:block;flex:none;font-style:normal}
 .marquee.outline .marquee-item{-webkit-text-stroke:1px var(--line-2);color:transparent}
-.band{border-block:1px solid var(--line);padding-block:clamp(18px,2.6vw,30px);background:var(--bg-2)}
+.band{border-block:1px solid var(--line);padding-block:clamp(18px,2.6vw,30px);
+  background-color:var(--bg-2);background-image:var(--pattern);background-size:var(--pattern-size)}
 
 /* ============================================================
    HERO
    ============================================================ */
 .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;
-  justify-content:center;align-items:center;overflow:hidden;
-  padding-top:clamp(120px,16vh,190px);padding-bottom:0}
-/* the swarm sits behind everything, feathered so the type stays the subject */
-#heroParticles{position:absolute;top:40%;left:50%;translate:-50% -50%;
-  width:min(1400px,112vw);height:min(1400px,112vh);z-index:0;pointer-events:none;display:block;
-  -webkit-mask-image:radial-gradient(closest-side,#000 30%,transparent 74%);
-          mask-image:radial-gradient(closest-side,#000 30%,transparent 74%);
-  opacity:.72}
-.hero-center{position:relative;z-index:1;display:grid;justify-items:center;text-align:center;
-  gap:clamp(20px,2.4vw,30px)}
-.hero-title{max-width:15ch}
-.hero-sub{margin:0;max-width:56ch;color:var(--ink-dim);
-  font-size:clamp(1rem,1.35vw,1.2rem);line-height:1.6;
-  /* a halo in the page colour knocks the swarm back behind the words */
-  text-shadow:0 0 34px var(--bg),0 0 14px var(--bg),0 0 6px var(--bg)}
-.hero .eyebrow{text-shadow:0 0 24px var(--bg),0 0 10px var(--bg)}
-.hero-title{text-shadow:0 0 60px var(--bg),0 0 22px rgba(8,9,11,.7)}
-.hero-cta{--h:62px}
+  justify-content:center;overflow:hidden;padding-top:clamp(120px,15vh,180px);padding-bottom:0}
+.hero-split{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(24px,4vw,64px);
+  align-items:center;position:relative;z-index:1}
+.hero-copy{display:grid;justify-items:start;gap:clamp(18px,2vw,26px)}
+.hero-title{font-size:clamp(2.9rem,6.6vw,6.4rem);max-width:12ch}
+.hero-sub{margin:0;max-width:46ch;color:var(--ink-dim);
+  font-size:clamp(1rem,1.2vw,1.12rem);line-height:1.6}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px}
+.hero-visual{position:relative;aspect-ratio:1/1;max-height:min(72vh,720px);width:100%}
+#heroParticles{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;
+  -webkit-mask-image:radial-gradient(closest-side,#000 58%,transparent 88%);
+          mask-image:radial-gradient(closest-side,#000 58%,transparent 88%)}
 
-/* preview cards peek in from the bottom of the hero, as on the reference */
+/* live work peeks in below the fold, as on the reference */
 .hero-cards{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);
-  gap:clamp(14px,1.6vw,26px);margin-top:clamp(38px,6vh,74px);width:min(1320px,100% - var(--pad)*2)}
-.hero-card{display:grid;gap:10px;padding:clamp(10px,1vw,14px);border:1px solid var(--line);
-  border-radius:var(--r-lg);background:var(--card);
-  box-shadow:0 40px 90px -50px rgba(0,0,0,.9);
+  gap:clamp(14px,1.6vw,24px);margin-top:clamp(26px,4vh,54px);width:min(1320px,100% - var(--pad)*2)}
+.hero-card{display:grid;gap:10px;padding:clamp(9px,.9vw,13px);border:1px solid var(--line);
+  border-radius:var(--r-lg);background:var(--card);box-shadow:0 40px 90px -50px rgba(0,0,0,.9);
   transition:transform .6s var(--ease),border-color .5s}
 .hero-card:hover{transform:translateY(-8px);border-color:var(--line-2)}
-.hero-shot{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:16/11;background:var(--bg-2)}
+.hero-shot{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:16/10;background:var(--bg-2)}
 .hero-shot img{position:absolute;top:0;left:0;width:100%;height:auto;transition:transform 6s var(--ease)}
-.hero-card:hover .hero-shot img{transform:translateY(calc(-100% + 100px))}
+.hero-card:hover .hero-shot img{transform:translateY(calc(-100% + 96px))}
 @media(max-width:900px){
   .hero{min-height:auto;padding-bottom:clamp(20px,4vh,40px)}
-  .hero-cards{grid-template-columns:1fr;margin-top:34px}
+  .hero-split{grid-template-columns:1fr;gap:8px}
+  .hero-visual{order:-1;max-height:44vh;aspect-ratio:4/3}
+  .hero-cards{grid-template-columns:1fr;margin-top:30px}
   .hero-card:nth-child(n+3){display:none}
 }
 
@@ -254,7 +256,7 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 .counters{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
   border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:clamp(36px,5vw,64px)}
 @media(max-width:760px){.counters{grid-template-columns:1fr}}
-.counter{background:var(--bg-2);padding:clamp(24px,3vw,40px);display:grid;gap:10px;transition:background .5s}
+.counter{background-color:var(--bg-2);background-image:var(--pattern);background-size:var(--pattern-size);padding:clamp(24px,3vw,40px);display:grid;gap:10px;transition:background .5s}
 .counter:hover{background:#14181d}
 .odo{display:flex;align-items:flex-end;font-family:var(--f-disp);font-weight:700;
   font-size:clamp(3rem,7vw,5.6rem);line-height:1;letter-spacing:-.04em}
@@ -327,7 +329,7 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
    ============================================================ */
 .proc-viewport{overflow:hidden}
 .proc-track{display:flex;gap:clamp(18px,2.4vw,34px);will-change:transform}
-.proc-card{flex:none;width:min(390px,78vw);min-height:min(470px,74vh);border:1px solid var(--line);
+.proc-card{background-image:var(--pattern);background-size:var(--pattern-size);flex:none;width:min(390px,78vw);min-height:min(470px,74vh);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:clamp(24px,2.6vw,40px);display:grid;align-content:space-between;
   background:var(--bg-2);position:relative;overflow:hidden}
 .proc-card::before{content:"";position:absolute;inset:auto -34% -78% -34%;aspect-ratio:1;
@@ -383,7 +385,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
   border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:clamp(36px,5vw,64px)}
 @media(max-width:1000px){.ind-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.ind-grid{grid-template-columns:1fr}}
-.ind{background:var(--bg-2);padding:clamp(24px,2.6vw,38px);display:grid;gap:12px;
+.ind{background-color:var(--bg-2);background-image:var(--pattern);background-size:var(--pattern-size);padding:clamp(24px,2.6vw,38px);display:grid;gap:12px;
   align-content:start;min-height:300px;position:relative;
   transition:background .5s,transform .5s var(--ease)}
 .ind::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--acc);
@@ -416,7 +418,8 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
 /* ============================================================
    FOOTER
    ============================================================ */
-.foot{background:var(--bg-2);border-top:1px solid var(--line);padding-top:clamp(70px,9vw,130px)}
+.foot{background-color:var(--bg-2);background-image:var(--pattern);background-size:var(--pattern-size);
+  border-top:1px solid var(--line);padding-top:clamp(70px,9vw,130px)}
 .foot-top{display:grid;grid-template-columns:1.3fr .9fr;gap:clamp(30px,4vw,60px);align-items:end}
 @media(max-width:860px){.foot-top{grid-template-columns:1fr}}
 .foot-links{display:grid;grid-template-columns:repeat(3,auto);gap:10px 60px;margin-top:clamp(50px,7vw,90px)}
@@ -526,16 +529,24 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
 
 <!-- ══════════════ HERO ══════════════ -->
 <section class="hero" id="top">
-  <canvas id="heroParticles" aria-hidden="true"></canvas>
-  <div class="container hero-center">
-    <span class="eyebrow">Werner · South Africa · Available for select work</span>
-    <h1 class="display h1 hero-title" data-split="chars">Designer<br>&amp; Developer</h1>
-    <p class="hero-sub">I design in Figma and ship to production — live sites, motion systems
-      and product interfaces, taken the whole distance by one person.</p>
-    <span class="mag"><a href="#work" class="btn ghost hero-cta">
-      <span class="btn-swap"><span>View the work</span><span>Ten live sites</span></span>
-      <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
-    </a></span>
+  <div class="container hero-split">
+    <div class="hero-copy">
+      <span class="eyebrow">Werner · South Africa · Available for select work</span>
+      <h1 class="display h1 hero-title" data-split="chars">Designer<br>&amp; Developer</h1>
+      <p class="hero-sub">I design in Figma and ship to production — live sites, motion systems
+        and product interfaces, taken the whole distance by one person.</p>
+      <div class="hero-actions">
+        <span class="mag"><a href="#work" class="btn ghost">
+          <span class="btn-swap"><span>See the work</span><span>Ten live sites</span></span>
+          <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+        </a></span>
+        <span class="mag"><a href="#contact" class="btn solid">
+          <span class="btn-swap"><span>Get in touch</span><span>Say hello</span></span>
+          <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+        </a></span>
+      </div>
+    </div>
+    <div class="hero-visual"><canvas id="heroParticles" aria-hidden="true"></canvas></div>
   </div>
 
   <div class="container hero-cards" id="heroCards">
@@ -1464,7 +1475,7 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
     const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2000);
     /* pulled back from the portfolio's 100: this panel is much smaller, and at
      100 the camera sits inside the swarm and it reads as a flat green wall */
-  camera.position.set(0, 0, 185);
+  camera.position.set(0, 0, 265);
 
     const mesh = new THREE.InstancedMesh(
       new THREE.TetrahedronGeometry(0.25),
