@@ -128,9 +128,12 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
   gap:16px;padding:10px 10px 10px 22px;
   background:rgba(12,14,17,.6);backdrop-filter:blur(18px);
   border:1px solid var(--line);border-radius:999px;
-  transition:transform .55s var(--ease),opacity .4s;
+  /* No transform transition and no .hidden rule: GSAP owns this element's
+     transform from the intro tween on, and CSSPlugin sets `translate:none`
+     inline when it takes over, so a class rule could never move the bar.
+     The auto-hide in chrome() drives it instead. */
+  transition:opacity .4s;
 }
-.nav.hidden{transform:translateX(-50%) translateY(-140%)}
 .nav-logo{font-family:var(--f-disp);font-weight:700;font-size:1.3rem;letter-spacing:.06em}
 .nav-logo b{color:var(--acc)}
 .menu-btn{display:flex;align-items:center;gap:12px;font-family:var(--f-disp);font-weight:600;
@@ -2174,11 +2177,16 @@ function chrome() {
     scrollTrigger: { start: 0, end: () => document.body.scrollHeight - window.innerHeight, scrub: .3 }
   });
 
-  /* auto-hide nav on scroll down */
+  /* auto-hide nav on scroll down, shown again the moment you scroll up */
   const nav = document.getElementById("nav");
+  // quickTo with duration 0 does not apply, so reduced motion gets a plain
+  // set: the bar still hides, it just does not slide.
+  const navY = REDUCED
+    ? (v) => gsap.set(nav, { yPercent: v })
+    : gsap.quickTo(nav, "yPercent", { duration: .55, ease: "power3.out" });
   ScrollTrigger.create({
-    start: "top -180",
-    onUpdate: (self) => nav.classList.toggle("hidden", self.direction === 1 && self.scroll() > 300)
+    start: 0, end: "max",
+    onUpdate: (self) => navY(self.direction === 1 && self.scroll() > 300 ? -160 : 0),
   });
 
   /* menu overlay */
@@ -2253,11 +2261,12 @@ function heroIntro() {
   const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
   gsap.set(heroChars, { yPercent: 115 });
   gsap.set(".hero-card", { yPercent: 16, opacity: 0 });
+  gsap.set(".nav", { y: -90, opacity: 0 });
   tl.from(".hero .eyebrow", { y: 20, opacity: 0, duration: .9 })
     .to(heroChars, { yPercent: 0, duration: 1.35, stagger: .045 }, "-=.7")
     .from(".hero-sub, .hero-cta", { y: 30, opacity: 0, duration: 1, stagger: .09 }, "-=1")
     .to(".hero-card", { yPercent: 0, opacity: 1, duration: 1.3, stagger: .11, ease: "expo.out" }, "-=.95")
-    .from(".nav", { y: -90, opacity: 0, duration: 1 }, "-=1.3");
+    .to(".nav", { y: 0, opacity: 1, duration: 1 }, "-=1.3");
   return tl;
 }
 
