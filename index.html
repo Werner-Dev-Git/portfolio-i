@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Werner — Designer &amp; Developer</title>
-<meta name="description" content="Portfolio of Werner — designer and developer from South Africa. Live sites, Figma design and motion work.">
+<meta name="description" content="Portfolio of Werner — designer and developer from South Africa. Client sites, design builds, Figma design and motion work.">
 <link rel="canonical" href="https://werner-dev-git.github.io/portfolio-i/">
 <meta property="og:title" content="Werner — Designer &amp; Developer">
 <meta property="og:description" content="Interfaces, motion systems and live products, from Figma to production.">
@@ -484,8 +484,14 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 @media(hover:none),(pointer:coarse){
   .work-peek{display:none}
   /* no hover on touch, so each row carries its own thumbnail */
-  .work-row{grid-template-columns:auto 1fr auto;gap:14px;padding-block:16px}
-  .wr-tags,.wr-host,.wr-go{display:none}
+  .work-row{grid-template-columns:auto 1fr auto;gap:4px 14px;padding-block:16px}
+  .wr-host,.wr-go,.hover-only{display:none}
+  /* The tag says whether a project is a design build or a live site, so it
+     has to survive on touch too — stacked under the name rather than hidden. */
+  .wr-n{grid-row:1/3;align-self:center}
+  .wr-name{grid-column:2;grid-row:1}
+  .wr-tags{grid-column:2;grid-row:2;font-size:.72rem;white-space:normal}
+  .wr-thumb{grid-column:3;grid-row:1/3;align-self:center}
   .wr-thumb{display:block;width:74px;height:52px;border-radius:8px;overflow:hidden;
     border:1px solid var(--line);background:var(--bg-2)}
   .wr-thumb img{width:100%;height:auto;display:block}
@@ -508,6 +514,12 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
   border:1px solid color-mix(in srgb,var(--acc) 34%,transparent)}
 .work-bar b::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--acc);
   box-shadow:0 0 8px rgba(34,197,94,.9)}
+/* A design build is client work that is not the client's public site, so it
+   must not borrow the live badge's green or its lit dot. */
+.work-bar b.is-design{color:var(--ink-dim);background:rgba(255,255,255,.05);
+  border-color:var(--line-2)}
+.work-bar b.is-design::before{background:var(--mute);box-shadow:none}
+.work-note{font-size:.82rem;color:var(--mute);max-width:52ch;margin:14px 0 0;line-height:1.6}
 
 /* ============================================================
    GALLERY — native scroll-snap carousel
@@ -885,10 +897,10 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <span class="eyebrow">Werner · South Africa · Available for select work</span>
       <h1 class="display h1 hero-title" data-split="chars">Developer<br>&amp; Designer</h1>
       <p class="hero-sub">I build the sites, and design them because the build keeps asking.
-        Ten live projects, taken the whole distance by one person.</p>
+        Ten client projects, taken the whole distance by one person.</p>
       <div class="hero-actions">
         <span class="mag"><a href="#work" class="btn ghost">
-          <span class="btn-swap"><span>See the work</span><span>Ten live sites</span></span>
+          <span class="btn-swap"><span>See the work</span><span>Ten projects</span></span>
           <span class="btn-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
         </a></span>
         <span class="mag"><a href="#contact" class="btn solid">
@@ -902,7 +914,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
 
   <div class="container hero-cards" id="heroCards">
     <a class="hero-card" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b>Live</b></div>
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b class="is-design">Design</b></div>
       <div class="hero-shot"><img src="assets/screens/satreach.jpg" alt="SatReach" loading="eager" decoding="async"></div>
     </a>
     <a class="hero-card" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener">
@@ -910,7 +922,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <div class="hero-shot"><img src="assets/screens/frogg.jpg" alt="FROGG Recruitment" loading="eager" decoding="async"></div>
     </a>
     <a class="hero-card" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener">
-      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b>Live</b></div>
+      <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b class="is-design">Design</b></div>
       <div class="hero-shot"><img src="assets/screens/inbody.jpg" alt="InBody SA" loading="eager" decoding="async"></div>
     </a>
   </div>
@@ -1015,7 +1027,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
     </div>
 
     <div class="counters">
-      <div class="counter"><div class="odo" data-count="10" data-suffix=""></div><span class="muted">Live sites, built and shipped</span></div>
+      <div class="counter"><div class="odo" data-count="10" data-suffix=""></div><span class="muted">Client projects, designed and built</span></div>
       <div class="counter"><div class="odo" data-count="48" data-suffix=""></div><span class="muted">Figma explorations in the design wall</span></div>
       <div class="counter"><div class="odo" data-count="60" data-suffix="fps"></div><span class="muted">Motion budget, non-negotiable</span></div>
     </div>
@@ -1028,17 +1040,22 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
     <div class="work-head">
       <div style="display:grid;gap:20px">
         <span class="eyebrow" data-fade>Works</span>
-        <h2 class="display h2" data-split="chars">Live work</h2>
+        <h2 class="display h2" data-split="chars">Selected work</h2>
       </div>
-      <p class="lead" data-fade style="max-width:34ch">Ten sites, all live and all built by hand.
-        Hover a line to preview it — click to open the real thing.</p>
+      <div data-fade>
+        <p class="lead" style="max-width:34ch;margin:0">Ten client projects, all built by hand.<span
+          class="hover-only"> Hover a line to preview it — click to open it.</span></p>
+        <p class="work-note">Six are <strong>design builds</strong>: made for the client, hosted
+          here rather than on their own domain, and kept out of search results. They are my work
+          for that company — not the company's public website. The other four are live sites.</p>
+      </div>
     </div>
 
     <ol class="work-index" id="workIndex">
       <li><a class="work-row" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener" data-shot="assets/screens/satreach.jpg">
         <span class="wr-n">01</span>
         <span class="wr-name">SatReach</span>
-        <span class="wr-tags">Design + Build · Connectivity</span>
+        <span class="wr-tags">Design build · Connectivity</span>
         <span class="wr-host">werner-dev-git.github.io/satreach</span>
         <span class="wr-thumb"><img src="assets/screens/satreach.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1046,7 +1063,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <li><a class="work-row" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener" data-shot="assets/screens/aluplast.jpg">
         <span class="wr-n">02</span>
         <span class="wr-name">EuroFenster</span>
-        <span class="wr-tags">Design + Build · Corporate</span>
+        <span class="wr-tags">Design build · Corporate</span>
         <span class="wr-host">werner-dev-git.github.io/aluplast-website</span>
         <span class="wr-thumb"><img src="assets/screens/aluplast.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1054,7 +1071,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <li><a class="work-row" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener" data-shot="assets/screens/frogg.jpg">
         <span class="wr-n">03</span>
         <span class="wr-name">FROGG Recruitment</span>
-        <span class="wr-tags">Dev · Recruitment</span>
+        <span class="wr-tags">Live site · Recruitment</span>
         <span class="wr-host">froggrecruit-sa.co.za</span>
         <span class="wr-thumb"><img src="assets/screens/frogg.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1062,7 +1079,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <li><a class="work-row" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener" data-shot="assets/screens/inbody.jpg">
         <span class="wr-n">04</span>
         <span class="wr-name">InBody SA</span>
-        <span class="wr-tags">Design + Build · Health</span>
+        <span class="wr-tags">Design build · Health</span>
         <span class="wr-host">werner-dev-git.github.io/inbody</span>
         <span class="wr-thumb"><img src="assets/screens/inbody.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1070,7 +1087,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <li><a class="work-row" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener" data-shot="assets/screens/karua.jpg">
         <span class="wr-n">05</span>
         <span class="wr-name">Karua Drilling</span>
-        <span class="wr-tags">Design + Build · Industrial</span>
+        <span class="wr-tags">Design build · Industrial</span>
         <span class="wr-host">werner-dev-git.github.io/karua-drilling</span>
         <span class="wr-thumb"><img src="assets/screens/karua.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1078,7 +1095,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <li><a class="work-row" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener" data-shot="assets/screens/dna.jpg">
         <span class="wr-n">06</span>
         <span class="wr-name">DNA Outsourcing</span>
-        <span class="wr-tags">Design + Build · B2B</span>
+        <span class="wr-tags">Design build · B2B</span>
         <span class="wr-host">werner-dev-git.github.io/EORSite</span>
         <span class="wr-thumb"><img src="assets/screens/dna.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1086,7 +1103,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <li><a class="work-row" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener" data-shot="assets/screens/crest.jpg">
         <span class="wr-n">07</span>
         <span class="wr-name">Crest Advisory</span>
-        <span class="wr-tags">Corporate · Consulting</span>
+        <span class="wr-tags">Live site · Consulting</span>
         <span class="wr-host">crestadvisoryafrica.com</span>
         <span class="wr-thumb"><img src="assets/screens/crest.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1094,7 +1111,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <li><a class="work-row" href="https://cobaltcreed.com/" target="_blank" rel="noopener" data-shot="assets/screens/cobaltcreed.jpg">
         <span class="wr-n">08</span>
         <span class="wr-name">Cobalt Creed</span>
-        <span class="wr-tags">Corporate · Manufacturing</span>
+        <span class="wr-tags">Live site · Manufacturing</span>
         <span class="wr-host">cobaltcreed.com</span>
         <span class="wr-thumb"><img src="assets/screens/cobaltcreed.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1102,7 +1119,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <li><a class="work-row" href="https://www.evetech.co.za/" target="_blank" rel="noopener" data-shot="assets/screens/evetech.jpg">
         <span class="wr-n">09</span>
         <span class="wr-name">Evetech</span>
-        <span class="wr-tags">E-commerce · Gaming</span>
+        <span class="wr-tags">Live site · Redesign</span>
         <span class="wr-host">evetech.co.za</span>
         <span class="wr-thumb"><img src="assets/screens/evetech.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1110,7 +1127,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <li><a class="work-row" href="https://werner-dev-git.github.io/fifty-shades-of-green/" target="_blank" rel="noopener" data-shot="assets/screens/fifty-shades.jpg">
         <span class="wr-n">10</span>
         <span class="wr-name">Fifty Shades of Green</span>
-        <span class="wr-tags">Design + Build · Entertainment</span>
+        <span class="wr-tags">Design build · Entertainment</span>
         <span class="wr-host">werner-dev-git.github.io/fifty-shades-of-green</span>
         <span class="wr-thumb"><img src="assets/screens/fifty-shades.jpg" alt="" loading="lazy" decoding="async"></span>
         <span class="wr-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
@@ -1138,21 +1155,21 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
     <div class="gal-track">
       <article class="gal-item">
         <a class="gal-card" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b>Live</b></div>
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b class="is-design">Design</b></div>
           <div class="gal-shot"><img src="assets/screens/satreach.jpg" alt="SatReach" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">01</span><h3>SatReach</h3></div>
-            <span class="gal-tag">Design + Build · Connectivity</span>
+            <span class="gal-tag">Design build · Connectivity</span>
           </div>
         </a>
       </article>
       <article class="gal-item">
         <a class="gal-card" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/aluplast-website</span><b>Live</b></div>
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/aluplast-website</span><b class="is-design">Design</b></div>
           <div class="gal-shot"><img src="assets/screens/aluplast.jpg" alt="EuroFenster" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">02</span><h3>EuroFenster</h3></div>
-            <span class="gal-tag">Design + Build · Corporate</span>
+            <span class="gal-tag">Design build · Corporate</span>
           </div>
         </a>
       </article>
@@ -1162,37 +1179,37 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
           <div class="gal-shot"><img src="assets/screens/frogg.jpg" alt="FROGG Recruitment" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">03</span><h3>FROGG Recruitment</h3></div>
-            <span class="gal-tag">Dev · Recruitment</span>
+            <span class="gal-tag">Live site · Recruitment</span>
           </div>
         </a>
       </article>
       <article class="gal-item">
         <a class="gal-card" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b>Live</b></div>
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b class="is-design">Design</b></div>
           <div class="gal-shot"><img src="assets/screens/inbody.jpg" alt="InBody SA" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">04</span><h3>InBody SA</h3></div>
-            <span class="gal-tag">Design + Build · Health</span>
+            <span class="gal-tag">Design build · Health</span>
           </div>
         </a>
       </article>
       <article class="gal-item">
         <a class="gal-card" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/karua-drilling</span><b>Live</b></div>
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/karua-drilling</span><b class="is-design">Design</b></div>
           <div class="gal-shot"><img src="assets/screens/karua.jpg" alt="Karua Drilling" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">05</span><h3>Karua Drilling</h3></div>
-            <span class="gal-tag">Design + Build · Industrial</span>
+            <span class="gal-tag">Design build · Industrial</span>
           </div>
         </a>
       </article>
       <article class="gal-item">
         <a class="gal-card" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/EORSite</span><b>Live</b></div>
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/EORSite</span><b class="is-design">Design</b></div>
           <div class="gal-shot"><img src="assets/screens/dna.jpg" alt="DNA Outsourcing" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">06</span><h3>DNA Outsourcing</h3></div>
-            <span class="gal-tag">Design + Build · B2B</span>
+            <span class="gal-tag">Design build · B2B</span>
           </div>
         </a>
       </article>
@@ -1202,7 +1219,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
           <div class="gal-shot"><img src="assets/screens/crest.jpg" alt="Crest Advisory" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">07</span><h3>Crest Advisory</h3></div>
-            <span class="gal-tag">Corporate · Consulting</span>
+            <span class="gal-tag">Live site · Consulting</span>
           </div>
         </a>
       </article>
@@ -1212,7 +1229,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
           <div class="gal-shot"><img src="assets/screens/cobaltcreed.jpg" alt="Cobalt Creed" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">08</span><h3>Cobalt Creed</h3></div>
-            <span class="gal-tag">Corporate · Manufacturing</span>
+            <span class="gal-tag">Live site · Manufacturing</span>
           </div>
         </a>
       </article>
@@ -1222,17 +1239,17 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
           <div class="gal-shot"><img src="assets/screens/evetech.jpg" alt="Evetech" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">09</span><h3>Evetech</h3></div>
-            <span class="gal-tag">E-commerce · Gaming</span>
+            <span class="gal-tag">Live site · Redesign</span>
           </div>
         </a>
       </article>
       <article class="gal-item">
         <a class="gal-card" href="https://werner-dev-git.github.io/fifty-shades-of-green/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/fifty-shades-of-green</span><b>Live</b></div>
+          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/fifty-shades-of-green</span><b class="is-design">Design</b></div>
           <div class="gal-shot"><img src="assets/screens/fifty-shades.jpg" alt="Fifty Shades of Green" loading="lazy" decoding="async"></div>
           <div class="gal-meta">
             <div><span class="gal-n">10</span><h3>Fifty Shades of Green</h3></div>
-            <span class="gal-tag">Design + Build · Entertainment</span>
+            <span class="gal-tag">Design build · Entertainment</span>
           </div>
         </a>
       </article>
@@ -1267,7 +1284,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
       <article class="svc"><div class="svc-art"><img src="assets/figma/figma-36.jpg" alt="Interface design work"></div>
         <div class="svc-body"><span class="svc-idx">02 — Front-end development</span>
           <h3 class="display h3">Hand-built and shipped</h3>
-          <p class="lead">Semantic HTML, modern CSS and just enough JavaScript. Deployed and live, like every site in the section above.</p>
+          <p class="lead">Semantic HTML, modern CSS and just enough JavaScript. Deployed and handed over, like every project in the section above.</p>
           <ul class="svc-list"><li>HTML / CSS / JS</li><li>TypeScript</li><li>React</li><li>Responsive</li><li>Performance</li></ul>
         </div></article>
       <article class="svc"><div class="svc-art"><img src="assets/figma/figma-44.jpg" alt="Motion and interaction work"></div>
