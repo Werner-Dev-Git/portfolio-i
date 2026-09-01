@@ -1,11 +1,15 @@
 # Werner — Designer & Developer portfolio
 
-Two builds of the same portfolio, sharing one set of images.
+The portfolio, plus two earlier builds, sharing one set of images.
 
 | | Path | Stack | Deployed |
 |---|---|---|---|
-| **Static** | [`index.html`](index.html) | One self-contained file — vanilla JS, CDN GSAP/Motion/Three | GitHub Pages (this repo) |
+| **Static** | [`index.html`](index.html) | The live portfolio. One self-contained file — vanilla JS, CDN GSAP/Motion/Three | GitHub Pages (this repo) |
+| **Previous** | [`classic.html`](classic.html) | The portfolio this one replaced, kept for reference | — |
 | **App** | [`app/`](app/) | React 19 + TypeScript + Vite, React Three Fiber | `npm run build` → `app/dist` |
+
+> The React app in `app/` is a port of `classic.html` and has **not** been
+> brought up to date with the current `index.html` design.
 
 Both read the same assets from [`assets/`](assets/): `figma/` (48 design exports)
 and `screens/` (full-page captures of every live site).
@@ -14,7 +18,7 @@ and `screens/` (full-page captures of every live site).
 
 - **Dev** — every live site as a browser-framed full-page capture that scrolls
   itself on hover (auto-pans on touch). Add a site in one place:
-  `app/src/data/projects.ts`, or the `projects` array in `index.html`.
+  `app/src/data/projects.ts`, or the work index in `index.html`.
 - **Design** — auto-scrolling wall of all 48 Figma shots, click for the lightbox.
 - **About** — service cards with a live smoke effect and a Three.js lit slab that
   casts a real shadow for depth. The **Smoke Lab** panel tunes it live.
