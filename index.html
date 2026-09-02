@@ -413,12 +413,40 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
     text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:10px}
   .tl-cat>h4::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--acc);
     box-shadow:0 0 10px rgba(34,197,94,.9);flex:none}
-  .tl-cat ul{list-style:none;margin:0;padding:0 0 0 17px;display:grid;gap:7px;
-    border-left:1px solid var(--line)}
-  .tl-cat li{font-size:.84rem;color:var(--ink-dim);position:relative;padding-left:14px}
+  .tl-cat ul{list-style:none;margin:0;padding:0 0 0 17px;display:grid;gap:9px;position:relative}
+  /* The branch spine, drawn rather than sitting there as a border. */
+  .tl-cat ul::before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:1px;
+    background:linear-gradient(180deg,var(--acc),color-mix(in srgb,var(--acc) 22%,transparent));
+    transform:scaleY(0);transform-origin:top;
+    transition:transform .85s var(--ease)}
+  .tl-cat li{font-size:.84rem;color:var(--ink-dim);position:relative;padding-left:22px;
+    opacity:0;transform:translateX(-7px);
+    transition:opacity .5s var(--ease),transform .5s var(--ease);
+    transition-delay:calc(.18s + var(--i,0) * .045s)}
   .tl-cat li i{display:block;font-style:normal;font-size:.74rem;color:var(--mute);margin-top:2px}
-  .tl-cat li::before{content:"";position:absolute;left:0;top:.58em;width:7px;height:1px;
-    background:var(--line-2)}
+  /* the twig out to each skill */
+  .tl-cat li::before{content:"";position:absolute;left:0;top:.58em;width:0;height:1px;
+    background:color-mix(in srgb,var(--acc) 55%,transparent);
+    transition:width .45s var(--ease);transition-delay:calc(.18s + var(--i,0) * .045s)}
+  /* and its node */
+  .tl-cat li::after{content:"";position:absolute;left:8px;top:calc(.58em - 2.5px);
+    width:6px;height:6px;border-radius:50%;background:var(--bg);
+    border:1px solid color-mix(in srgb,var(--acc) 70%,transparent);
+    transform:scale(0);transition:transform .4s var(--ease);
+    transition-delay:calc(.26s + var(--i,0) * .045s)}
+  .tl-cat>h4::before{transform:scale(0);transition:transform .5s var(--ease)}
+
+  .tl-cat.on ul::before{transform:scaleY(1)}
+  .tl-cat.on li{opacity:1;transform:none}
+  .tl-cat.on li::before{width:9px}
+  .tl-cat.on li::after{transform:scale(1)}
+  .tl-cat.on>h4::before{transform:scale(1)}
+}
+@media(max-width:900px) and (prefers-reduced-motion:reduce){
+  .tl-cat ul::before,.tl-cat li,.tl-cat li::before,.tl-cat li::after,.tl-cat>h4::before{
+    transition:none;opacity:1;transform:none}
+  .tl-cat ul::before{transform:scaleY(1)}
+  .tl-cat li::before{width:9px}
 }
 @media(prefers-reduced-motion:reduce){
   .tr-ring{animation:none}
@@ -1913,10 +1941,27 @@ function skillTree() {
   if (list) {
     list.innerHTML = STACK.map((c) =>
       `<li class="tl-cat"><h4>${esc(c.label)}</h4><ul>` +
-      c.skills.map((sk) => {
+      c.skills.map((sk, i) => {
         const [n, note] = Array.isArray(sk) ? sk : [sk, ""];
-        return `<li>${esc(n)}${note ? `<i>${esc(note)}</i>` : ""}</li>`;
+        return `<li style="--i:${i}">${esc(n)}${note ? `<i>${esc(note)}</i>` : ""}</li>`;
       }).join("") + `</ul></li>`).join("");
+
+    /* The list is the tree on narrow screens, so it gets the same treatment as
+       the SVG: each branch draws when it is the one arriving, not all at once
+       the moment the section is touched. */
+    const branches = Array.from(list.querySelectorAll(".tl-cat"));
+    if (!("IntersectionObserver" in window)) {
+      branches.forEach((el) => el.classList.add("on"));
+    } else {
+      const lio = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add("on");
+          lio.unobserve(e.target);
+        });
+      }, { rootMargin: "-8% 0px -14% 0px" });
+      branches.forEach((el) => lio.observe(el));
+    }
   }
 
   // The tree is far taller than the viewport, so waking the whole thing at
@@ -2107,9 +2152,17 @@ function designWall() {
       const half = (col.scrollHeight + 22) / 2;
       if (half < 200) return;
       const dir = +col.dataset.dir;
-      /* seconds per loop derived from distance, so every column moves at a
-         comparable speed regardless of how many shots it holds */
-      const duration = half / (26 + ci * 4);
+      /* Pace by cadence, not by pixels. A fixed px/sec looks right on desktop
+         and frozen on a phone, where each shot is nearly twice as tall: the
+         same 26px/sec then takes ~17s to pass one image instead of ~9s.
+         Deriving speed from the shot height keeps the feel identical at
+         every width. */
+      const shot = col.querySelector('.shot');
+      const itemH = shot ? shot.getBoundingClientRect().height + 22 : 0;
+      /* An unloaded shot measures ~0, which would set a crawl of ~3px/sec.
+         Bail and let the observer below retry once it has a real height. */
+      if (itemH < 80) return;
+      const duration = half / (itemH / (7.4 - ci * 0.9));
       gsap.set(col, { y: dir < 0 ? 0 : -half });
       gsap.to(col, {
         y: dir < 0 ? `-=${half}` : `+=${half}`,
@@ -2118,14 +2171,13 @@ function designWall() {
       });
     };
     spin();
-    /* re-measure once the images actually arrive */
-    const imgs = [...col.querySelectorAll("img")];
-    let pending = imgs.filter((i) => !i.complete).length;
-    if (pending) {
-      imgs.forEach((i) => i.complete || i.addEventListener("load", () => {
-        if (--pending <= 0) spin();
-      }, { once: true }));
-    }
+    /* The shots are lazy, so the column grows as they arrive and the first
+       measurement is always wrong. Waiting for every image to load does not
+       work either: the ones below the fold may never be fetched, so the count
+       never reaches zero. Watching the column's own height catches each
+       arrival instead, whenever it happens. */
+    let rt;
+    new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(spin, 180); }).observe(col);
   });
 
   gsap.fromTo("#figmaCols", { yPercent: 4 }, {
@@ -2453,7 +2505,10 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
   if (!canvas) return;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarse = matchMedia('(pointer: coarse)').matches;
-  const heavy = !reduced && !coarse;
+  /* Bloom used to be desktop-only, which left the phone with 6000 unlit dots
+     that read as noise rather than a swarm. The mobile canvas is a fraction of
+     the desktop one, so the pass is cheap here; only reduced motion skips it. */
+  const heavy = !reduced;
 
   let THREE, Composer, Render, Bloom;
   try {
@@ -2470,7 +2525,7 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
   /* Built as a factory so the swarm can be pointed at more than one canvas;
      scroll drives its parameters through the handle returned below. */
   function createSwarm(canvas) {
-    const COUNT = heavy ? 20000 : 6000;
+    const COUNT = reduced ? 6000 : (coarse ? 14000 : 20000);
     const P = { speed: 0.4, chaos: 20, core: 10, span: 150 };
     const REPEL_R = 26, REPEL_R2 = REPEL_R * REPEL_R, REPEL_FORCE = 24;
     const GOLDEN = (1 + Math.sqrt(5)) / 2;
@@ -2479,7 +2534,7 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
     let renderer;
     try {
       renderer = new THREE.WebGLRenderer({
-        canvas, alpha: true, antialias: heavy, powerPreference: 'high-performance',
+        canvas, alpha: true, antialias: !coarse, powerPreference: 'high-performance',
       });
     } catch (e) { return; }
     renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
@@ -2859,7 +2914,7 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
         gl.uniform2f(loc.uMouse, mouseX, mouseY);
         gl.uniform1f(loc.uMouseOn, mouseOn);
         /* eased back on phones, where the panels fill the screen */
-        gl.uniform1f(loc.uDensity, SMOKE.density * (coarsePointer ? 0.6 : 1));
+        gl.uniform1f(loc.uDensity, SMOKE.density * (coarsePointer ? 0.85 : 1));
         gl.uniform1f(loc.uSpeed, SMOKE.speed);
         gl.uniform1f(loc.uScale, SMOKE.scale * DPR());
         gl.uniform1f(loc.uReach, SMOKE.reach * DPR());
