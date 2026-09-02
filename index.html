@@ -1520,6 +1520,10 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
 .marquee-track{will-change:transform}
 [data-split] .char{white-space:pre}
 .no-motion [data-split],.no-motion [data-fade]{opacity:1!important;transform:none!important}
+/* The hero is animated by the intro timeline rather than by the scroll
+   reveals, so it needs its own net — the rule above never covered it. */
+.no-motion .hero-sub,.no-motion .hero-cta,.no-motion .hero-card{
+  opacity:1!important;transform:none!important}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
@@ -2335,6 +2339,16 @@ function chrome() {
    14. BOOT — preloader, then hero timeline
    ─────────────────────────────────────────────── */
 function heroIntro() {
+  /* Reduced motion must never cost someone content. These from() tweens were
+     leaving .hero-sub stranded at opacity 0 on phones with "remove animations"
+     turned on, so the paragraph under the headline simply was not there.
+     Nothing below this point runs in that case: the hero is already at its
+     finished state in CSS, apart from the headline characters parked offscreen
+     before the preloader. */
+  if (REDUCED) {
+    gsap.set(heroChars, { yPercent: 0 });
+    return gsap.timeline();
+  }
   const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
   gsap.set(heroChars, { yPercent: 115 });
   gsap.set(".hero-card", { yPercent: 16, opacity: 0 });
@@ -2507,8 +2521,11 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
   const coarse = matchMedia('(pointer: coarse)').matches;
   /* Bloom used to be desktop-only, which left the phone with 6000 unlit dots
      that read as noise rather than a swarm. The mobile canvas is a fraction of
-     the desktop one, so the pass is cheap here; only reduced motion skips it. */
-  const heavy = !reduced;
+     the desktop one, so the pass is cheap here.
+     Reduced motion keeps it too: bloom is light rather than movement, and
+     without it the single still frame drawn below is a sparse grey dot cloud
+     instead of a swarm. */
+  const heavy = true;
 
   let THREE, Composer, Render, Bloom;
   try {
@@ -2525,7 +2542,7 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
   /* Built as a factory so the swarm can be pointed at more than one canvas;
      scroll drives its parameters through the handle returned below. */
   function createSwarm(canvas) {
-    const COUNT = reduced ? 6000 : (coarse ? 14000 : 20000);
+    const COUNT = (coarse || reduced) ? 14000 : 20000;
     const P = { speed: 0.4, chaos: 20, core: 10, span: 150 };
     const REPEL_R = 26, REPEL_R2 = REPEL_R * REPEL_R, REPEL_FORCE = 24;
     const GOLDEN = (1 + Math.sqrt(5)) / 2;
