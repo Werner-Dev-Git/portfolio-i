@@ -850,6 +850,16 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
   border-top:1px solid var(--line);margin-top:clamp(50px,7vw,80px);padding-block:26px;
   color:var(--mute);font-size:.76rem;letter-spacing:.12em;text-transform:uppercase}
 .foot-top em{font-style:normal;color:var(--acc)}
+/* The bot fills the empty space above the lead in the contact column. */
+.bot-stage{position:relative;justify-self:stretch;width:100%;max-width:420px;aspect-ratio:4/5;
+  opacity:0;transition:opacity 1s var(--ease)}
+.bot-stage.is-ready{opacity:1}
+.bot-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;
+  filter:drop-shadow(0 0 22px rgba(34,197,94,.28))}
+/* a pool of light under the feet - a gradient, not a blur filter */
+.bot-stage::after{content:"";position:absolute;left:14%;right:14%;bottom:5%;height:13%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(34,197,94,.42),rgba(34,197,94,.12) 55%,transparent)}
+@media(max-width:860px){.bot-stage{max-width:min(78vw,340px);justify-self:center}}
 .foot-huge{padding-top:clamp(30px,5vw,60px)}
 /* Drawn as SVG rather than -webkit-text-stroke: a stroke dash can travel the
    letterforms, a text-stroke cannot. */
@@ -1531,6 +1541,7 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
         <h2 class="display h2" data-split="chars" style="font-size:clamp(2.4rem,6.2vw,5.6rem)">Let's build<br>something<br><em>green</em></h2>
       </div>
       <div style="display:grid;gap:24px;justify-items:start">
+        <div class="bot-stage" id="botStage" aria-hidden="true"><canvas id="botCanvas"></canvas></div>
         <p class="lead" data-split="lines">Have a project, a product or just an idea? Tell me what you are making and I will tell you how I can help.</p>
         <span class="mag"><a href="mailto:wbotha.work@gmail.com" class="btn solid">
           <span class="btn-swap"><span>wbotha.work@gmail.com</span><span>Copy the email</span></span>
@@ -3154,6 +3165,155 @@ window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() =
     clearTimeout(rt);
     rt = setTimeout(() => { const had = !!globe; size(); if (had) { teardown(); build(); } }, 200);
   });
+})();
+</script>
+<script type="module">
+/* ============ X Bot — the contact section's closing beat ============
+   Mixamo's X Bot (royalty-free for use in projects), dressed after the green
+   hacker look: a dark suit with every joint lit. It materialises from the feet
+   up behind a scan ring the first time it comes into view, then idles, and its
+   head follows the pointer. The model is 610KB after meshopt compression, so
+   it only loads as the section approaches - most visitors never scroll here. */
+(async () => {
+  const stage = document.getElementById("botStage");
+  const canvas = document.getElementById("botCanvas");
+  if (!stage || !canvas) return;
+  const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const FINE = matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  await new Promise((res) => {
+    const io = new IntersectionObserver((e) => {
+      if (e[0].isIntersecting) { io.disconnect(); res(); }
+    }, { rootMargin: "700px 0px" });
+    io.observe(stage);
+  });
+
+  let THREE, GLTFLoader, MeshoptDecoder;
+  try {
+    THREE = await import("three");
+    ({ GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js"));
+    ({ MeshoptDecoder } = await import("three/addons/libs/meshopt_decoder.module.js"));
+  } catch (e) { stage.remove(); return; }
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true,
+    powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.localClippingEnabled = true;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(28, 4 / 5, 0.1, 50);
+  camera.position.set(0, 1.2, 4.7);
+  camera.lookAt(0, 0.92, 0);
+
+  scene.add(new THREE.HemisphereLight(0x9fb4c8, 0x06100a, 0.55));
+  const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(2.2, 3, 3); scene.add(key);
+  const rim = new THREE.DirectionalLight(0x22c55e, 3.4); rim.position.set(-2.6, 2.2, -2.8); scene.add(rim);
+  const kick = new THREE.PointLight(0x4ade80, 5, 6); kick.position.set(1.6, 1.3, -1.4); scene.add(kick);
+
+  /* Everything above this plane is clipped. Sweeping it upward is the
+     materialise: normal pointing down keeps y <= height visible. */
+  const HEIGHT = 1.9;
+  const clip = new THREE.Plane(new THREE.Vector3(0, -1, 0), REDUCED ? HEIGHT + 0.2 : 0);
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x14191e, metalness: 0.62, roughness: 0.34,
+    emissive: 0x03140a, clippingPlanes: [clip], clipShadows: true });
+  /* Kept out of tone mapping: ACES rolls bright emissives off toward white, and
+     at any intensity that reads as glowing the joints came out pale mint rather
+     than neon. Untonemapped, the intensity has to stay near 1 or it clips. */
+  const jointMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e,
+    emissiveIntensity: 1.1, metalness: 0.2, roughness: 0.4, clippingPlanes: [clip],
+    toneMapped: false });
+
+  // the scan ring that rides the cut
+  const ring = new THREE.Mesh(
+    new THREE.RingGeometry(0.36, 0.42, 64),
+    new THREE.MeshBasicMaterial({ color: 0x4ade80, transparent: true, opacity: 0,
+      blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false,
+      toneMapped: false }));
+  ring.rotation.x = -Math.PI / 2;
+  scene.add(ring);
+
+  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+  let gltf;
+  try { gltf = await loader.loadAsync("assets/models/xbot.glb"); }
+  catch (e) { stage.remove(); return; }
+
+  const model = gltf.scene;
+  model.rotation.y = -0.42;             // three-quarter turn, toward the heading
+  model.traverse((o) => {
+    if (!o.isMesh) return;
+    o.frustumCulled = false;            // skinned bounds lag the pose
+    o.material = /joint/i.test(o.material.name) ? jointMat : bodyMat;
+  });
+  scene.add(model);
+
+  const mixer = new THREE.AnimationMixer(model);
+  const idle = THREE.AnimationClip.findByName(gltf.animations, "idle");
+  if (idle) mixer.clipAction(idle).play();
+  // GLTFLoader strips the colon from Mixamo's bone names
+  const head = model.getObjectByName("mixamorigHead") || model.getObjectByName("mixamorig:Head");
+
+  const size = () => {
+    const w = stage.clientWidth, h = stage.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  };
+  new ResizeObserver(size).observe(stage);
+  size();
+
+  // pointer -> head; on touch the head drifts on its own
+  let tx = 0, ty = 0, yaw = 0, pitch = 0;
+  if (FINE) addEventListener("pointermove", (e) => {
+    const r = stage.getBoundingClientRect();
+    tx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (innerWidth * 0.45)));
+    ty = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height * 0.3)) / (innerHeight * 0.5)));
+  }, { passive: true });
+
+  const clock = new THREE.Clock();
+  let revealStart = -1, visible = false, raf = 0;
+
+  function frame() {
+    raf = 0;
+    const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+    mixer.update(dt);
+
+    if (revealStart < 0 && visible) revealStart = t;
+    if (revealStart >= 0 && clip.constant < HEIGHT + 0.2) {
+      const k = Math.min(1, (t - revealStart) / 1.9);
+      const e = 1 - Math.pow(1 - k, 3);
+      clip.constant = e * (HEIGHT + 0.2);
+      ring.position.y = clip.constant;
+      ring.material.opacity = k < 1 ? 0.9 * Math.sin(Math.min(1, k * 1.15) * Math.PI) + 0.15 : 0;
+      // a few rewind-glitch jolts on the way up
+      model.position.x = (k < 0.85 && Math.random() < 0.12) ? (Math.random() - 0.5) * 0.08 : 0;
+      ring.scale.setScalar(1 + 0.12 * Math.sin(t * 40));
+    } else {
+      ring.material.opacity = 0;
+      model.position.x = 0;
+    }
+
+    if (head) {
+      if (!FINE) { tx = Math.sin(t * 0.45) * 0.55; ty = Math.sin(t * 0.31) * 0.2; }
+      yaw += (tx * 0.65 - yaw) * 0.07;
+      pitch += (ty * 0.32 - pitch) * 0.07;
+      head.rotation.y += yaw;
+      head.rotation.x += pitch;
+    }
+    jointMat.emissiveIntensity = 1.05 + Math.sin(t * 2.2) * 0.15;
+
+    renderer.render(scene, camera);
+    if (visible && !document.hidden && !REDUCED) raf = requestAnimationFrame(frame);
+  }
+  const play = () => { if (!raf && visible && !document.hidden && !REDUCED) { clock.getDelta(); raf = requestAnimationFrame(frame); } };
+
+  new IntersectionObserver((e) => { visible = e[0].isIntersecting; play(); }, { threshold: 0.15 })
+    .observe(stage);
+  document.addEventListener("visibilitychange", play);
+
+  stage.classList.add("is-ready");
+  if (REDUCED) { mixer.update(0); renderer.render(scene, camera); }   // one still, no motion
 })();
 </script>
 </body>
