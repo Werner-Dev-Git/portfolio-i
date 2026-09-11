@@ -550,73 +550,53 @@ section{position:relative;padding-block:clamp(72px,10vw,150px)}
 .work-note{font-size:.82rem;color:var(--mute);max-width:52ch;margin:14px 0 0;line-height:1.6}
 
 /* ============================================================
-   GALLERY — native scroll-snap carousel
-   Built on overflow-x + scroll-snap rather than a pinned GSAP
-   track, so touch, trackpad, keyboard and a screen reader all get
-   the real thing. The JS only adds drag and the readouts.
+   CLOSER LOOK — Infinite Spiral, ported from React Bits
+   The .infinite-spiral rules are the component's own stylesheet,
+   unchanged; the #spiral rules after them are this page's layer.
    ============================================================ */
 #gallery{padding-block:clamp(80px,10vw,150px);position:relative}
 .gal-head{display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap;
-  margin-bottom:clamp(28px,3.4vw,52px)}
-.gal-controls{display:flex;align-items:center;gap:12px}
-.gal-count{font-family:var(--f-disp);font-size:.78rem;letter-spacing:.16em;color:var(--mute);
-  font-variant-numeric:tabular-nums;min-width:7ch}
-.gal-btn{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:transparent;
-  color:var(--ink-dim);display:grid;place-items:center;cursor:pointer;
-  transition:background .35s var(--ease),border-color .35s var(--ease),color .35s var(--ease),
-             transform .35s var(--ease),opacity .35s var(--ease)}
-.gal-btn svg{width:20px;height:20px}
-.gal-btn:hover{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);transform:scale(1.06);
-  box-shadow:0 0 24px rgba(34,197,94,.35)}
-.gal-btn:disabled{opacity:.25;pointer-events:none}
-
-/* The rail. Edge fades only appear on the side that has more to show. */
-.gal{--fl:0px;--fr:0px;
-  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:var(--pad);
-  overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;cursor:grab;
-  scrollbar-width:none;-ms-overflow-style:none;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%);
-  mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%)}
-.gal::-webkit-scrollbar{display:none}
-.gal.can-l{--fl:70px}
-.gal.can-r{--fr:70px}
-.gal:focus-visible{outline:2px solid var(--acc);outline-offset:6px;border-radius:var(--r)}
-/* While dragging, snapping has to be off or the browser fights the pointer. */
-.gal.dragging{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}
-.gal.dragging .gal-card{transition:none}
-.gal-track{display:flex;gap:clamp(16px,1.8vw,26px);padding-inline:var(--pad);width:max-content}
-.gal-item{flex:none;width:clamp(268px,38vw,540px);scroll-snap-align:start}
-
-.gal-card{display:block;padding:clamp(9px,.8vw,13px);border:1px solid var(--line);border-radius:var(--r-lg);
-  background:var(--card);text-decoration:none;color:inherit;
-  transition:border-color .45s var(--ease),transform .5s var(--ease),box-shadow .5s var(--ease)}
-.gal-card:hover{border-color:color-mix(in srgb,var(--acc) 45%,var(--line));transform:translateY(-8px);
-  box-shadow:0 24px 60px -28px rgba(0,0,0,.85),0 0 40px -18px rgba(34,197,94,.5)}
-.gal-shot{position:relative;margin-top:10px;border-radius:var(--r);overflow:hidden;aspect-ratio:16/10;
-  background:var(--bg-2)}
-/* object-position pans the whole capture regardless of how tall it is —
-   no need to know the image height the way a translate would. */
-.gal-shot img{width:100%;height:100%;object-fit:cover;object-position:50% 0;
-  transition:object-position 6s var(--ease)}
-.gal-card:hover .gal-shot img{object-position:50% 100%}
-.gal-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 6px 6px}
-.gal-meta>div{display:flex;align-items:baseline;gap:10px;min-width:0}
-.gal-n{font-family:var(--f-disp);font-size:.72rem;letter-spacing:.14em;color:var(--acc);flex:none}
-.gal-meta h3{margin:0;font-family:var(--f-disp);font-weight:600;font-size:1rem;letter-spacing:-.01em;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gal-tag{font-size:.74rem;color:var(--mute);text-align:right;flex:none}
-.gal-bar{height:2px;background:var(--line);border-radius:2px;margin-top:clamp(24px,2.6vw,38px);position:relative}
-.gal-bar span{position:absolute;inset:0 auto 0 0;width:0;background:var(--acc);border-radius:2px;
-  box-shadow:0 0 14px rgba(34,197,94,.65);transition:width .12s linear}
+  margin-bottom:clamp(6px,1.4vw,20px)}
+.spiral-hint{margin:0;max-width:40ch;color:var(--mute);font-size:.92rem}
+.spiral-readout{display:grid;gap:6px;justify-items:end;text-align:right;min-width:18ch}
+.sr-n{font-family:var(--f-disp);font-size:.76rem;letter-spacing:.16em;color:var(--acc);font-variant-numeric:tabular-nums}
+.sr-name{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;font-size:clamp(1.15rem,2vw,1.8rem);
+  letter-spacing:-.01em;line-height:1}
+.sr-tag{font-size:.8rem;color:var(--mute)}
+/* Sized on the wrapper: the component's own ".infinite-spiral{height:100%}"
+   comes later in the file and beat a height set on #spiral itself, leaving
+   it at its 320px min-height. */
+.spiral-wrap{position:relative;height:clamp(560px,80vh,840px)}
+.spiral-wrap::before{content:"";position:absolute;inset:8% 22%;pointer-events:none;z-index:0;
+  background:radial-gradient(closest-side,rgba(34,197,94,.15),transparent 70%)}
 
 @media(max-width:860px){
-  .gal-item{width:min(80vw,420px)}
-  .gal-tag{display:none}
-  .gal-head{align-items:flex-start}
+  .spiral-wrap{height:clamp(470px,68vh,620px)}
+  .spiral-readout{justify-items:start;text-align:left}
 }
-@media(prefers-reduced-motion:reduce){
-  .gal-shot img,.gal-card:hover .gal-shot img{transition:none;object-position:50% 0}
-}
+
+/* React Bits — InfiniteSpiral.css (MIT + Commons Clause, (c) 2026 David Haz) */
+.infinite-spiral{position:relative;width:100%;height:100%;min-height:320px;overflow:hidden;isolation:isolate}
+.infinite-spiral__stage{position:absolute;inset:0;transform-style:preserve-3d}
+.infinite-spiral__item{position:absolute;top:50%;left:50%;display:block;
+  width:var(--infinite-spiral-card-width);height:var(--infinite-spiral-card-height);overflow:hidden;
+  border:1px solid rgb(255 255 255 / 0.24);border-radius:var(--infinite-spiral-card-radius);
+  background:rgb(255 255 255 / 0.08);box-shadow:0 14px 38px rgb(8 6 18 / 0.2);
+  transform-style:preserve-3d;backface-visibility:hidden;will-change:transform,opacity,filter;text-decoration:none}
+.infinite-spiral__image{position:absolute;inset:0;display:block;width:100%;height:100%;object-position:center;user-select:none}
+@media (prefers-reduced-motion: reduce){.infinite-spiral__item{transition:none}}
+
+/* this page's layer: the captures are full pages, so show their top; the
+   front card is lit; every card keeps its Design / Live badge */
+#spiral .infinite-spiral__image{object-position:50% 0}
+#spiral .infinite-spiral__item{border-color:rgba(255,255,255,.14);background:var(--bg-2);
+  box-shadow:0 18px 44px rgba(0,0,0,.55)}
+#spiral .infinite-spiral__item.is-front{border-color:color-mix(in srgb,var(--acc) 65%,transparent);
+  box-shadow:0 18px 44px rgba(0,0,0,.55),0 0 36px -6px rgba(34,197,94,.6)}
+.sp-badge{position:absolute;top:8px;left:8px;z-index:1;font-family:var(--f-disp);font-size:.56rem;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:999px;
+  color:var(--acc);background:rgba(4,21,14,.82);border:1px solid color-mix(in srgb,var(--acc) 42%,transparent)}
+.sp-badge.is-design{color:var(--ink-dim);background:rgba(8,9,11,.8);border-color:var(--line-2)}
 
 /* ============================================================
    SERVICES — sticky stacked panels
@@ -1217,126 +1197,23 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:0}
   <div class="work-peek" id="workPeek" aria-hidden="true"><img alt=""></div>
 </section>
 
-<!-- ══════════════ GALLERY — drag / snap carousel ══════════════ -->
+<!-- ══════════════ CLOSER LOOK — Infinite Spiral (React Bits) ══════════════ -->
 <section id="gallery">
   <div class="container gal-head">
     <div style="display:grid;gap:20px">
       <span class="eyebrow" data-fade>Closer look</span>
       <h2 class="display h2" data-split="chars">Drag to browse</h2>
+      <p class="spiral-hint" data-fade>Drag it, scroll past it, or just watch. Click a card to open the site.</p>
     </div>
-    <div class="gal-controls" data-fade>
-      <span class="gal-count" id="galCount">01 / 10</span>
-      <button class="gal-btn" id="galPrev" type="button" aria-label="Previous project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19 8 12l7-7"/></svg></button>
-      <button class="gal-btn" id="galNext" type="button" aria-label="Next project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>
-    </div>
-  </div>
-
-  <div class="gal" id="gal" tabindex="0" role="region" aria-label="Work gallery — scroll or drag sideways">
-    <div class="gal-track">
-      <article class="gal-item">
-        <a class="gal-card" href="https://werner-dev-git.github.io/satreach/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/satreach</span><b class="is-design">Design</b></div>
-          <div class="gal-shot"><img src="assets/screens/satreach.jpg" alt="SatReach" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">01</span><h3>SatReach</h3></div>
-            <span class="gal-tag">Design build · Connectivity</span>
-          </div>
-        </a>
-      </article>
-      <article class="gal-item">
-        <a class="gal-card" href="https://werner-dev-git.github.io/aluplast-website/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/aluplast-website</span><b class="is-design">Design</b></div>
-          <div class="gal-shot"><img src="assets/screens/aluplast.jpg" alt="EuroFenster" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">02</span><h3>EuroFenster</h3></div>
-            <span class="gal-tag">Design build · Corporate</span>
-          </div>
-        </a>
-      </article>
-      <article class="gal-item">
-        <a class="gal-card" href="https://www.froggrecruit-sa.co.za/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>froggrecruit-sa.co.za</span><b>Live</b></div>
-          <div class="gal-shot"><img src="assets/screens/frogg.jpg" alt="FROGG Recruitment" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">03</span><h3>FROGG Recruitment</h3></div>
-            <span class="gal-tag">Live site · Recruitment</span>
-          </div>
-        </a>
-      </article>
-      <article class="gal-item">
-        <a class="gal-card" href="https://werner-dev-git.github.io/inbody/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/inbody</span><b class="is-design">Design</b></div>
-          <div class="gal-shot"><img src="assets/screens/inbody.jpg" alt="InBody SA" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">04</span><h3>InBody SA</h3></div>
-            <span class="gal-tag">Design build · Health</span>
-          </div>
-        </a>
-      </article>
-      <article class="gal-item">
-        <a class="gal-card" href="https://werner-dev-git.github.io/karua-drilling/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/karua-drilling</span><b class="is-design">Design</b></div>
-          <div class="gal-shot"><img src="assets/screens/karua.jpg" alt="Karua Drilling" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">05</span><h3>Karua Drilling</h3></div>
-            <span class="gal-tag">Design build · Industrial</span>
-          </div>
-        </a>
-      </article>
-      <article class="gal-item">
-        <a class="gal-card" href="https://werner-dev-git.github.io/EORSite/dna-homepage.html" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/EORSite</span><b class="is-design">Design</b></div>
-          <div class="gal-shot"><img src="assets/screens/dna.jpg" alt="DNA Outsourcing" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">06</span><h3>DNA Outsourcing</h3></div>
-            <span class="gal-tag">Design build · B2B</span>
-          </div>
-        </a>
-      </article>
-      <article class="gal-item">
-        <a class="gal-card" href="https://crestadvisoryafrica.com/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>crestadvisoryafrica.com</span><b>Live</b></div>
-          <div class="gal-shot"><img src="assets/screens/crest.jpg" alt="Crest Advisory" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">07</span><h3>Crest Advisory</h3></div>
-            <span class="gal-tag">Live site · Consulting</span>
-          </div>
-        </a>
-      </article>
-      <article class="gal-item">
-        <a class="gal-card" href="https://cobaltcreed.com/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>cobaltcreed.com</span><b>Live</b></div>
-          <div class="gal-shot"><img src="assets/screens/cobaltcreed.jpg" alt="Cobalt Creed" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">08</span><h3>Cobalt Creed</h3></div>
-            <span class="gal-tag">Live site · Manufacturing</span>
-          </div>
-        </a>
-      </article>
-      <article class="gal-item">
-        <a class="gal-card" href="https://www.evetech.co.za/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>evetech.co.za</span><b>Live</b></div>
-          <div class="gal-shot"><img src="assets/screens/evetech.jpg" alt="Evetech" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">09</span><h3>Evetech</h3></div>
-            <span class="gal-tag">Live site · Redesign</span>
-          </div>
-        </a>
-      </article>
-      <article class="gal-item">
-        <a class="gal-card" href="https://werner-dev-git.github.io/fifty-shades-of-green/" target="_blank" rel="noopener">
-          <div class="work-bar"><i></i><i></i><i></i><span>werner-dev-git.github.io/fifty-shades-of-green</span><b class="is-design">Design</b></div>
-          <div class="gal-shot"><img src="assets/screens/fifty-shades.jpg" alt="Fifty Shades of Green" loading="lazy" decoding="async"></div>
-          <div class="gal-meta">
-            <div><span class="gal-n">10</span><h3>Fifty Shades of Green</h3></div>
-            <span class="gal-tag">Design build · Entertainment</span>
-          </div>
-        </a>
-      </article>
+    <div class="spiral-readout" id="spiralReadout" aria-live="polite" data-fade>
+      <span class="sr-n" id="srN">01 / 10</span>
+      <span class="sr-name" id="srName">SatReach</span>
+      <span class="sr-tag" id="srTag">Design build · Connectivity</span>
     </div>
   </div>
-
-  <div class="container"><div class="gal-bar"><span id="galFill"></span></div></div>
+  <div class="spiral-wrap">
+    <div class="spiral" id="spiral" aria-label="Project spiral. Drag to browse, click a card to open the site."></div>
+  </div>
 </section>
 
 <!-- ══════════════ SERVICES — sticky stack ══════════════ -->
@@ -2048,98 +1925,254 @@ function skillTree() {
 }
 
 /* ───────────────────────────────────────────────
-   9b. GALLERY — drag / snap carousel
-   The scrolling itself is the browser's: overflow-x + scroll-snap.
-   This only layers on pointer dragging, the arrows, the keyboard
-   and the readouts, so nothing here is load-bearing.
+   9b. CLOSER LOOK — Infinite Spiral
+   A port of React Bits' <InfiniteSpiral> (reactbits.dev; MIT + Commons
+   Clause, (c) 2026 David Haz). This page has no React, and the component's
+   React side is only templating around one DOM-level animation loop, so it
+   is ported line for line rather than loading a React runtime for one
+   section: same props, same maths, same pointer handling. The additions
+   that are this page's own are marked (added).
    ─────────────────────────────────────────────── */
-function gallery() {
-  const gal = document.getElementById("gal");
-  if (!gal) return;
-  const items = Array.from(gal.querySelectorAll(".gal-item"));
-  if (!items.length) return;
-  const fill  = document.getElementById("galFill");
-  const count = document.getElementById("galCount");
-  const prev  = document.getElementById("galPrev");
-  const next  = document.getElementById("galNext");
-  const total = String(items.length).padStart(2, "0");
+const SPIRAL_ITEMS = [
+  { href: "https://werner-dev-git.github.io/satreach/", src: "assets/screens/satreach.jpg", name: "SatReach", tag: "Design build · Connectivity", badge: "Design" },
+  { href: "https://werner-dev-git.github.io/aluplast-website/", src: "assets/screens/aluplast.jpg", name: "EuroFenster", tag: "Design build · Corporate", badge: "Design" },
+  { href: "https://www.froggrecruit-sa.co.za/", src: "assets/screens/frogg.jpg", name: "FROGG Recruitment", tag: "Live site · Recruitment", badge: "Live" },
+  { href: "https://werner-dev-git.github.io/inbody/", src: "assets/screens/inbody.jpg", name: "InBody SA", tag: "Design build · Health", badge: "Design" },
+  { href: "https://werner-dev-git.github.io/karua-drilling/", src: "assets/screens/karua.jpg", name: "Karua Drilling", tag: "Design build · Industrial", badge: "Design" },
+  { href: "https://werner-dev-git.github.io/EORSite/dna-homepage.html", src: "assets/screens/dna.jpg", name: "DNA Outsourcing", tag: "Design build · B2B", badge: "Design" },
+  { href: "https://crestadvisoryafrica.com/", src: "assets/screens/crest.jpg", name: "Crest Advisory", tag: "Live site · Consulting", badge: "Live" },
+  { href: "https://cobaltcreed.com/", src: "assets/screens/cobaltcreed.jpg", name: "Cobalt Creed", tag: "Live site · Manufacturing", badge: "Live" },
+  { href: "https://www.evetech.co.za/", src: "assets/screens/evetech.jpg", name: "Evetech", tag: "Live site · Redesign", badge: "Live" },
+  { href: "https://werner-dev-git.github.io/fifty-shades-of-green/", src: "assets/screens/fifty-shades.jpg", name: "Fifty Shades of Green", tag: "Design build · Entertainment", badge: "Design" }
+];
 
-  // One item plus the gap, measured live so it survives a resize.
-  const step = () => {
-    const gap = parseFloat(getComputedStyle(gal.querySelector(".gal-track")).columnGap) || 0;
-    return items[0].getBoundingClientRect().width + gap;
+function mountInfiniteSpiral(root, opts) {
+  const {
+    items = [], speed = 0.55, direction = "up", animationMode = "auto", radius = 170,
+    cardWidth = 100, cardHeight = 100, verticalSpacing = 60, perspective = 1000,
+    cardsPerTurn = 7, rotation = 0, cardTilt = 0, cardRadius = 10, centerScale = 1.2,
+    edgeFade = 0.3, edgeBlur = 6, pauseOnHover = true, imageFit = "cover", grayscale = 0,
+    onFront = null,                                    // (added) front-card callback
+  } = opts;
+  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+  const modulo = (value, divisor) => ((value % divisor) + divisor) % divisor;
+  const smoothstep = (min, max, value) => {
+    const x = clamp((value - min) / (max - min || 1), 0, 1);
+    return x * x * (3 - 2 * x);
   };
 
-  let ticking = false;
-  const read = () => {
-    ticking = false;
-    const max = gal.scrollWidth - gal.clientWidth;
-    const p = max > 1 ? gal.scrollLeft / max : 0;
-    if (fill) fill.style.width = (p * 100).toFixed(2) + "%";
+  const normalizedItems = items.map((item, index) =>
+    typeof item === "string"
+      ? { src: item, alt: `Spiral image ${index + 1}` }
+      : { alt: `Spiral image ${index + 1}`, ...item });
+  if (!normalizedItems.length) return;
 
-    // Nearest item to the left edge — matches scroll-snap-align:start.
-    const edge = gal.scrollLeft + parseFloat(getComputedStyle(gal).scrollPaddingLeft || 0);
-    let idx = 0, best = Infinity;
-    items.forEach((it, i) => {
-      const d = Math.abs(it.offsetLeft - edge);
-      if (d < best) { best = d; idx = i; }
+  // ── the JSX, as DOM
+  const dragEnabled = animationMode === "drag" || animationMode === "all";
+  root.classList.add("infinite-spiral");
+  root.style.perspective = `${perspective}px`;
+  root.style.setProperty("--infinite-spiral-card-width", `${cardWidth}px`);
+  root.style.setProperty("--infinite-spiral-card-height", `${cardHeight}px`);
+  root.style.setProperty("--infinite-spiral-card-radius", `${cardRadius}px`);
+  root.style.cursor = dragEnabled ? "grab" : "default";
+  root.style.touchAction = dragEnabled ? "pan-x" : "auto";
+  root.style.userSelect = dragEnabled ? "none" : "auto";
+
+  const stage = document.createElement("div");
+  stage.className = "infinite-spiral__stage";
+  stage.setAttribute("role", "list");
+  stage.setAttribute("aria-label", "Infinite spiral gallery");
+  const cardRefs = normalizedItems.map((item, index) => {
+    const card = document.createElement(item.href ? "a" : "div");
+    card.className = "infinite-spiral__item";
+    card.style.width = `${cardWidth}px`;
+    card.style.height = `${cardHeight}px`;
+    card.style.borderRadius = `${cardRadius}px`;
+    if (item.href) {
+      card.href = item.href;
+      if (item.target) card.target = item.target;
+      if (item.target === "_blank") card.rel = "noreferrer";
+    }
+    card.setAttribute("role", "listitem");
+    card.setAttribute("aria-label", item.label ?? item.alt);
+    const img = document.createElement("img");
+    img.className = "infinite-spiral__image";
+    img.src = item.src;
+    img.alt = item.alt;
+    img.loading = index < 6 ? "eager" : "lazy";
+    img.draggable = false;
+    Object.assign(img.style, {
+      width: `${cardWidth}px`, height: `${cardHeight}px`, maxWidth: "none", maxHeight: "none",
+      objectFit: imageFit, filter: `grayscale(${Math.min(1, Math.max(0, grayscale))})`,
     });
-    const atStart = gal.scrollLeft < 4, atEnd = gal.scrollLeft > max - 4;
-    // At full scroll the last card still can't reach the left edge, so the
-    // nearest-to-edge answer would stall one short of the end.
-    if (atEnd) idx = items.length - 1;
-    if (count) count.textContent = String(idx + 1).padStart(2, "0") + " / " + total;
+    card.appendChild(img);
+    if (item.badge) {                                  // (added) Design / Live badge
+      const badge = document.createElement("span");
+      badge.className = "sp-badge" + (item.badge === "Design" ? " is-design" : "");
+      badge.textContent = item.badge;
+      card.appendChild(badge);
+    }
+    stage.appendChild(card);
+    return card;
+  });
+  root.appendChild(stage);
+  /* (added) The cards are links, and browsers drag links natively - which
+     fires pointercancel and ends the spiral's own drag before it starts.
+     React Bits' demo uses plain images, so it never meets this. */
+  root.addEventListener("dragstart", (event) => event.preventDefault());
 
-    if (prev) prev.disabled = atStart;
-    if (next) next.disabled = atEnd;
-    gal.classList.toggle("can-l", !atStart);
-    gal.classList.toggle("can-r", !atEnd && max > 1);
+  // ── the refs
+  let progress = 0, targetProgress = 0, autoSpeed = 0;
+  let hovered = false, visible = true, dragging = false, lastPointerY = 0, dragMoved = false;
+
+  // ── the effect
+  let frameId = 0;
+  let previousTime = performance.now();
+  let bounds = root.getBoundingClientRect();
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const scrollEnabled = animationMode === "scroll" || animationMode === "all";
+  const scrollSpeedMultiplier = Math.max(speed, 0) / 0.55;
+  let lastScrollY = window.scrollY;
+  let front = -1;                                      // (added)
+
+  new ResizeObserver(() => { bounds = root.getBoundingClientRect(); }).observe(root);
+
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    // (added) the original keeps its loop running off screen; stop it instead
+    if (visible && !frameId) { previousTime = performance.now(); frameId = requestAnimationFrame(render); }
+  }, { threshold: 0.02 }).observe(root);
+
+  window.addEventListener("scroll", () => {
+    const nextScrollY = window.scrollY;
+    const scrollDelta = nextScrollY - lastScrollY;
+    lastScrollY = nextScrollY;
+    if (!scrollEnabled || !visible || scrollDelta === 0) return;
+    targetProgress += clamp((scrollDelta * scrollSpeedMultiplier) / Math.max(verticalSpacing * 2, 1), -1.5, 1.5);
+  }, { passive: true });
+
+  function render(time) {
+    frameId = 0;
+    if (!visible) return;                              // (added)
+    const delta = Math.min((time - previousTime) / 1000, 0.05);
+    previousTime = time;
+
+    const autoEnabled = animationMode === "auto" || animationMode === "all";
+    const motionPaused = dragging || (pauseOnHover && hovered);
+    const directionMultiplier = direction === "down" ? -1 : 1;
+    const desiredAutoSpeed = autoEnabled && visible && !reducedMotion.matches && !motionPaused
+      ? speed * directionMultiplier : 0;
+    const speedBlend = 1 - Math.exp(-delta * 7);
+    autoSpeed += (desiredAutoSpeed - autoSpeed) * speedBlend;
+    targetProgress += autoSpeed * delta;
+
+    const followBlend = 1 - Math.exp(-delta * (dragging ? 22 : 11));
+    progress += (targetProgress - progress) * followBlend;
+
+    const count = normalizedItems.length;
+    const half = count / 2;
+    const width = Math.max(bounds.width, 1);
+    const height = Math.max(bounds.height, 1);
+    const fit = Math.min(1, width / (cardWidth * 2.8), height / (cardHeight * 2.35));
+    const responsiveRadius = Math.min(radius, Math.max(72, width * 0.36)) * fit;
+    const fadeStart = clamp(1 - edgeFade, 0, 0.98);
+    const turnSize = Math.max(cardsPerTurn, 1);
+    let nearest = 0, nearestDist = Infinity;           // (added)
+
+    cardRefs.forEach((card, index) => {
+      let offset = index - progress;
+      offset = modulo(offset + half, count) - half;
+      if (Math.abs(offset) < nearestDist) { nearestDist = Math.abs(offset); nearest = index; }  // (added)
+
+      const edge = Math.min(Math.abs(offset) / Math.max(half, 1), 1);
+      const opacity = 1 - smoothstep(fadeStart, 1, edge);
+      const focus = 1 - Math.min(Math.abs(offset) / Math.max(turnSize * 0.65, 1), 1);
+      const scale = (1 + (centerScale - 1) * focus) * fit;
+      const angle = offset * (360 / turnSize) + rotation;
+      const angleRadians = (angle * Math.PI) / 180;
+      const x = Math.sin(angleRadians) * responsiveRadius;
+      const z = Math.cos(angleRadians) * responsiveRadius;
+      const depthScale = clamp(perspective / Math.max(perspective - z, 1), 0.72, 1.45);
+      const visualScale = scale * depthScale;
+      const depth = (z / Math.max(responsiveRadius, 1) + 1) / 2;
+      const blur = edgeBlur * smoothstep(0.35, 1, edge);
+      card.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${offset * verticalSpacing * fit}px, 0) rotateZ(${cardTilt}deg) scale(${visualScale})`;
+      card.style.opacity = opacity.toFixed(3);
+      card.style.filter = blur > 0.01 ? `blur(${blur.toFixed(2)}px)` : "none";
+      card.style.zIndex = String(Math.round(depth * 100000) + index);
+      card.style.pointerEvents = opacity > 0.25 ? "auto" : "none";
+    });
+
+    if (nearest !== front) {                           // (added)
+      if (front >= 0) cardRefs[front].classList.remove("is-front");
+      cardRefs[nearest].classList.add("is-front");
+      front = nearest;
+      if (onFront) onFront(normalizedItems[nearest], nearest);
+    }
+
+    frameId = requestAnimationFrame(render);
+  }
+  frameId = requestAnimationFrame(render);
+
+  // ── the handlers
+  root.addEventListener("mouseenter", () => { hovered = true; });
+  root.addEventListener("mouseleave", () => { hovered = false; });
+  root.addEventListener("pointerdown", (event) => {
+    if (!dragEnabled || event.button !== 0) return;
+    dragging = true;
+    dragMoved = false;
+    lastPointerY = event.clientY;
+    targetProgress = progress;
+    root.setPointerCapture(event.pointerId);
+    root.style.cursor = "grabbing";
+  });
+  root.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    const pointerDelta = event.clientY - lastPointerY;
+    lastPointerY = event.clientY;
+    if (Math.abs(pointerDelta) > 0.5) dragMoved = true;
+    targetProgress -= pointerDelta / Math.max(verticalSpacing, 1);
+  });
+  const stopDragging = (event) => {
+    if (!dragging) return;
+    dragging = false;
+    if (root.hasPointerCapture(event.pointerId)) root.releasePointerCapture(event.pointerId);
+    root.style.cursor = dragEnabled ? "grab" : "default";
   };
-  const sync = () => { if (!ticking) { ticking = true; requestAnimationFrame(read); } };
-
-  gal.addEventListener("scroll", sync, { passive: true });
-  addEventListener("resize", sync);
-  read();
-
-  const go = (dir) =>
-    gal.scrollBy({ left: dir * step(), behavior: REDUCED ? "auto" : "smooth" });
-  prev && prev.addEventListener("click", () => go(-1));
-  next && next.addEventListener("click", () => go(1));
-  gal.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
-    else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
-    else if (e.key === "Home") { e.preventDefault(); gal.scrollTo({ left: 0, behavior: "smooth" }); }
-    else if (e.key === "End") { e.preventDefault(); gal.scrollTo({ left: gal.scrollWidth, behavior: "smooth" }); }
-  });
-
-  // Drag to scroll. Touch already does this natively and better, so
-  // pointer dragging is only wired up for mouse and pen.
-  let down = false, startX = 0, startLeft = 0, moved = 0;
-  gal.addEventListener("pointerdown", (e) => {
-    if (e.pointerType === "touch" || e.button !== 0) return;
-    down = true; moved = 0; startX = e.clientX; startLeft = gal.scrollLeft;
-    gal.classList.add("dragging");
-  });
-  addEventListener("pointermove", (e) => {
-    if (!down) return;
-    const dx = e.clientX - startX;
-    if (Math.abs(dx) > moved) moved = Math.abs(dx);
-    gal.scrollLeft = startLeft - dx;
-  });
-  const release = () => {
-    if (!down) return;
-    down = false;
-    // Dropping the class restores scroll-snap, which settles to the nearest card.
-    gal.classList.remove("dragging");
-  };
-  addEventListener("pointerup", release);
-  addEventListener("pointercancel", release);
-  // A drag that ends over a card must not count as a click on its link.
-  gal.addEventListener("click", (e) => {
-    if (moved > 6) { e.preventDefault(); e.stopPropagation(); }
+  root.addEventListener("pointerup", stopDragging);
+  root.addEventListener("pointercancel", stopDragging);
+  root.addEventListener("click", (event) => {
+    if (!dragMoved) return;
+    event.preventDefault();
+    event.stopPropagation();
+    dragMoved = false;
   }, true);
-  // Dragging over the images would otherwise start a native image drag.
-  gal.addEventListener("dragstart", (e) => e.preventDefault());
+}
+
+function closerLook() {
+  const root = document.getElementById("spiral");
+  if (!root) return;
+  const n = document.getElementById("srN");
+  const name = document.getElementById("srName");
+  const tag = document.getElementById("srTag");
+  const total = String(SPIRAL_ITEMS.length).padStart(2, "0");
+  const small = window.matchMedia("(max-width: 860px)").matches;
+  mountInfiniteSpiral(root, {
+    items: SPIRAL_ITEMS.map((p) => ({
+      src: p.src, alt: `${p.name}, ${p.tag}`, href: p.href, target: "_blank",
+      label: `${p.name}, ${p.tag}. Opens the site in a new tab.`, badge: p.badge })),
+    speed: 0.32, direction: "up", animationMode: "all",
+    radius: small ? 170 : 280, cardWidth: small ? 250 : 270, cardHeight: small ? 160 : 170,
+    verticalSpacing: small ? 70 : 88, perspective: 1100, cardsPerTurn: 7, rotation: 0, cardTilt: 0,
+    cardRadius: 14, centerScale: 1.25, edgeFade: 0.34, edgeBlur: 4, pauseOnHover: true,
+    imageFit: "cover", grayscale: 0,
+    onFront: (item, i) => {
+      const p = SPIRAL_ITEMS[i];
+      n.textContent = `${String(i + 1).padStart(2, "0")} / ${total}`;
+      name.textContent = p.name;
+      tag.textContent = p.tag;
+    },
+  });
 }
 
 /* ───────────────────────────────────────────────
@@ -2570,7 +2603,7 @@ function footMark() {
 function boot() {
   if (REDUCED) document.documentElement.classList.add("no-motion");
   buildReveals(); scrubWords(); buildMarquees(); trustStrip(); trustNeon(); heroMotion(); counters();
-  skillTree(); workIndex(); gallery(); serviceStack(); processScroll(); designWall(); accordions(); chrome();
+  skillTree(); workIndex(); closerLook(); serviceStack(); processScroll(); designWall(); accordions(); chrome();
   industryGlow(); footMark();
   ScrollTrigger.refresh();
 }
